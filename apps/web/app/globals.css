@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+/*
+  Tailwind v4 theme tokens — ported 1:1 from wireframe_real_ui.html's :root
+  CSS custom properties. Hex values must stay exact; this is an approved
+  palette, not a starting point for restyling.
+*/
+@theme {
+  --color-bg: #faf3ed;
+  --color-app-bg: #faf3ed;
+  --color-canvas-ink: #523f38;
+  --color-canvas-ink-muted: #8a7468;
+
+  --color-surface: #fffdfb;
+  --color-surface-2: #f2e4d9;
+  --color-border: #e6d7cb;
+
+  --color-primary: #a67b6b;
+  --color-primary-dim: #f2e3dd;
+
+  --color-secondary: #c2a67a;
+  --color-secondary-dim: #f4ecd9;
+
+  /* "mint" naming kept from the wireframe for continuity — this is the
+     Highlight / Match Score color (warm peach), not literally mint. */
+  --color-mint: #e0a996;
+  --color-mint-dim: #fbeae3;
+
+  --color-warn: #b5541c;
+  --color-warn-dim: #f4e1d2;
+
+  --color-text: #523f38;
+  --color-text-muted: #8a7468;
+  --color-text-faint: #b3a399;
+
+  --font-display: "Canela Text", "GT Sectra", "Iowan Old Style", ui-serif,
+    Georgia, "Times New Roman", serif;
+  --font-ui: "Neue Haas Grotesk Text", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* White backdrop for the area outside the centered mobile frame on wider
+   viewports — the mobile app shell itself keeps its own bg-app-bg. */
+html,
+body {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+body {
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-mint);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+input[type="range"] {
+  accent-color: var(--color-primary);
+}
+
+/* Hides the scrollbar track/thumb while keeping actual scroll behavior
+   (wheel/touch/keyboard) fully functional — applied to every scrollable
+   region in the app, vertical and horizontal. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

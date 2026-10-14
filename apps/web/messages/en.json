@@ -1,0 +1,263 @@
+{
+  "common": {
+    "appName": "Beauty AI Advisor",
+    "continue": "Continue",
+    "skip": "Skip",
+    "back": "Back",
+    "viewAll": "View All",
+    "seeAll": "See all",
+    "yes": "Yes",
+    "no": "No",
+    "apply": "Apply",
+    "cancel": "Cancel"
+  },
+  "nav": {
+    "signIn": "Sign In",
+    "welcome": "Welcome",
+    "skinScan": "Skin Scan",
+    "recheckSkin": "Recheck Your Skin",
+    "scanning": "Scanning",
+    "diagnosticReport": "Diagnostic Report",
+    "skinType": "Skin Type",
+    "concerns": "Concerns",
+    "sensitivities": "Sensitivities",
+    "lifestyle": "Lifestyle",
+    "goals": "Goals",
+    "analyzing": "Analyzing",
+    "yourRoutine": "Your Routine",
+    "productDetail": "Product Detail",
+    "shopProducts": "Shop Products",
+    "matchedToScan": "Shop Products · Matched to Your Scan",
+    "savedProducts": "Saved Product",
+    "allSavedProducts": "All Saved Product",
+    "aiAdvisor": "AI Advisor",
+    "chatHistory": "Conversation History",
+    "chatHistoryDetail": "Conversation",
+    "progressTracker": "Progress Tracker",
+    "profile": "Profile",
+    "yourCart": "Your Cart",
+    "tabRoutine": "Routine",
+    "tabShop": "Shop",
+    "tabAdvisor": "Advisor",
+    "tabProgress": "Progress",
+    "tabProfile": "Profile"
+  },
+  "login": {
+    "title": "Beauty AI Advisor",
+    "tagline": "Scan your skin, meet your AI advisor, and get a routine built from real diagnostic data.",
+    "signInGoogle": "Sign in with Google",
+    "or": "or",
+    "continueGuest": "Continue as Guest",
+    "legal": "By continuing you agree to the Terms & acknowledge this app provides cosmetic guidance, not medical diagnosis."
+  },
+  "welcome": {
+    "title": "Your Skin, Decoded",
+    "subtitle": "Computer-vision skin scan + AI advisor. Scan your face, get a diagnostic score, and receive a routine built just for you.",
+    "startScan": "Start Skin Scan"
+  },
+  "scan": {
+    "stepLabel": "AI Skin Diagnostic Scanner",
+    "title": "Center your face in the frame",
+    "subtitle": "Good lighting, no makeup, neutral expression. Your photo is processed securely and never shared.",
+    "centerPrompt": "Align your face inside the oval guide",
+    "lightingOptimal": "Lighting: Optimal",
+    "landmarksLive": "468 Landmarks",
+    "progressLabel": "Analyzing facial biomarkers",
+    "statusCalibrating": "Calibrating skin luminance & specular reflection…",
+    "statusTzone": "Analyzing T-zone pore dilation & sebum index…",
+    "statusCheeks": "Measuring cheek hydration gradient & micro-erythema…",
+    "statusCompiling": "Compiling clinical dermatology report…",
+    "statusComplete": "Scan complete — opening your report…",
+    "uploadPrompt": "Camera unavailable — upload a photo instead",
+    "errorCamera": "Unable to access the camera. Check permissions or upload a photo.",
+    "errorNoFace": "No face detected. Center your face in the oval and try again.",
+    "errorGeneric": "Couldn't analyze the photo. Make sure the skin-scan service is running.",
+    "capture": "Capture and analyze",
+    "flipCamera": "Flip camera",
+    "skipScan": "Skip scan, continue with quiz"
+  },
+  "scanning": {
+    "title": "Mapping facial landmarks…",
+    "subtitle": "Segmenting zones — forehead, under-eyes, cheeks, chin, nose."
+  },
+  "diagnostic": {
+    "stepLabel": "Skin Health Report",
+    "overall": "Overall",
+    "hydration": "Hydration",
+    "elasticity": "Elasticity",
+    "pigmentation": "Pigmentation",
+    "texture": "Texture",
+    "pores": "Pores",
+    "disclaimer": "This is a cosmetic wellness assessment, not a medical diagnosis. Consult a dermatologist for clinical concerns.",
+    "continueProfile": "Continue to Profile Setup",
+    "submitScan": "Submit scan",
+    "submitting": "Submitting…",
+    "submitError": "Couldn't submit your scan. Please try again.",
+    "retakeScan": "Retake Scan",
+    "noReportTitle": "No scan yet",
+    "noReportSubtitle": "Take a skin scan first and your diagnostic report will appear here."
+  },
+  "quiz": {
+    "stepOf": "Step {step} of 5 — {section}",
+    "skinProfile": "Skin Profile",
+    "lifestylePreferences": "Lifestyle Preferences",
+    "skinType": {
+      "title": "What's your skin type?",
+      "subtitle": "Choose the option that best describes how your skin usually feels.",
+      "options": {
+        "oily": "Oily",
+        "dry": "Dry",
+        "combination": "Combination",
+        "sensitive": "Sensitive",
+        "normal": "Normal",
+        "notSure": "Not Sure"
+      }
+    },
+    "concerns": {
+      "title": "What are your top concerns?",
+      "subtitle": "Select all that apply — this shapes your routine's active ingredients.",
+      "options": {
+        "acne": "Acne & Breakouts",
+        "aging": "Fine Lines & Aging",
+        "darkSpots": "Dark Spots / Hyperpigmentation",
+        "dryness": "Dryness & Dehydration",
+        "redness": "Redness & Irritation",
+        "pores": "Large Pores"
+      }
+    },
+    "sensitivities": {
+      "title": "Any allergies or sensitivities?",
+      "subtitle": "We cross-check every product's INCI ingredient list against these.",
+      "options": {
+        "fragrance": "Fragrance",
+        "retinoids": "Retinoids",
+        "essentialOils": "Essential Oils",
+        "eczema": "Eczema-Prone Skin",
+        "chemicalSunscreens": "Chemical Sunscreens",
+        "none": "None of these"
+      }
+    },
+    "lifestyle": {
+      "title": "A few lifestyle details",
+      "subtitle": "Climate and budget affect formulation; ethics affect what we recommend.",
+      "climate": "Climate",
+      "climateHumid": "Humid",
+      "climateDryCold": "Dry / Cold",
+      "monthlyBudget": "Monthly Budget",
+      "ethicalPreferences": "Ethical Preferences",
+      "veganFormulas": "Vegan Formulas",
+      "crueltyFreeOnly": "Cruelty-Free Only",
+      "fragranceFreeOnly": "Fragrance-Free Only"
+    },
+    "goals": {
+      "title": "What's your main goal?",
+      "subtitle": "Pick one focus — your routine will prioritize this first.",
+      "options": {
+        "clearSkin": "Clear Skin",
+        "antiAging": "Anti-Aging",
+        "evenTone": "Even Tone",
+        "hydration": "Hydration"
+      },
+      "buildRoutine": "Build My Routine"
+    }
+  },
+  "analyzing": {
+    "title": "Running RAG product match…",
+    "subtitle": "Cross-referencing scan metrics, allergies, climate & budget against the ingredient vector database."
+  },
+  "routine": {
+    "profileSummary": "{skinType} · {concern} · {preference}",
+    "am": "AM Routine",
+    "pm": "PM Routine",
+    "disclaimer": "Layering order follows pH & solubility rules. Advisory only — not a medical treatment plan.",
+    "shopProducts": "Shop Products",
+    "askAdvisor": "Ask the Advisor"
+  },
+  "product": {
+    "whyRecommend": "Why We Recommend This",
+    "ingredientSafety": "Ingredient Safety Check (INCI)",
+    "layeringCompatibility": "Layering Compatibility",
+    "viewAlternatives": "View Alternatives",
+    "backToRoutine": "Back to Routine",
+    "addToCart": "Add to Cart",
+    "added": "✓ Added to Cart",
+    "saveProduct": "♡ Save Product",
+    "saved": "♥ Saved"
+  },
+  "shop": {
+    "filters": {
+      "all": "All",
+      "cleansers": "Cleansers",
+      "serums": "Serums",
+      "moisturizers": "Moisturizers",
+      "spf": "SPF",
+      "vegan": "Vegan",
+      "fragranceFree": "Fragrance-Free"
+    },
+    "matchedToScan": "Matched to Your Scan",
+    "browseCatalog": "Browse Catalog",
+    "addToCart": "Add to Cart",
+    "added": "✓ Added"
+  },
+  "chat": {
+    "placeholder": "Ask about ingredients, routines…",
+    "suggestAdjust": "Products for my acne",
+    "suggestRetinol": "is retinol safe for me?",
+    "suggestCheck": "Serum for dark spots",
+    "aiPick": "AI Pick · based on photo",
+    "greeting": "Hello with AI Advisor here, May I help you?",
+    "clearChat": "Clear Chat",
+    "noConversations": "No conversations yet — start chatting with your AI advisor.",
+    "clearConfirmTitle": "End this session?",
+    "clearConfirm": "Are you sure you want to end this session? This can't be undone."
+  },
+  "progress": {
+    "stepLabel": "Routine Builder & Tracker",
+    "title": "Your Progress",
+    "subtitle": "Weekly photo check-ins compared against your baseline scan.",
+    "baseline": "Baseline",
+    "uploadCheckIn": "＋ Upload This Week's Check-In Photo",
+    "askAboutProgress": "Ask Advisor About My Progress",
+    "checkInStepLabel": "Weekly Progress Check-In",
+    "checkInTitle": "Center your face in the frame",
+    "checkInSubtitle": "Same conditions as your baseline scan help the comparison stay accurate — good lighting, no makeup, neutral expression."
+  },
+  "profile": {
+    "preferences": "Preferences",
+    "edit": "Edit",
+    "viewAll": "All Saved Products",
+    "veganFormulasOnly": "Vegan Formulas Only",
+    "crueltyFreeOnly": "Cruelty-Free Only",
+    "fragranceFreeOnly": "Fragrance-Free Only",
+    "savedProducts": "Saved Products",
+    "yourCart": "Your Cart",
+    "viewCart": "View Cart ({count})",
+    "changeLanguage": "Change Language",
+    "account": "Account",
+    "sendReportToEmail": "Send My Report to Email",
+    "logout": "Logout",
+    "logoutConfirmTitle": "Log out?",
+    "logoutConfirmMessage": "Are you sure you want to log out?",
+    "scanScore": "Scan Score",
+    "dayStreak": "Day Streak",
+    "flaggedAllergen": "Flagged Allergen",
+    "avatarTooLarge": "Please choose an image 5MB or smaller.",
+    "avatarUnsupported": "Please choose a PNG or JPEG image."
+  },
+  "cart": {
+    "title": "Your Cart",
+    "itemCount": "{count} Items",
+    "subtitle": "Items from your routine & shop browsing — ready whenever you are.",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "free": "Free",
+    "total": "Total",
+    "continueShopping": "Continue Shopping",
+    "checkout": "Checkout"
+  },
+  "toast": {
+    "addedToCart": "{name} is added to your cart",
+    "addedToSaved": "Added to Saved Products",
+    "removedFromSaved": "Removed from Saved Products"
+  }
+}

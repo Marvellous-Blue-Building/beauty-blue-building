@@ -1,0 +1,263 @@
+{
+  "common": {
+    "appName": "Beauty AI Advisor",
+    "continue": "Lanjutkan",
+    "skip": "Lewati",
+    "back": "Kembali",
+    "viewAll": "Lihat Semua",
+    "seeAll": "Lihat semua",
+    "yes": "Ya",
+    "no": "Tidak",
+    "apply": "Terapkan",
+    "cancel": "Batal"
+  },
+  "nav": {
+    "signIn": "Masuk",
+    "welcome": "Selamat Datang",
+    "skinScan": "Pindai Kulit",
+    "recheckSkin": "Periksa Ulang Kulit Anda",
+    "scanning": "Memindai",
+    "diagnosticReport": "Laporan Diagnostik",
+    "skinType": "Jenis Kulit",
+    "concerns": "Masalah Kulit",
+    "sensitivities": "Sensitivitas",
+    "lifestyle": "Gaya Hidup",
+    "goals": "Tujuan",
+    "analyzing": "Menganalisis",
+    "yourRoutine": "Rutinitas Anda",
+    "productDetail": "Detail Produk",
+    "shopProducts": "Belanja Produk",
+    "matchedToScan": "Belanja Produk · Sesuai Hasil Pindai",
+    "savedProducts": "Produk Tersimpan",
+    "allSavedProducts": "Semua Produk Tersimpan",
+    "aiAdvisor": "Penasihat AI",
+    "chatHistory": "Riwayat Percakapan",
+    "chatHistoryDetail": "Percakapan",
+    "progressTracker": "Pelacak Kemajuan",
+    "profile": "Profil",
+    "yourCart": "Keranjang Anda",
+    "tabRoutine": "Rutinitas",
+    "tabShop": "Belanja",
+    "tabAdvisor": "Penasihat",
+    "tabProgress": "Kemajuan",
+    "tabProfile": "Profil"
+  },
+  "login": {
+    "title": "Beauty AI Advisor",
+    "tagline": "Pindai kulit Anda, temui penasihat AI Anda, dan dapatkan rutinitas yang dibuat dari data diagnostik nyata.",
+    "signInGoogle": "Masuk dengan Google",
+    "or": "atau",
+    "continueGuest": "Lanjutkan sebagai Tamu",
+    "legal": "Dengan melanjutkan Anda menyetujui Ketentuan & memahami bahwa aplikasi ini memberikan panduan kosmetik, bukan diagnosis medis."
+  },
+  "welcome": {
+    "title": "Kulit Anda, Terurai",
+    "subtitle": "Pemindaian kulit berbasis computer vision + penasihat AI. Pindai wajah Anda, dapatkan skor diagnostik, dan terima rutinitas yang dibuat khusus untuk Anda.",
+    "startScan": "Mulai Pindai Kulit"
+  },
+  "scan": {
+    "stepLabel": "Pemindai Diagnostik Kulit AI",
+    "title": "Posisikan wajah Anda di dalam bingkai",
+    "subtitle": "Pencahayaan baik, tanpa riasan, ekspresi netral. Foto Anda diproses secara aman dan tidak pernah dibagikan.",
+    "centerPrompt": "Posisikan wajah Anda di dalam panduan oval",
+    "lightingOptimal": "Pencahayaan: Optimal",
+    "landmarksLive": "468 Titik Wajah",
+    "progressLabel": "Menganalisis biomarker wajah",
+    "statusCalibrating": "Mengkalibrasi luminansi kulit & pantulan spekular…",
+    "statusTzone": "Menganalisis dilatasi pori & indeks sebum zona-T…",
+    "statusCheeks": "Mengukur gradien hidrasi pipi & mikro-eritema…",
+    "statusCompiling": "Menyusun laporan dermatologi klinis…",
+    "statusComplete": "Pindai selesai — membuka laporan Anda…",
+    "uploadPrompt": "Kamera tidak tersedia — unggah foto sebagai gantinya",
+    "errorCamera": "Tidak dapat mengakses kamera. Periksa izin atau unggah foto.",
+    "errorNoFace": "Wajah tidak terdeteksi. Posisikan wajah di dalam oval dan coba lagi.",
+    "errorGeneric": "Gagal menganalisis foto. Pastikan layanan pemindai kulit berjalan.",
+    "capture": "Ambil dan analisis",
+    "flipCamera": "Balik kamera",
+    "skipScan": "Lewati pindai, lanjut ke kuis"
+  },
+  "scanning": {
+    "title": "Memetakan titik wajah…",
+    "subtitle": "Mensegmentasi zona — dahi, bawah mata, pipi, dagu, hidung."
+  },
+  "diagnostic": {
+    "stepLabel": "Laporan Kesehatan Kulit",
+    "overall": "Keseluruhan",
+    "hydration": "Hidrasi",
+    "elasticity": "Elastisitas",
+    "pigmentation": "Pigmentasi",
+    "texture": "Tekstur",
+    "pores": "Pori-pori",
+    "disclaimer": "Ini adalah penilaian kecantikan kosmetik, bukan diagnosis medis. Konsultasikan dengan dokter kulit untuk masalah klinis.",
+    "continueProfile": "Lanjutkan ke Pengaturan Profil",
+    "submitScan": "Kirim pemindaian",
+    "submitting": "Mengirim…",
+    "submitError": "Tidak dapat mengirim pemindaian Anda. Silakan coba lagi.",
+    "retakeScan": "Pindai Ulang",
+    "noReportTitle": "Belum ada pindai",
+    "noReportSubtitle": "Lakukan pemindaian kulit terlebih dahulu dan laporan diagnostik akan muncul di sini."
+  },
+  "quiz": {
+    "stepOf": "Langkah {step} dari 5 — {section}",
+    "skinProfile": "Profil Kulit",
+    "lifestylePreferences": "Preferensi Gaya Hidup",
+    "skinType": {
+      "title": "Apa jenis kulit Anda?",
+      "subtitle": "Pilih opsi yang paling menggambarkan bagaimana kulit Anda biasanya terasa.",
+      "options": {
+        "oily": "Berminyak",
+        "dry": "Kering",
+        "combination": "Kombinasi",
+        "sensitive": "Sensitif",
+        "normal": "Normal",
+        "notSure": "Tidak Yakin"
+      }
+    },
+    "concerns": {
+      "title": "Apa masalah kulit utama Anda?",
+      "subtitle": "Pilih semua yang berlaku — ini membentuk bahan aktif rutinitas Anda.",
+      "options": {
+        "acne": "Jerawat & Breakout",
+        "aging": "Garis Halus & Penuaan",
+        "darkSpots": "Noda Hitam / Hiperpigmentasi",
+        "dryness": "Kekeringan & Dehidrasi",
+        "redness": "Kemerahan & Iritasi",
+        "pores": "Pori-pori Besar"
+      }
+    },
+    "sensitivities": {
+      "title": "Ada alergi atau sensitivitas?",
+      "subtitle": "Kami memeriksa daftar bahan INCI setiap produk terhadap hal ini.",
+      "options": {
+        "fragrance": "Pewangi",
+        "retinoids": "Retinoid",
+        "essentialOils": "Minyak Esensial",
+        "eczema": "Kulit Rentan Eksim",
+        "chemicalSunscreens": "Tabir Surya Kimia",
+        "none": "Tidak ada"
+      }
+    },
+    "lifestyle": {
+      "title": "Beberapa detail gaya hidup",
+      "subtitle": "Iklim dan anggaran memengaruhi formulasi; etika memengaruhi rekomendasi kami.",
+      "climate": "Iklim",
+      "climateHumid": "Lembap",
+      "climateDryCold": "Kering / Dingin",
+      "monthlyBudget": "Anggaran Bulanan",
+      "ethicalPreferences": "Preferensi Etis",
+      "veganFormulas": "Formula Vegan",
+      "crueltyFreeOnly": "Hanya Cruelty-Free",
+      "fragranceFreeOnly": "Hanya Bebas Pewangi"
+    },
+    "goals": {
+      "title": "Apa tujuan utama Anda?",
+      "subtitle": "Pilih satu fokus — rutinitas Anda akan memprioritaskan ini terlebih dahulu.",
+      "options": {
+        "clearSkin": "Kulit Bersih",
+        "antiAging": "Anti-Penuaan",
+        "evenTone": "Warna Kulit Merata",
+        "hydration": "Hidrasi"
+      },
+      "buildRoutine": "Buat Rutinitas Saya"
+    }
+  },
+  "analyzing": {
+    "title": "Menjalankan pencocokan produk RAG…",
+    "subtitle": "Mencocokkan metrik pindai, alergi, iklim & anggaran dengan basis data vektor bahan."
+  },
+  "routine": {
+    "profileSummary": "{skinType} · {concern} · {preference}",
+    "am": "Rutinitas Pagi",
+    "pm": "Rutinitas Malam",
+    "disclaimer": "Urutan pelapisan mengikuti aturan pH & kelarutan. Hanya saran — bukan rencana perawatan medis.",
+    "shopProducts": "Belanja Produk",
+    "askAdvisor": "Tanya Penasihat"
+  },
+  "product": {
+    "whyRecommend": "Mengapa Kami Merekomendasikan Ini",
+    "ingredientSafety": "Pemeriksaan Keamanan Bahan (INCI)",
+    "layeringCompatibility": "Kompatibilitas Pelapisan",
+    "viewAlternatives": "Lihat Alternatif",
+    "backToRoutine": "Kembali ke Rutinitas",
+    "addToCart": "Tambah ke Keranjang",
+    "added": "✓ Ditambahkan ke Keranjang",
+    "saveProduct": "♡ Simpan Produk",
+    "saved": "♥ Tersimpan"
+  },
+  "shop": {
+    "filters": {
+      "all": "Semua",
+      "cleansers": "Pembersih",
+      "serums": "Serum",
+      "moisturizers": "Pelembap",
+      "spf": "Tabir Surya",
+      "vegan": "Vegan",
+      "fragranceFree": "Bebas Pewangi"
+    },
+    "matchedToScan": "Sesuai Hasil Pindai",
+    "browseCatalog": "Jelajahi Katalog",
+    "addToCart": "Tambah ke Keranjang",
+    "added": "✓ Ditambahkan"
+  },
+  "chat": {
+    "placeholder": "Tanyakan tentang bahan, rutinitas…",
+    "suggestAdjust": "Produk untuk jerawat saya",
+    "suggestRetinol": "apakah retinol aman untuk saya?",
+    "suggestCheck": "Serum untuk noda hitam",
+    "aiPick": "Pilihan AI · berdasarkan foto",
+    "greeting": "Halo, ini AI Advisor. Ada yang bisa saya bantu?",
+    "clearChat": "Hapus Obrolan",
+    "noConversations": "Belum ada percakapan — mulai mengobrol dengan penasihat AI Anda.",
+    "clearConfirmTitle": "Akhiri sesi ini?",
+    "clearConfirm": "Apakah Anda yakin ingin mengakhiri sesi ini? Tindakan ini tidak dapat dibatalkan."
+  },
+  "progress": {
+    "stepLabel": "Pembangun & Pelacak Rutinitas",
+    "title": "Kemajuan Anda",
+    "subtitle": "Check-in foto mingguan dibandingkan dengan pindai awal Anda.",
+    "baseline": "Awal",
+    "uploadCheckIn": "＋ Unggah Foto Check-In Minggu Ini",
+    "askAboutProgress": "Tanya Penasihat Tentang Kemajuan Saya",
+    "checkInStepLabel": "Check-In Kemajuan Mingguan",
+    "checkInTitle": "Posisikan wajah Anda di dalam bingkai",
+    "checkInSubtitle": "Kondisi yang sama seperti pindai awal Anda membantu perbandingan tetap akurat — pencahayaan baik, tanpa riasan, ekspresi netral."
+  },
+  "profile": {
+    "preferences": "Preferensi",
+    "edit": "Ubah",
+    "viewAll": "Semua Produk Tersimpan",
+    "veganFormulasOnly": "Hanya Formula Vegan",
+    "crueltyFreeOnly": "Hanya Cruelty-Free",
+    "fragranceFreeOnly": "Hanya Bebas Pewangi",
+    "savedProducts": "Produk Tersimpan",
+    "yourCart": "Keranjang Anda",
+    "viewCart": "Lihat Keranjang ({count})",
+    "changeLanguage": "Ganti Bahasa",
+    "account": "Akun",
+    "sendReportToEmail": "Kirim Laporan Saya ke Email",
+    "logout": "Keluar",
+    "logoutConfirmTitle": "Keluar?",
+    "logoutConfirmMessage": "Apakah Anda yakin ingin keluar?",
+    "scanScore": "Skor Pindai",
+    "dayStreak": "Hari Berturut-turut",
+    "flaggedAllergen": "Alergen Ditandai",
+    "avatarTooLarge": "Pilih gambar berukuran 5MB atau lebih kecil.",
+    "avatarUnsupported": "Pilih gambar PNG atau JPEG."
+  },
+  "cart": {
+    "title": "Keranjang Anda",
+    "itemCount": "{count} Item",
+    "subtitle": "Barang dari rutinitas & jelajah belanja Anda — siap kapan pun Anda mau.",
+    "subtotal": "Subtotal",
+    "shipping": "Pengiriman",
+    "free": "Gratis",
+    "total": "Total",
+    "continueShopping": "Lanjutkan Belanja",
+    "checkout": "Checkout"
+  },
+  "toast": {
+    "addedToCart": "{name} ditambahkan ke keranjang Anda",
+    "addedToSaved": "Ditambahkan ke Produk Tersimpan",
+    "removedFromSaved": "Dihapus dari Produk Tersimpan"
+  }
+}
