@@ -354,6 +354,7 @@ idempotent script in **Section 0** instead.
 *   **Web app can't reach the database** — confirm the Postgres container is running (`docker ps`) and `DATABASE_URL` in `.env.local` matches the credentials in this doc.
 *   **Skin-scan camera flow fails / "Couldn't analyze the photo"** — make sure `services/skin-scanning` is running on port 3003 and `SKIN_SCAN_SERVICE_URL` is set correctly in `.env.local`.
 *   **Quiz/onboarding routine matching fails** — make sure `services/matching-service` is running on port 8000 and `MATCHING_SERVICE_URL` is set correctly.
+*   **Scan shows "Pose: Off" and never takes the photo by itself** — the browser couldn't load MediaPipe's in-browser face tracker (fetched on first visit from `cdn.jsdelivr.net` and `storage.googleapis.com`), so hands-free capture is off. Check your network/ad-blocker; "Take photo now" and photo upload still work.
 *   **`pip install` fails on `mediapipe`** — you're very likely not on Python 3.12. Re-create the virtualenv with `python3.12 -m venv .venv` explicitly.
 *   **Login redirect fails** — your Google OAuth client's "Authorized redirect URI" must exactly match `http://localhost:3002/api/auth/google/callback`.
 *   **`docker run` fails with "name already in use"** — a container from a previous setup already exists; use `docker start beauty-advisor-db` / `docker start beauty-advisor-redis` instead of `docker run`, or use the idempotent script in Section 0 which handles this automatically.

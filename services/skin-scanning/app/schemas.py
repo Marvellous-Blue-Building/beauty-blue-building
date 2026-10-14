@@ -21,10 +21,17 @@ class ScanAnalyzeRequest(BaseModel):
 
 
 class FlaggedZone(BaseModel):
+    # Stable identifier (e.g. "nose_pores") the web app localizes from;
+    # `zone` / `description` stay as English fallbacks for stored reports.
+    key: str = ""
     zone: str
     score: float = Field(description="0-100 concern score for this zone")
     description: str
     severity: Severity = "low"
+    # Where the area is, as a 0-1 position in the analyzed photo (for
+    # placing a marker on it).
+    x: float | None = None
+    y: float | None = None
 
 
 class ScanMetrics(BaseModel):
@@ -36,7 +43,13 @@ class ScanMetrics(BaseModel):
     overall: float
 
 
+# Bumped whenever the scoring changes, so scores from different versions
+# aren't compared as if they were on the same scale.
+SCORING_VERSION = 2
+
+
 class ScanReport(ScanMetrics):
+    scoringVersion: int = SCORING_VERSION
     scanId: str
     status: str
     createdAt: datetime

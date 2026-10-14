@@ -5,17 +5,29 @@
  * container that the camera feed fills with CSS `object-cover`).
  *
  * Runs after analysis, so the CV service still sees the full, uncropped frame.
- * Returns a JPEG data URL of just the head.
+ * Returns a JPEG data URL of just the head, plus where that crop sits in the
+ * full frame (0-1), so positions the service reports can be mapped onto it.
  */
 const SCAN_CONTAINER_ASPECT = 3 / 4;
 const OVAL_WIDTH = 0.66;
 const OVAL_HEIGHT = 0.72;
 
-export async function cropFaceDataUrl(src: string): Promise<string> {
+export interface CropRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+const FULL_FRAME: CropRect = { x: 0, y: 0, w: 1, h: 1 };
+
+export async function cropFaceDataUrl(
+  src: string
+): Promise<{ dataUrl: string; rect: CropRect }> {
   const img = await loadImage(src);
   const sw = img.naturalWidth;
   const sh = img.naturalHeight;
-  if (!sw || !sh) return src;
+  if (!sw || !sh) return { dataUrl: src, rect: FULL_FRAME };
 
   const srcAspect = sw / sh;
 
@@ -44,16 +56,19 @@ export async function cropFaceDataUrl(src: string): Promise<string> {
   const sy = mapY(top) * sh;
   const cropW = (mapX(right) - mapX(left)) * sw;
   const cropH = (mapY(bottom) - mapY(top)) * sh;
-  if (cropW < 1 || cropH < 1) return src;
+  if (cropW < 1 || cropH < 1) return { dataUrl: src, rect: FULL_FRAME };
 
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(cropW);
   canvas.height = Math.round(cropH);
   const ctx = canvas.getContext("2d");
-  if (!ctx) return src;
+  if (!ctx) return { dataUrl: src, rect: FULL_FRAME };
 
   ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL("image/jpeg", 0.9);
+  return {
+    dataUrl: canvas.toDataURL("image/jpeg", 0.9),
+    rect: { x: sx / sw, y: sy / sh, w: cropW / sw, h: cropH / sh },
+  };
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {

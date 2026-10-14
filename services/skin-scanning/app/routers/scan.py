@@ -1,11 +1,14 @@
 """Native skin-scan endpoint.
 
 The metric computation itself is genuinely derived from the uploaded photo's
-pixels (face detection + per-zone CV, see app/face_landmarks.py,
-app/zones.py, app/metrics.py, app/flags.py) — no hardcoded/random scores.
-This endpoint is the native engine merged in from the wireframe prototype
-(`aaaa/backend/app/api/skin_scan.py`), upgraded from a payload-echo stub to
-the real server-side analyzer.
+pixels — face detection, alignment to a canonical frame, per-zone skin
+measurements (see app/alignment.py, app/zones.py, app/metrics.py,
+app/flags.py) — no hardcoded/random scores. This endpoint is the native engine
+merged in from the wireframe prototype (`aaaa/backend/app/api/skin_scan.py`),
+upgraded from a payload-echo stub to the real server-side analyzer.
+
+Errors the app can act on are 422s with `{"detail": {"code", "message"}}`:
+`no_face`, `face_too_small`, `no_skin`, `too_dark`, `too_blurry`.
 """
 
 import base64
@@ -17,9 +20,11 @@ import cv2
 import numpy as np
 from fastapi import APIRouter, HTTPException
 
+from app.alignment import align_face
 from app.face_landmarks import detect_face
 from app.flags import compute_flagged_zones
-from app.metrics import compute_metrics
+from app.metrics import compute_metrics, raw_measures, skin_signals
+from app.quality import PhotoQualityError, check_photo_quality
 from app.schemas import ScanAnalyzeRequest, ScanReport
 from app.zones import extract_zones
 
@@ -42,23 +47,33 @@ def _decode_image(image_base64: str) -> np.ndarray:
     return image
 
 
+def _unprocessable(code: str, message: str) -> HTTPException:
+    return HTTPException(status_code=422, detail={"code": code, "message": message})
+
+
 @router.post("/analyze", response_model=ScanReport)
 async def analyze(body: ScanAnalyzeRequest) -> ScanReport:
     image = _decode_image(body.imageBase64)
 
     landmarks = detect_face(image)
     if landmarks is None:
-        raise HTTPException(status_code=422, detail="No face detected in the captured image.")
+        raise _unprocessable("no_face", "No face detected in the captured image.")
 
-    zones = extract_zones(image, landmarks)
-    scores = compute_metrics(zones)
-    flagged_zones = compute_flagged_zones(zones)
+    face = align_face(image, landmarks)
+    signals = skin_signals(face)
+    try:
+        check_photo_quality(face, signals)
+    except PhotoQualityError as error:
+        raise _unprocessable(error.code, error.message) from error
+
+    zones = extract_zones(face)
+    raw = raw_measures(signals, zones)
 
     return ScanReport(
         scanId=str(uuid.uuid4()),
         status="SUCCESS",
         createdAt=datetime.now(timezone.utc),
         ragTriggerStatus="READY_FOR_RECOMMENDATION",
-        flaggedZones=flagged_zones,
-        **scores,
+        flaggedZones=compute_flagged_zones(face, signals, zones, raw),
+        **compute_metrics(raw),
     )

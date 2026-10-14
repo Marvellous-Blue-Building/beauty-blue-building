@@ -4,9 +4,12 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
 export class ApiError extends Error {
   status: number;
-  constructor(path: string, status: number) {
+  /** Machine-readable reason from the response body's `code`, when given. */
+  code?: string;
+  constructor(path: string, status: number, code?: string) {
     super(`Request to ${path} failed with ${status}`);
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -17,7 +20,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
   });
   if (!res.ok) {
-    throw new ApiError(path, res.status);
+    const body = (await res.json().catch(() => null)) as { code?: unknown } | null;
+    throw new ApiError(path, res.status, typeof body?.code === "string" ? body.code : undefined);
   }
   return res.json() as Promise<T>;
 }

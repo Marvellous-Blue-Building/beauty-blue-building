@@ -20,7 +20,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(report);
   } catch (error) {
     if (error instanceof SkinScanError) {
-      return NextResponse.json({ detail: error.message }, { status: error.status });
+      return NextResponse.json(
+        { detail: error.message, code: error.code },
+        { status: error.status }
+      );
     }
     return NextResponse.json({ detail: "Skin analysis failed." }, { status: 500 });
   }

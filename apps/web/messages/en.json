@@ -17,7 +17,7 @@
     "skinScan": "Skin Scan",
     "recheckSkin": "Recheck Your Skin",
     "scanning": "Scanning",
-    "diagnosticReport": "Diagnostic Report",
+    "diagnosticReport": "Skin Report",
     "skinType": "Skin Type",
     "concerns": "Concerns",
     "sensitivities": "Sensitivities",
@@ -56,46 +56,185 @@
     "startScan": "Start Skin Scan"
   },
   "scan": {
-    "stepLabel": "AI Skin Diagnostic Scanner",
+    "stepLabel": "AI skin check",
     "title": "Center your face in the frame",
     "subtitle": "Good lighting, no makeup, neutral expression. Your photo is processed securely and never shared.",
     "centerPrompt": "Align your face inside the oval guide",
-    "lightingOptimal": "Lighting: Optimal",
-    "landmarksLive": "468 Landmarks",
-    "progressLabel": "Analyzing facial biomarkers",
-    "statusCalibrating": "Calibrating skin luminance & specular reflection…",
-    "statusTzone": "Analyzing T-zone pore dilation & sebum index…",
-    "statusCheeks": "Measuring cheek hydration gradient & micro-erythema…",
-    "statusCompiling": "Compiling clinical dermatology report…",
-    "statusComplete": "Scan complete — opening your report…",
+    "progressLabel": "Analyzing your skin",
+    "statusMapping": "Finding your face & skin zones…",
+    "statusCalibrating": "Checking lighting & shine…",
+    "statusTzone": "Looking at pores & oil on your T-zone…",
+    "statusCheeks": "Checking cheek smoothness & redness…",
+    "statusCompiling": "Putting your skin report together…",
+    "statusComplete": "Done — opening your report…",
     "uploadPrompt": "Camera unavailable — upload a photo instead",
     "errorCamera": "Unable to access the camera. Check permissions or upload a photo.",
     "errorNoFace": "No face detected. Center your face in the oval and try again.",
     "errorGeneric": "Couldn't analyze the photo. Make sure the skin-scan service is running.",
-    "capture": "Capture and analyze",
     "flipCamera": "Flip camera",
-    "skipScan": "Skip scan, continue with quiz"
+    "skipScan": "Skip scan, continue with quiz",
+    "lightOk": "Light: Good",
+    "lightDim": "Light: Too dim",
+    "lightGlare": "Light: Glare",
+    "sharpOk": "Sharp: Steady",
+    "sharpBlur": "Sharp: Motion blur",
+    "poseOk": "Pose: Centered",
+    "poseNoFace": "Pose: No face",
+    "poseOffCenter": "Pose: Off-center",
+    "poseTooFar": "Pose: Too far",
+    "poseTooClose": "Pose: Too close",
+    "poseTurned": "Pose: Turned",
+    "poseLoading": "Pose: Loading…",
+    "poseUnavailable": "Pose: Off",
+    "colorNeutral": "Color: Neutral",
+    "colorWarm": "Color: Warm light",
+    "colorCool": "Color: Cool light",
+    "guideDim": "Lighting too dim · Move to brighter daylight",
+    "guideGlare": "Glare detected · Avoid direct flash or reflections",
+    "guideBlur": "Camera motion detected · Hold still",
+    "guideOffCenter": "Center your face inside the oval",
+    "guideTooFar": "Move a little closer",
+    "guideTooClose": "Move back a little",
+    "guideTurned": "Look straight at the camera",
+    "guideManual": "Center your face in the oval, then tap the shutter",
+    "zoneForehead": "Forehead",
+    "zoneUnderEye": "Under-eye",
+    "zoneNose": "Nose",
+    "zoneLeftCheek": "L-Cheek",
+    "zoneRightCheek": "R-Cheek",
+    "zoneChin": "Chin",
+    "severityLow": "Mild",
+    "severityMedium": "Moderate",
+    "severityHigh": "Noticeable",
+    "errorFaceTooSmall": "Your face is too small in the photo. Move closer or use a sharper photo.",
+    "errorNoSkin": "We couldn't see enough skin. Move hair or anything covering your face.",
+    "errorTooDark": "The photo is too dark. Move to brighter, even light and try again.",
+    "errorTooBlurry": "The photo is blurry. Hold still and try again.",
+    "guideHold": "Perfect — hold still…",
+    "guideMoveLeft": "Move a little to the left",
+    "guideMoveRight": "Move a little to the right",
+    "guideMoveUp": "Move up a little",
+    "guideMoveDown": "Move down a little",
+    "stepPosition": "Position",
+    "stepHold": "Hold still",
+    "stepAnalyze": "Analyze",
+    "handsFreeHint": "Hands-free — the photo is taken automatically when everything looks good.",
+    "takePhotoNow": "Take photo now",
+    "uploadPhoto": "Upload photo"
   },
   "scanning": {
     "title": "Mapping facial landmarks…",
     "subtitle": "Segmenting zones — forehead, under-eyes, cheeks, chin, nose."
   },
   "diagnostic": {
-    "stepLabel": "Skin Health Report",
+    "stepLabel": "Your skin report",
     "overall": "Overall",
     "hydration": "Hydration",
     "elasticity": "Elasticity",
     "pigmentation": "Pigmentation",
     "texture": "Texture",
     "pores": "Pores",
-    "disclaimer": "This is a cosmetic wellness assessment, not a medical diagnosis. Consult a dermatologist for clinical concerns.",
-    "continueProfile": "Continue to Profile Setup",
-    "submitScan": "Submit scan",
+    "disclaimer": "This is a cosmetic check from one photo, not a medical diagnosis. Lighting and camera can affect results — see a dermatologist for any medical concern.",
+    "continueProfile": "Get my routine",
+    "submitScan": "Save to progress",
     "submitting": "Submitting…",
     "submitError": "Couldn't submit your scan. Please try again.",
-    "retakeScan": "Retake Scan",
+    "retakeScan": "Retake scan",
     "noReportTitle": "No scan yet",
-    "noReportSubtitle": "Take a skin scan first and your diagnostic report will appear here."
+    "noReportSubtitle": "Take a skin scan first and your skin report will appear here.",
+    "outOf100": "out of 100",
+    "bands": {
+      "great": "Great",
+      "good": "Good",
+      "fair": "Fair",
+      "needsCare": "Needs care"
+    },
+    "verdict": {
+      "great": {
+        "title": "Your skin looks great",
+        "body": "Healthy and balanced overall — keep doing what you're doing."
+      },
+      "good": {
+        "title": "Your skin looks good",
+        "body": "In good shape overall, with a couple of things to care for."
+      },
+      "fair": {
+        "title": "A few areas need care",
+        "body": "Some areas could use attention — your routine will focus on them."
+      },
+      "needsCare": {
+        "title": "Let's give your skin some care",
+        "body": "Several areas need attention. Your matched routine will target them first."
+      }
+    },
+    "strongest": "Strongest: {metric}",
+    "focusOn": "Focus on: {metric}",
+    "faceMapTitle": "Your face map",
+    "faceMapHint": "Numbered spots on your photo match the list. Tap one to highlight it.",
+    "areasTitle": "Areas to watch",
+    "noAreasTitle": "Nothing stood out",
+    "noAreasBody": "No single area stood out in this scan. Nice!",
+    "areas": {
+      "forehead_shine": {
+        "title": "Forehead shine",
+        "body": "Your forehead and nose look shiny — a sign of an oily T-zone.",
+        "tip": "A light, oil-free moisturizer and a BHA cleanser can help."
+      },
+      "under_eye": {
+        "title": "Under-eyes",
+        "body": "The skin under your eyes looks darker than your cheeks.",
+        "tip": "Sleep, daily sunscreen and an eye cream with caffeine or vitamin C may help."
+      },
+      "cheek_texture": {
+        "title": "Cheek texture",
+        "body": "Your cheeks show some bumps or uneven texture.",
+        "tip": "Gentle exfoliation (AHA/BHA) 2–3 times a week can smooth it."
+      },
+      "cheek_redness": {
+        "title": "Cheek redness",
+        "body": "There are redder patches on your cheeks.",
+        "tip": "Calming ingredients like centella or niacinamide help; skip harsh scrubs."
+      },
+      "nose_pores": {
+        "title": "Nose pores",
+        "body": "The pores around your nose look more visible.",
+        "tip": "Salicylic acid (BHA) or niacinamide helps keep pores clear."
+      }
+    },
+    "severity": {
+      "low": "Mild",
+      "medium": "Moderate",
+      "high": "Noticeable"
+    },
+    "scoresTitle": "Your skin scores",
+    "scaleHint": "0–100 · higher is better",
+    "metrics": {
+      "hydration": {
+        "what": "How smooth and supple your skin's surface looks. Dry skin looks rougher and duller.",
+        "tip": "Use a hydrating serum (hyaluronic acid) and a moisturizer every day."
+      },
+      "elasticity": {
+        "what": "How few fine lines show on your forehead and under your eyes.",
+        "tip": "Daily sunscreen and a gentle retinoid at night help with fine lines."
+      },
+      "pigmentation": {
+        "what": "How even your skin tone is — fewer dark spots and marks score higher.",
+        "tip": "Daily SPF plus vitamin C or niacinamide helps even out tone."
+      },
+      "texture": {
+        "what": "How smooth your cheeks look — fewer bumps and rough patches score higher.",
+        "tip": "Gentle exfoliation (AHA/BHA) 2–3 times a week smooths texture."
+      },
+      "pores": {
+        "what": "How visible the pores on your nose are — less visible scores higher.",
+        "tip": "Salicylic acid (BHA) or niacinamide helps keep pores clear."
+      }
+    },
+    "tipLabel": "Tip",
+    "nextTitle": "Next: your matched routine",
+    "nextBody": "Answer 5 quick questions and we'll match products to these results.",
+    "checkinNextTitle": "Save this check-in",
+    "checkinNextBody": "Add this scan to your progress so you can compare it over time."
   },
   "quiz": {
     "stepOf": "Step {step} of 5 — {section}",
