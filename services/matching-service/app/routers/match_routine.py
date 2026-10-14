@@ -131,7 +131,9 @@ async def _match_slot(slot: SlotDef, ctx: _Ctx) -> Optional[MatchedRoutineStep]:
                 + COALESCE(similarity(COALESCE(ingredients, ''), $3), 0) * 5
                 + (COALESCE(rating, 3.5) / 5.0) * 3
               ) AS base_score,
-              (SELECT count(*) FROM products p2 WHERE p2.parent_sku = products.parent_sku) AS variant_count
+              (SELECT count(*) FROM products p2 WHERE p2.parent_sku = products.parent_sku) AS variant_count,
+              (SELECT array_agg(DISTINCT p3.color_variant) FROM products p3
+                WHERE p3.parent_sku = products.parent_sku AND p3.color_variant IS NOT NULL AND p3.stock_quantity > 0) AS color_palette
             FROM products
             WHERE {where}
             ORDER BY base_score DESC, rating DESC NULLS LAST

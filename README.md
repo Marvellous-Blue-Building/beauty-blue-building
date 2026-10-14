@@ -14,6 +14,7 @@ each Python service are installed and run independently.
 | `apps/web` | Next.js (App Router) + Tailwind frontend. Auth, quiz, skin scan UI, shop, cart, chat, profile. |
 | `services/skin-scanning` | Python/FastAPI service. Real face-landmark analysis (MediaPipe + OpenCV) from a captured photo → skin metrics. |
 | `services/matching-service` | Python/FastAPI service. Quiz/scan results → routine & product matching (SQL + keyword dictionaries). |
+| `services/ai-advisor` | Python/FastAPI service. Gemma (via Kaggle Models) LLM fallback for chat messages the deterministic rules can't resolve. |
 
 ## Stack (as currently built)
 

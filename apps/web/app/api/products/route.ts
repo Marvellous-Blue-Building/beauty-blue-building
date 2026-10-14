@@ -27,7 +27,10 @@ export async function GET(request: NextRequest) {
   if (ids) {
     const idList = ids.split(",").filter(Boolean);
     const result = await pool.query<ProductRow>(
-      `SELECT *, (SELECT count(*) FROM products p2 WHERE p2.parent_sku = products.parent_sku) AS variant_count
+      `SELECT *,
+         (SELECT count(*) FROM products p2 WHERE p2.parent_sku = products.parent_sku) AS variant_count,
+         (SELECT array_agg(DISTINCT p3.color_variant) FROM products p3
+           WHERE p3.parent_sku = products.parent_sku AND p3.color_variant IS NOT NULL AND p3.stock_quantity > 0) AS color_palette
        FROM products WHERE id = ANY($1)`,
       [idList]
     );
@@ -83,7 +86,9 @@ export async function GET(request: NextRequest) {
   const sql = `
     SELECT * FROM (
       SELECT DISTINCT ON (parent_sku) *,
-        (SELECT count(*) FROM products p2 WHERE p2.parent_sku = products.parent_sku) AS variant_count
+        (SELECT count(*) FROM products p2 WHERE p2.parent_sku = products.parent_sku) AS variant_count,
+        (SELECT array_agg(DISTINCT p3.color_variant) FROM products p3
+          WHERE p3.parent_sku = products.parent_sku AND p3.color_variant IS NOT NULL AND p3.stock_quantity > 0) AS color_palette
       FROM products
       WHERE ${where}
       ORDER BY parent_sku, rating DESC NULLS LAST, total_review DESC NULLS LAST

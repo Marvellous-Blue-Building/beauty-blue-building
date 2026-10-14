@@ -1,15 +1,14 @@
 import type { ScanReport } from "@/types/scan";
-import type { MatchedRoutine } from "@/types/routine";
 
 /**
  * In-memory cache for state that isn't per-user persisted data — cart,
- * saved products, and the user profile now live in real Postgres tables
- * (see app/api/cart, app/api/saved-products, app/api/profile, all scoped to
+ * saved products, the user profile, and the routine match now all live in
+ * real Postgres tables / are recomputed live per-user (see app/api/cart,
+ * app/api/saved-products, app/api/profile, app/api/routine — all scoped to
  * the authenticated session via lib/auth/session.ts).
  *
  * What's left here is genuinely process-wide convenience state, not
- * per-user data: the last-computed routine match (so a /routine refresh
- * doesn't lose it) and the last real scan report for unauthenticated/dev
+ * per-user data: the last real scan report for unauthenticated/dev
  * viewing. Resets on a full `next dev` restart.
  *
  * Cached on `globalThis` so Next.js's dev-mode hot reload doesn't wipe
@@ -18,13 +17,11 @@ import type { MatchedRoutine } from "@/types/routine";
 
 interface ServerStoreState {
   latestScanResult: ScanReport | null;
-  latestRoutine: MatchedRoutine | null;
 }
 
 function createInitialState(): ServerStoreState {
   return {
     latestScanResult: null,
-    latestRoutine: null,
   };
 }
 

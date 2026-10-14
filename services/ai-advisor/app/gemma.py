@@ -1,0 +1,95 @@
+"""
+Loads Google's Gemma model from Kaggle Models (https://www.kaggle.com/models/google/gemma-2)
+on first use and generates a skincare-advisor reply. This is the real fallback
+path for chat messages the deterministic rule set and keyword/dictionary
+matching (lib/chat/bot-reply.ts, lib/rag/) can't resolve — same honesty tier
+as the rest of this project: a real local LLM call with real (if modest,
+given the 2B CPU-friendly variant) generation quality, not a scripted reply.
+"""
+
+import os
+import threading
+
+import kagglehub
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+
+GEMMA_KAGGLE_HANDLE = os.environ.get(
+    "GEMMA_KAGGLE_HANDLE", "google/gemma-2/transformers/gemma-2-2b-it"
+)
+
+SYSTEM_PROMPT = (
+    "You are the AI Advisor inside a skincare app. Always respond in Bahasa "
+    "Indonesia, regardless of what language the question is asked in. Give a "
+    "short, friendly, practical answer (2-3 sentences) about skincare "
+    "ingredients, routines, or concerns. If the question describes a serious "
+    "or medical-sounding skin condition, recommend seeing a dermatologist "
+    "instead of self-treating. Do not invent specific product names."
+)
+
+_generator = None
+_lock = threading.Lock()
+
+
+def _load_generator():
+    model_path = kagglehub.model_download(GEMMA_KAGGLE_HANDLE)
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto")
+    return pipeline("text-generation", model=model, tokenizer=tokenizer)
+
+
+def get_generator():
+    """Lazy, thread-safe load — keeps service startup/health checks fast;
+    the first /advise call after boot pays the download+load cost instead."""
+    global _generator
+    if _generator is None:
+        with _lock:
+            if _generator is None:
+                _generator = _load_generator()
+    return _generator
+
+
+def is_loaded() -> bool:
+    return _generator is not None
+
+
+def generate_reply(
+    user_text: str,
+    recognized_entities: list[str] | None = None,
+    candidate_products: list[str] | None = None,
+    conversation_context: list[str] | None = None,
+) -> str:
+    """Grounded when services/matching-service's /chat/understand pipeline
+    (docs/plan.md SS4 steps 1-13) couldn't resolve a message deterministically
+    but still recognized partial signal — step 14 synthesizes from that
+    instead of the bare user question. Always replies in Bahasa Indonesia
+    (see SYSTEM_PROMPT) regardless of the app's UI locale."""
+    generator = get_generator()
+
+    context_lines = []
+    if recognized_entities:
+        context_lines.append(f"Known relevant topic(s): {', '.join(recognized_entities)}.")
+    if candidate_products:
+        context_lines.append(f"Possibly relevant products: {'; '.join(candidate_products)}.")
+    if conversation_context:
+        context_lines.append("Recent conversation:\n" + "\n".join(conversation_context))
+    context_block = ("\n".join(context_lines) + "\n\n") if context_lines else ""
+
+    messages = [
+        {
+            "role": "user",
+            "content": f"{SYSTEM_PROMPT}\n\n{context_block}User question: {user_text}",
+        }
+    ]
+    prompt = generator.tokenizer.apply_chat_template(
+        messages, tokenize=False, add_generation_prompt=True
+    )
+    output = generator(
+        prompt,
+        max_new_tokens=160,
+        do_sample=True,
+        temperature=0.7,
+        top_p=0.9,
+        pad_token_id=generator.tokenizer.eos_token_id,
+    )
+    generated_text = output[0]["generated_text"]
+    return generated_text[len(prompt):].strip()

@@ -12,6 +12,7 @@ For architecture/design background, see `docs/plan.md`.
 | Web app (login) | http://localhost:3002/login |
 | Skin scanning service | http://localhost:3003 |
 | Matching service | http://localhost:8000 |
+| AI advisor (Gemma chat fallback) | http://localhost:3004 |
 
 ## Database connection
 
@@ -70,6 +71,7 @@ GOOGLE_CLIENT_SECRET=<your-google-oauth-client-secret>
 GOOGLE_REDIRECT_URI=http://localhost:3002/api/auth/google/callback
 MATCHING_SERVICE_URL=http://localhost:8000
 SKIN_SCAN_SERVICE_URL=http://localhost:3003
+AI_ADVISOR_SERVICE_URL=http://localhost:3004
 EOF
 cd ../..
 
@@ -92,7 +94,19 @@ pip install -q -r requirements.txt
 deactivate
 cd ../..
 
-# --- 7. Start all three dev servers in the background with logs ---
+# --- 6b. AI advisor (Gemma chat fallback) deps ---
+# Requires your own Kaggle credentials in services/ai-advisor/.env — see
+# Section 6b below. Boots fine without them; only the first /advise call
+# (i.e. the first ambiguous chat message) fails until they're set.
+cd services/ai-advisor
+[ -d .venv ] || python3 -m venv .venv
+source .venv/bin/activate
+pip install -q -r requirements.txt
+[ -f .env ] || cp .env.example .env
+deactivate
+cd ../..
+
+# --- 7. Start all dev servers in the background with logs ---
 # Skip any that are already listening on their port (idempotent re-run).
 mkdir -p /tmp/beauty-advisor-logs
 
@@ -106,20 +120,28 @@ if ! lsof -iTCP:3003 -sTCP:LISTEN >/dev/null 2>&1; then
     nohup uvicorn app.main:app --port 3003 > /tmp/beauty-advisor-logs/skin-scan.log 2>&1 &)
 fi
 
+if ! lsof -iTCP:3004 -sTCP:LISTEN >/dev/null 2>&1; then
+  (cd services/ai-advisor && source .venv/bin/activate && \
+    nohup uvicorn app.main:app --port 3004 > /tmp/beauty-advisor-logs/ai-advisor.log 2>&1 &)
+fi
+
 if ! lsof -iTCP:3002 -sTCP:LISTEN >/dev/null 2>&1; then
   (cd apps/web && nohup npm run dev -- -p 3002 > /tmp/beauty-advisor-logs/web.log 2>&1 &)
 fi
 
-# --- 8. Poll until all three health endpoints respond (max ~60s) ---
+# --- 8. Poll until all health endpoints respond (max ~60s) ---
+# Note: ai-advisor's /health doesn't load the Gemma model itself (see its
+# README), so it reports healthy well before the model is actually usable.
 for i in $(seq 1 30); do
   ok=0
   curl -sf http://localhost:8000/health >/dev/null 2>&1 && ok=$((ok+1))
   curl -sf http://localhost:3003/health >/dev/null 2>&1 && ok=$((ok+1))
+  curl -sf http://localhost:3004/health >/dev/null 2>&1 && ok=$((ok+1))
   curl -sf http://localhost:3002/login  >/dev/null 2>&1 && ok=$((ok+1))
-  [ "$ok" = "3" ] && break
+  [ "$ok" = "4" ] && break
   sleep 2
 done
-echo "services healthy: $ok/3 (matching:8000, skin-scan:3003, web:3002)"
+echo "services healthy: $ok/4 (matching:8000, skin-scan:3003, ai-advisor:3004, web:3002)"
 ```
 
 Notes for an agent running this unattended:
@@ -153,9 +175,10 @@ Install these before starting:
 
 *   **Node.js** — a recent LTS version (18+), for the Next.js web app.
 *   **Python 3.12** — required specifically for the skin-scanning service (MediaPipe does not support newer Python versions yet).
-*   **Python 3** (any recent 3.x, e.g. 3.13/3.14) — for the matching service.
+*   **Python 3** (any recent 3.x, e.g. 3.13/3.14) — for the matching service and the AI advisor service.
 *   **Docker Desktop** — to run PostgreSQL and Redis as containers.
 *   **Git**
+*   **A free Kaggle account** — only needed for the AI advisor service (Section 6b), to download Gemma model weights.
 
 ---
 
@@ -220,7 +243,8 @@ for f in data/01_alter_products_schema.sql \
          data/03_auth_schema.sql \
          data/04_chat_schema.sql \
          data/05_chat_pinned_greeting.sql \
-         data/06_scan_image.sql; do
+         data/06_scan_image.sql \
+         data/07_chat_recommended_products.sql; do
   docker exec -i beauty-advisor-db psql -U bluebuilding -d bluebuilding < "$f"
 done
 ```
@@ -332,6 +356,40 @@ curl http://localhost:8000/health
 
 ---
 
+## 6b. Set up the AI advisor service (`services/ai-advisor`)
+
+Gemma-based LLM fallback for chat messages the deterministic rules in
+`apps/web/lib/chat/bot-reply.ts` don't match — see
+`services/ai-advisor/README.md` for details on the model and prompt.
+
+Requires a free Kaggle account:
+
+1. Create an API token: https://www.kaggle.com/settings → API → "Create New Token" (downloads `kaggle.json`).
+2. Accept the Gemma license on the model page: https://www.kaggle.com/models/google/gemma-2
+
+```bash
+cd services/ai-advisor
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env   # fill in KAGGLE_USERNAME / KAGGLE_KEY from kaggle.json
+uvicorn app.main:app --reload --port 3004
+```
+
+Verify it's up: **http://localhost:3004/docs** (Swagger UI), or:
+
+```bash
+curl http://localhost:3004/health
+```
+
+The Gemma model itself isn't downloaded/loaded until the first `POST /advise`
+call (i.e. the first chat message that falls through the deterministic
+rules), so `/health` returning OK doesn't guarantee the model has
+successfully loaded — check the service logs if a chat fallback reply never
+comes back or comes back as the generic "Thanks for sharing..." message.
+
+---
+
 ## 7. Running everything together
 
 Each component runs independently (there's no root-level orchestrator). For
@@ -340,7 +398,8 @@ manual/interactive use, start them in separate terminals in this order:
 1. `docker start beauty-advisor-db beauty-advisor-redis` (if not already running)
 2. Matching service: `cd services/matching-service && source .venv/bin/activate && uvicorn app.main:app --reload --port 8000`
 3. Skin-scanning service: `cd services/skin-scanning && source .venv/bin/activate && uvicorn app.main:app --reload --port 3003`
-4. Web app: `cd apps/web && npm run dev -- -p 3002`
+4. AI advisor service: `cd services/ai-advisor && source .venv/bin/activate && uvicorn app.main:app --reload --port 3004`
+5. Web app: `cd apps/web && npm run dev -- -p 3002`
 
 Then visit **http://localhost:3002/login**.
 
@@ -354,6 +413,7 @@ idempotent script in **Section 0** instead.
 *   **Web app can't reach the database** — confirm the Postgres container is running (`docker ps`) and `DATABASE_URL` in `.env.local` matches the credentials in this doc.
 *   **Skin-scan camera flow fails / "Couldn't analyze the photo"** — make sure `services/skin-scanning` is running on port 3003 and `SKIN_SCAN_SERVICE_URL` is set correctly in `.env.local`.
 *   **Quiz/onboarding routine matching fails** — make sure `services/matching-service` is running on port 8000 and `MATCHING_SERVICE_URL` is set correctly.
+*   **Chat always gives the generic "Thanks for sharing..." reply for ambiguous questions** — either `services/ai-advisor` isn't running / `AI_ADVISOR_SERVICE_URL` isn't set in `.env.local`, or the Gemma model failed to download/load (check `services/ai-advisor` logs — usually a missing/invalid `KAGGLE_USERNAME`/`KAGGLE_KEY` or the Gemma license not being accepted on Kaggle yet).
 *   **`pip install` fails on `mediapipe`** — you're very likely not on Python 3.12. Re-create the virtualenv with `python3.12 -m venv .venv` explicitly.
 *   **Login redirect fails** — your Google OAuth client's "Authorized redirect URI" must exactly match `http://localhost:3002/api/auth/google/callback`.
 *   **`docker run` fails with "name already in use"** — a container from a previous setup already exists; use `docker start beauty-advisor-db` / `docker start beauty-advisor-redis` instead of `docker run`, or use the idempotent script in Section 0 which handles this automatically.

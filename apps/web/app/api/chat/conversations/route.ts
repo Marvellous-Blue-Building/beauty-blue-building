@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth/session";
+import { createConversation } from "@/lib/chat/create-conversation";
 import type { ConversationSummary } from "@/types/chat";
 
 /** Lists real conversations only — nothing is created here. A brand new
@@ -32,4 +33,17 @@ export async function GET() {
     updatedAt: r.updated_at,
   }));
   return NextResponse.json(conversations);
+}
+
+/** "Clear Chat" (trash icon) — starts a brand new conversation session.
+ * This does NOT delete the previous conversation or its messages; that
+ * history stays fully intact and browsable at /chat/history. Mirrors the
+ * same lazy-creation logic as the first real send in
+ * app/api/chat/messages/route.ts, just triggered explicitly instead. */
+export async function POST() {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+
+  const { conversationId, greetingMessage } = await createConversation(user.id);
+  return NextResponse.json({ conversationId, greetingMessage });
 }

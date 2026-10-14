@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callMatchingService } from "@/lib/matching-client";
-import { serverStore } from "@/lib/server-store";
 import { pool } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth/session";
 import { isQuestionnaireComplete, isScanComplete } from "@/lib/onboarding-complete";
@@ -72,6 +71,5 @@ export async function POST(request: NextRequest) {
   }
 
   const routine = await callMatchingService(quiz, scan);
-  serverStore.latestRoutine = routine;
   return NextResponse.json(routine);
 }

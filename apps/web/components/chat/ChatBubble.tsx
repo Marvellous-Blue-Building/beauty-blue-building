@@ -32,6 +32,20 @@ function Timestamp({ createdAt }: { createdAt: string }) {
   );
 }
 
+function TypingDots() {
+  return (
+    <div className="flex items-center gap-1 py-[2px]" aria-label="AI Advisor is typing">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="h-[6px] w-[6px] animate-bounce rounded-full bg-text-faint"
+          style={{ animationDelay: `${i * 150}ms` }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function ChatBubble({ message }: { message: ChatMessage }) {
   if (message.role === "bot") {
     return (
@@ -40,9 +54,9 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
           <RobotIcon className="h-[15px] w-[15px]" />
         </span>
         <div className="max-w-[78%] rounded-2xl rounded-bl-[4px] border border-border bg-surface px-[13px] py-[11px] text-[13px] leading-relaxed text-text">
-          {message.text}
+          {message.pending ? <TypingDots /> : message.text}
         </div>
-        <Timestamp createdAt={message.createdAt} />
+        {!message.pending && <Timestamp createdAt={message.createdAt} />}
       </div>
     );
   }

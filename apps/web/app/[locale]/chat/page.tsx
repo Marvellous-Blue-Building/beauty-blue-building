@@ -8,7 +8,7 @@ import { ChatTranscript } from "@/components/chat/ChatTranscript";
 import { ChatSuggestRow } from "@/components/chat/ChatSuggestRow";
 import { ChatInputBar } from "@/components/chat/ChatInputBar";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { getJSON, postJSON, deleteJSON, ApiError } from "@/lib/api-client";
+import { getJSON, postJSON, ApiError } from "@/lib/api-client";
 import { useChatUIStore } from "@/lib/store/chat-ui-store";
 import type { ChatMessage, ConversationDetail, ConversationSummary } from "@/types/chat";
 
@@ -20,16 +20,25 @@ export default function ChatPage() {
   const [draft, setDraft] = useState("");
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const clearToken = useChatUIStore((s) => s.clearToken);
+  const setCanClear = useChatUIStore((s) => s.setCanClear);
   const [prevClearToken, setPrevClearToken] = useState(clearToken);
+  // Nothing worth clearing when the only bubble shown is the greeting
+  // (TopBar disables the trash-icon button for this same condition).
+  const canClear = messages.length > 1;
   if (clearToken !== prevClearToken) {
     setPrevClearToken(clearToken);
-    if (conversationId) setShowClearConfirm(true);
+    if (canClear) setShowClearConfirm(true);
   }
 
-  // This screen is one persistent, ongoing conversation — it resumes the
-  // user's existing conversation on every visit (not a fresh one each
-  // time) and keeps accumulating messages indefinitely until they
-  // explicitly hit Clear Chat.
+  useEffect(() => {
+    setCanClear(canClear);
+  }, [canClear, setCanClear]);
+
+  // Resumes the user's most recent conversation on every visit (not a
+  // fresh one each time), accumulating messages indefinitely — until
+  // "Clear Chat" starts a brand new session (see performClear). That does
+  // NOT delete the old conversation; it stays fully intact and browsable
+  // at /chat/history, it just stops being the one this screen resumes.
   useEffect(() => {
     getJSON<ConversationSummary[]>("/api/chat/conversations")
       .then(async (conversations) => {
@@ -48,9 +57,14 @@ export default function ChatPage() {
     const text = draft.trim();
     if (!text) return;
     const optimisticId = `local-${Date.now()}`;
+    const pendingBotId = `pending-${Date.now()}`;
     setMessages((prev) => [
       ...prev,
       { id: optimisticId, role: "user", text, createdAt: new Date().toISOString() },
+      // Shown while waiting on the real reply — the ambiguous-message path
+      // calls out to services/ai-advisor (Gemma), which can take a few
+      // seconds, so a bouncing-dots bubble stands in until it resolves.
+      { id: pendingBotId, role: "bot", pending: true, createdAt: new Date().toISOString() },
     ]);
     setDraft("");
     postJSON<{
@@ -65,25 +79,35 @@ export default function ChatPage() {
           // First-ever send: the greeting is only real (DB-backed) from
           // this point on — prepend it ahead of the just-sent message.
           ...(res.greetingMessage ? [res.greetingMessage] : []),
-          ...prev.map((m) => (m.id === optimisticId ? res.message : m)),
-          res.botMessage,
+          ...prev.map((m) => {
+            if (m.id === optimisticId) return res.message;
+            if (m.id === pendingBotId) return res.botMessage;
+            return m;
+          }),
         ]);
       })
       .catch((err) => {
-        // Guest (401) — message still shows locally, just isn't persisted.
+        // Guest (401) — message still shows locally, just isn't persisted;
+        // there's no bot reply coming, so drop the pending bubble. Every
+        // other failure mode now always gets a real stored bot message
+        // from the route (including an honest error notice if
+        // generateBotReply itself failed — see route.ts), so this is the
+        // only case left to handle client-side.
         if (!(err instanceof ApiError && err.status === 401)) throw err;
+        setMessages((prev) => prev.filter((m) => m.id !== pendingBotId));
       });
   }
 
   function performClear() {
     setShowClearConfirm(false);
-    if (!conversationId) return;
-    deleteJSON(`/api/chat/conversations/${conversationId}`).then(async () => {
-      // The pinned greeting survives server-side — re-fetch instead of
-      // blindly clearing so it still shows.
-      const detail = await getJSON<ConversationDetail>(`/api/chat/conversations/${conversationId}`);
-      setMessages(detail.messages);
-    });
+    // Starts a brand new conversation — the previous one is left
+    // completely untouched in the DB, still browsable at /chat/history.
+    postJSON<{ conversationId: string; greetingMessage: ChatMessage }>("/api/chat/conversations").then(
+      (res) => {
+        setConversationId(res.conversationId);
+        setMessages([res.greetingMessage]);
+      }
+    );
   }
 
   return (
@@ -93,10 +117,18 @@ export default function ChatPage() {
           {/* Nothing is stored until the user's first real send (see
               handleSend) — until then this is a local-only bubble, not a
               DB row. Once a conversation exists, its real pinned greeting
-              (first item in `messages`) takes over. */}
+              (first item in `messages`) takes over. Hardcoded Indonesian
+              to match that real greeting (lib/chat/create-conversation.ts)
+              — the AI Advisor always responds in Bahasa Indonesia,
+              independent of the app's own UI locale. */}
           {messages.length === 0 && (
             <ChatBubble
-              message={{ id: "greeting", role: "bot", text: t("greeting"), createdAt: new Date().toISOString() }}
+              message={{
+                id: "greeting",
+                role: "bot",
+                text: "Halo, ini AI Advisor. Ada yang bisa saya bantu?",
+                createdAt: new Date().toISOString(),
+              }}
             />
           )}
           <ChatTranscript messages={messages} />

@@ -36,7 +36,7 @@ export function RoutineCard({
 
   return (
     <Link
-      href={`/product/${product.id}`}
+      href={`/product/${product.parentSku}?variant=${product.id}`}
       className="mb-[10px] flex items-center gap-3 rounded-[14px] border border-border bg-surface p-[13px]"
     >
       {content}

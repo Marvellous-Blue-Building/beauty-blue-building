@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { CameraIcon, MicrophoneIcon, SendIcon } from "@/components/layout/TabIcons";
+import { SendIcon } from "@/components/layout/TabIcons";
 
 export function ChatInputBar({
   value,
@@ -21,9 +21,6 @@ export function ChatInputBar({
 
   return (
     <div className="flex items-center gap-1.5 rounded-[26px] border border-border bg-surface py-1.5 pr-1.5 pl-4">
-      <button type="button" aria-label="Upload photo" className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border border-border text-text-muted">
-        <CameraIcon className="h-4 w-4" />
-      </button>
       <input
         type="text"
         value={value}
@@ -34,9 +31,6 @@ export function ChatInputBar({
         placeholder={t("placeholder")}
         className="min-w-0 flex-1 bg-transparent text-[13px] text-text outline-none placeholder:text-text-faint"
       />
-      <button type="button" aria-label="Voice input" className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border border-border text-text-muted">
-        <MicrophoneIcon className="h-4 w-4" />
-      </button>
       <button
         type="button"
         onClick={handleSend}

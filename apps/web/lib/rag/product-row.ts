@@ -18,8 +18,18 @@ export interface ProductRow {
   ingredients: string | null;
   size_label: string | null;
   image_url: string | null;
+  stock_quantity: number;
   /** How many rows share this product's parent_sku (color/size variant count) — see the variant_count subquery wherever ProductRow is selected. */
   variant_count: string;
+  parent_sku: string | null;
+  color_variant: string | null;
+  variant_color_name: string | null;
+  /** Distinct in-stock color_variant hexes across the whole parent_sku
+   * family — see the color_palette subquery wherever ProductRow is
+   * selected for list/search display. Absent (undefined) on queries that
+   * don't bother computing it (e.g. the detail endpoint, which fetches
+   * full sibling Products instead). */
+  color_palette?: string[] | null;
 }
 
 function buildCompatibility(category: string | null, ingredients: string | null): Product["compatibility"] {
@@ -63,6 +73,7 @@ export function toProduct(row: ProductRow, matchPercent?: number): Product {
   return {
     id: row.id,
     sku: row.sku ?? "",
+    parentSku: row.parent_sku ?? row.sku ?? row.id,
     name: row.name,
     brand: row.brand ?? "Unbranded",
     imageUrl: extractImageUrl(row.image_url),
@@ -73,10 +84,14 @@ export function toProduct(row: ProductRow, matchPercent?: number): Product {
     rating: row.rating ? parseFloat(row.rating) : null,
     totalReview: row.total_review,
     category: row.category ?? "uncategorized",
+    stockQuantity: row.stock_quantity,
     tags: tagList,
     matchPercent,
     description,
     inci: parseIngredients(row.ingredients).map((name) => ({ name })),
     compatibility: buildCompatibility(row.category, row.ingredients),
+    colorHex: row.color_variant,
+    colorName: row.variant_color_name,
+    colorPalette: row.color_palette ?? (row.color_variant ? [row.color_variant] : []),
   };
 }

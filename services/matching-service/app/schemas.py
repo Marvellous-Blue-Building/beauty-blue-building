@@ -74,6 +74,7 @@ class CompatibilityNote(BaseModel):
 class Product(BaseModel):
     id: str
     sku: str
+    parentSku: str
     name: str
     brand: str
     imageUrl: Optional[str] = None
@@ -84,11 +85,15 @@ class Product(BaseModel):
     rating: Optional[float] = None
     totalReview: Optional[int] = None
     category: str
+    stockQuantity: int
     tags: list[ProductTag] = []
     matchPercent: Optional[float] = None
     description: str
     inci: list[InciIngredient] = []
     compatibility: list[CompatibilityNote] = []
+    colorHex: Optional[str] = None
+    colorName: Optional[str] = None
+    colorPalette: list[str] = []
 
 
 class MatchedRoutineStep(BaseModel):
@@ -106,3 +111,29 @@ class MatchedRoutine(BaseModel):
 class MatchRoutineRequest(BaseModel):
     quiz: QuizAnswers
     scan: Optional[ScanMetrics] = None
+
+
+Intent = Literal["product_recommendation", "ingredient_inquiry", "routine_advice", "general_question"]
+
+
+class ChatUnderstandRequest(BaseModel):
+    conversationId: Optional[str] = None
+    text: str
+
+
+class ChatUnderstanding(BaseModel):
+    """Structured Understanding Object — docs/plan.md SS4 step 13. The
+    chat-pipeline equivalent of MatchedRoutine, for free-text chat input
+    instead of structured quiz input."""
+
+    normalizedText: str
+    recognizedEntities: list[str] = []
+    intent: Intent
+    confidence: Confidence
+    isAmbiguous: bool
+    reply: Optional[str] = None
+    topCandidate: Optional[Product] = None
+    # Up to 6 closest-ranked items for the chat UI's full-width product
+    # list below the bot bubble (see chat_pipeline.py's _retrieve_candidates).
+    candidates: list[Product] = []
+    conversationContext: list[str] = []

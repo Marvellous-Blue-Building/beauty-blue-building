@@ -1,46 +1,100 @@
 /**
- * Template/keyword-based reply generator — same honesty tier as the RAG
- * routine matcher's "why" text (lib/rag/match-routine.ts, now ported to
- * services/matching-service): real rules grounded in real skincare
- * knowledge, not a fabricated claim of LLM synthesis. No LLM API is wired
- * into this app; swap this out once one is.
+ * Chat reply orchestration — runs the real 14-stage hybrid pipeline from
+ * docs/plan.md SS4:
+ *
+ *   1. services/matching-service's POST /chat/understand runs steps 1-13
+ *      (normalization, dictionary/fuzzy/entity matching, intent
+ *      classification, FTS/trigram/pgvector retrieval, conversation-state
+ *      resolution, confidence/ambiguity scoring) and composes a
+ *      deterministic reply when it isn't ambiguous.
+ *   2. Only when that pipeline is genuinely ambiguous (or unreachable) does
+ *      this fall through to services/ai-advisor's Gemma call (step 14),
+ *      grounded in whatever entities/candidates/context step 1 did
+ *      recognize — not a blind call on the raw message.
+ *
+ * There is no scripted "engagement" fallback text here on purpose — a
+ * reply is either the pipeline's real deterministic answer or Gemma's
+ * real generated text. If Gemma genuinely can't be reached, that's
+ * surfaced as a real error (see route.ts) rather than disguised as a
+ * reply that pretends to have understood the message.
+ *
+ * The agent always responds in Bahasa Indonesia — the deterministic reply
+ * text (services/matching-service's INGREDIENT_FACTS / templates) and
+ * Gemma's SYSTEM_PROMPT are both Indonesian-only, independent of the
+ * app's own UI locale setting.
  */
-const RULES: { pattern: RegExp; reply: string }[] = [
-  {
-    pattern: /retinol|retinal|tretinoin/i,
-    reply:
-      "Retinoids are powerful for texture and fine lines, but introduce them gradually — start 2-3 nights a week and always follow with SPF the next morning.",
-  },
-  {
-    pattern: /acne|breakout|pimple|blemish/i,
-    reply:
-      "For acne-prone skin, salicylic acid and niacinamide are solid picks — they help clear pores without over-drying.",
-  },
-  {
-    pattern: /dark spot|pigmentation|hyperpigmentation|uneven tone/i,
-    reply:
-      "Vitamin C and niacinamide help fade dark spots over time. Consistency and daily SPF make the biggest difference.",
-  },
-  {
-    pattern: /dry|dehydrat/i,
-    reply:
-      "Hyaluronic acid and ceramides lock in moisture well — apply to damp skin for the best results.",
-  },
-  {
-    pattern: /sensitive|irritat|redness|allerg/i,
-    reply:
-      "For sensitive or reactive skin, fragrance-free formulas with centella or panthenol tend to be gentler.",
-  },
-  {
-    pattern: /sunscreen|spf|sun protection/i,
-    reply: "A broad-spectrum SPF 30+ every morning is non-negotiable, even indoors or on cloudy days.",
-  },
-];
+import type { Product } from "@/types/product";
+import { callChatUnderstand } from "@/lib/matching-client";
 
-const FALLBACK_REPLY =
-  "Thanks for sharing — I'll factor that into your routine recommendations. Feel free to ask about specific ingredients or concerns.";
+export interface BotReply {
+  text: string;
+  /** Up to 6 closest-matching products — rendered as a full-width list
+   * below the bubble (see ChatProductList) when the pipeline found what
+   * the user was looking for. */
+  products?: Product[];
+}
 
-export function generateBotReply(userText: string): string {
-  const match = RULES.find((r) => r.pattern.test(userText));
-  return match ? match.reply : FALLBACK_REPLY;
+const AI_ADVISOR_SERVICE_URL = process.env.AI_ADVISOR_SERVICE_URL;
+const AI_ADVISOR_TIMEOUT_MS = 20_000;
+
+async function generateAiAdvisorReply(
+  userText: string,
+  grounding: { recognizedEntities: string[]; candidateProducts: string[]; conversationContext: string[] }
+): Promise<string> {
+  if (!AI_ADVISOR_SERVICE_URL) {
+    throw new Error("AI_ADVISOR_SERVICE_URL is not configured");
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), AI_ADVISOR_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${AI_ADVISOR_SERVICE_URL}/advise`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: userText,
+        recognizedEntities: grounding.recognizedEntities,
+        candidateProducts: grounding.candidateProducts,
+        conversationContext: grounding.conversationContext,
+      }),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      throw new Error(`ai-advisor responded with ${res.status}: ${detail}`);
+    }
+    const data = (await res.json()) as { reply: string };
+    if (!data.reply) throw new Error("ai-advisor returned an empty reply");
+    return data.reply;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function generateBotReply(conversationId: string | null, userText: string): Promise<BotReply> {
+  const understanding = await callChatUnderstand(conversationId, userText).catch(() => null);
+
+  // Whenever the user is asking for a product, always attach whatever the
+  // pipeline found — independent of whether the reply TEXT itself came
+  // from the deterministic pipeline or Gemma below. A product request
+  // should never end up with zero products just because confidence was
+  // borderline enough to defer the text to Gemma.
+  const products =
+    understanding?.intent === "product_recommendation" && understanding.candidates.length > 0
+      ? understanding.candidates.slice(0, 6)
+      : undefined;
+
+  if (understanding && !understanding.isAmbiguous && understanding.reply) {
+    return { text: understanding.reply, products };
+  }
+
+  const candidateProducts = (understanding?.candidates ?? []).map((p) => `${p.name} — ${p.category}`);
+  // Propagates on failure — see route.ts for how that surfaces to the user.
+  const aiReply = await generateAiAdvisorReply(userText, {
+    recognizedEntities: understanding?.recognizedEntities ?? [],
+    candidateProducts,
+    conversationContext: understanding?.conversationContext ?? [],
+  });
+
+  return { text: aiReply, products };
 }

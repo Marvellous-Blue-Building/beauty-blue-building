@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth/session";
+import { toProduct, type ProductRow } from "@/lib/rag/product-row";
 import type { ChatMessage, ConversationDetail } from "@/types/chat";
 
 export async function GET(
@@ -27,50 +28,38 @@ export async function GET(
     role: "user" | "bot";
     text: string | null;
     image_color: string | null;
-    recommendation_product_id: string | null;
-    recommendation_badge: string | null;
+    recommended_product_ids: string[] | null;
     created_at: string;
   }>(
-    `SELECT id, role, text, image_color, recommendation_product_id, recommendation_badge, created_at
+    `SELECT id, role, text, image_color, recommended_product_ids, created_at
      FROM chat_messages WHERE conversation_id = $1 ORDER BY created_at ASC`,
     [id]
   );
+
+  // Batch-resolve every recommended product id across the whole
+  // conversation in one query, rather than one round trip per message.
+  const allProductIds = [...new Set(messagesResult.rows.flatMap((m) => m.recommended_product_ids ?? []))];
+  const productsById = new Map<string, ReturnType<typeof toProduct>>();
+  if (allProductIds.length > 0) {
+    const productsResult = await pool.query<ProductRow>(
+      `SELECT *, (SELECT count(*) FROM products p2 WHERE p2.parent_sku = products.parent_sku) AS variant_count
+       FROM products WHERE id = ANY($1)`,
+      [allProductIds]
+    );
+    for (const row of productsResult.rows) productsById.set(row.id, toProduct(row));
+  }
 
   const messages: ChatMessage[] = messagesResult.rows.map((m) => ({
     id: m.id,
     role: m.role,
     text: m.text ?? undefined,
     imageColor: m.image_color ?? undefined,
-    recommendation: m.recommendation_product_id
-      ? { productId: m.recommendation_product_id, badge: m.recommendation_badge ?? "" }
+    products: m.recommended_product_ids
+      ? m.recommended_product_ids.map((pid) => productsById.get(pid)).filter((p) => p !== undefined)
       : undefined,
     createdAt: m.created_at,
   }));
 
   const detail: ConversationDetail = { id: conversation.id, title: conversation.title, messages };
   return NextResponse.json(detail);
-}
-
-/** "Clear Chat" — wipes this conversation's non-pinned messages (the
- * permanent greeting is pinned and survives), keeps the conversation row. */
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const user = await getSessionUser();
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-
-  const { id } = await params;
-  const convResult = await pool.query<{ id: string }>(
-    "SELECT id FROM chat_conversations WHERE id = $1 AND user_id = $2",
-    [id, user.id]
-  );
-  if (!convResult.rows[0]) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  await pool.query("DELETE FROM chat_messages WHERE conversation_id = $1 AND is_pinned = false", [id]);
-  await pool.query("UPDATE chat_conversations SET updated_at = CURRENT_TIMESTAMP WHERE id = $1", [id]);
-
-  return NextResponse.json({ ok: true });
 }

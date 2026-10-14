@@ -37,6 +37,7 @@ export function TopBar() {
   const isChatScreen = pathname === "/chat";
   const showCart = meta.showCart && !isChatScreen && !(isGuestLockedRoute(pathname) && !user);
   const requestClear = useChatUIStore((s) => s.requestClear);
+  const canClear = useChatUIStore((s) => s.canClear);
   // The language switcher only makes sense before a session exists — on
   // Profile it lives in the page body instead (its own "Change Language"
   // section, above Account).
@@ -44,7 +45,7 @@ export function TopBar() {
 
   return (
     <header className="flex items-center gap-[10px] border-b border-border px-[18px] py-[14px]">
-      {showBack ? (
+      {showBack && (
         <button
           type="button"
           onClick={() => router.back()}
@@ -53,8 +54,6 @@ export function TopBar() {
         >
           ←
         </button>
-      ) : (
-        <div className="h-[30px] w-[30px] shrink-0" />
       )}
       <h1 className="flex-1 text-[13.5px] font-semibold tracking-[0.4px] text-canvas-ink uppercase">
         {t(titleKey)}
@@ -75,8 +74,9 @@ export function TopBar() {
           <button
             type="button"
             onClick={requestClear}
+            disabled={!canClear}
             aria-label="Clear Chat"
-            className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text"
+            className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text disabled:opacity-40"
           >
             <ClearChatIcon className="h-4 w-4" />
           </button>

@@ -1,6 +1,6 @@
 import type { ChatMessage } from "@/types/chat";
 import { ChatBubble } from "@/components/chat/ChatBubble";
-import { ChatRecCard } from "@/components/chat/ChatRecCard";
+import { ChatProductList } from "@/components/chat/ChatProductList";
 import { dateSeparatorLabel } from "@/lib/format";
 
 /** Renders a message list with WhatsApp-style date separators — a badge
@@ -24,7 +24,7 @@ export function ChatTranscript({ messages }: { messages: ChatMessage[] }) {
               </div>
             )}
             <ChatBubble message={m} />
-            {m.recommendation && <ChatRecCard recommendation={m.recommendation} />}
+            {m.products && m.products.length > 0 && <ChatProductList products={m.products} />}
           </div>
         );
       })}

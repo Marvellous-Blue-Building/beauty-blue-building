@@ -63,6 +63,7 @@ def to_product(row: asyncpg.Record, match_percent: Optional[float] = None) -> Pr
     return Product(
         id=str(row["id"]),
         sku=row["sku"] or "",
+        parentSku=row["parent_sku"] or row["sku"] or str(row["id"]),
         name=row["name"],
         brand=row["brand"] or "Unbranded",
         imageUrl=extract_image_url(row["image_url"]),
@@ -73,9 +74,13 @@ def to_product(row: asyncpg.Record, match_percent: Optional[float] = None) -> Pr
         rating=float(row["rating"]) if row["rating"] is not None else None,
         totalReview=row["total_review"],
         category=row["category"] or "uncategorized",
+        stockQuantity=int(row["stock_quantity"]),
         tags=tags,
         matchPercent=match_percent,
         description=description,
         inci=[InciIngredient(name=n) for n in parse_ingredients(ingredients)],
         compatibility=_build_compatibility(row["category"], ingredients),
+        colorHex=row["color_variant"],
+        colorName=row["variant_color_name"],
+        colorPalette=list(row["color_palette"]) if row["color_palette"] else [],
     )

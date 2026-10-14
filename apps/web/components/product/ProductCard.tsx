@@ -14,7 +14,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link
-      href={`/product/${product.id}`}
+      href={`/product/${product.parentSku}?variant=${product.id}`}
       className="relative w-[132px] shrink-0 rounded-[14px] border border-border bg-surface p-[11px]"
     >
       <SaveButton productId={product.id} />

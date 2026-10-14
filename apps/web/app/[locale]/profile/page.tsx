@@ -137,7 +137,7 @@ export default function ProfilePage() {
         viewAllHref="/shop?filter=saved"
         renderItem={(product) => (
           <Link
-            href={`/product/${product.id}`}
+            href={`/product/${product.parentSku}?variant=${product.id}`}
             className="w-[132px] shrink-0 rounded-[14px] border border-border bg-surface p-[11px]"
           >
             <ProductImage src={product.imageUrl} alt={product.name} className="mb-[9px] h-[72px] w-full rounded-[10px]" sizes="132px" />

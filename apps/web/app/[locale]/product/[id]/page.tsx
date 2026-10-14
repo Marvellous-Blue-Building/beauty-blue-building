@@ -2,8 +2,8 @@
 
 import { use, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
-import { notFound } from "next/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
+import { notFound, useSearchParams } from "next/navigation";
 import { ScreenContainer } from "@/components/layout/ScreenContainer";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { InciTagList } from "@/components/product/InciTagList";
@@ -12,33 +12,73 @@ import { SaveButtonLabel } from "@/components/product/SaveButtonLabel";
 import { DisclaimerBanner } from "@/components/ui/DisclaimerBanner";
 import { Button, buttonClassName } from "@/components/ui/Button";
 import { ProductImage } from "@/components/product/ProductImage";
-import { getJSON } from "@/lib/api-client";
+import { getJSON, ApiError } from "@/lib/api-client";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useQuizStore } from "@/lib/store/quiz-store";
 import { flagIngredients } from "@/lib/rag/sensitivity-flags";
 import { formatCurrency, discountPercent } from "@/lib/format";
+import { cn } from "@/lib/cn";
 import type { Product } from "@/types/product";
 
+/** `id` in this route is a parent_sku, not one row's own UUID — every
+ * color/size variant sharing that parent_sku is fetched once up front (see
+ * GET /api/products/[id]), so switching between shades/sizes below is a
+ * pure client-side state change: zero network round-trip, zero reload. */
 export default function ProductDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const [product, setProduct] = useState<Product | null | undefined>(undefined);
+  const { id: parentSku } = use(params);
+  const [variants, setVariants] = useState<Product[] | null | undefined>(undefined);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const t = useTranslations("product");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  // Opened from the chat's product list (see CatalogCard's fromChat prop) —
+  // "View Alternatives" should return to that conversation, not /shop.
+  const fromChat = searchParams.get("from") === "chat";
+  const requestedVariantId = searchParams.get("variant");
   const addToCart = useCartStore((s) => s.addToCart);
-  const inCart = useCartStore((s) => s.items.some((i) => i.productId === id));
+  const inCart = useCartStore((s) => s.items.some((i) => i.productId === selectedId));
   const sensitivities = useQuizStore((s) => s.sensitivities);
 
   useEffect(() => {
-    getJSON<Product>(`/api/products/${id}`)
-      .then(setProduct)
-      .catch(() => setProduct(null));
-  }, [id]);
+    getJSON<{ variants: Product[] }>(`/api/products/${parentSku}`)
+      .then((res) => setVariants(res.variants))
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 404) return setVariants(null);
+        throw err;
+      });
+  }, [parentSku]);
 
-  if (product === undefined) return null;
-  if (product === null) notFound();
+  // Default selection, derived at render time (not via a setState-in-effect)
+  // — honors a specific shade/size the user actually clicked from a list
+  // (even if it's since gone out of stock — they should see exactly what
+  // they picked), otherwise prefers an in-stock variant over landing on a
+  // dead one. `selectedId` only ever gets set explicitly, on a real click.
+  const defaultVariantId =
+    variants &&
+    (requestedVariantId && variants.some((v) => v.id === requestedVariantId)
+      ? requestedVariantId
+      : (variants.find((v) => v.stockQuantity > 0) ?? variants[0])?.id);
+  const product = variants?.find((v) => v.id === (selectedId ?? defaultVariantId));
+
+  if (variants === undefined || !product) return null;
+  if (variants === null) notFound();
+
+  // Picks which sibling a shade/size click should switch to — prefers one
+  // matching the OTHER currently-selected dimension too (e.g. clicking a
+  // new color keeps the current size if that combination exists).
+  const pickByColor = (hex: string) =>
+    variants.find((v) => v.colorHex === hex && v.sizeLabel === product.sizeLabel) ??
+    variants.find((v) => v.colorHex === hex);
+  const pickBySize = (sizeLabel: string) =>
+    variants.find((v) => v.sizeLabel === sizeLabel && v.colorHex === product.colorHex) ??
+    variants.find((v) => v.sizeLabel === sizeLabel);
+
+  const distinctColors = [...new Map(variants.filter((v) => v.colorHex).map((v) => [v.colorHex as string, v])).keys()];
+  const distinctSizes = [...new Set(variants.filter((v) => v.sizeLabel).map((v) => v.sizeLabel as string))];
 
   // Flagged live against the viewer's own declared sensitivities — not a
   // fixed property of the product.
@@ -48,10 +88,17 @@ export default function ProductDetailPage({
   );
   const flaggedIngredient = flaggedInci.find((i) => i.flagged);
   const discount = product.variantCount > 1 ? discountPercent(product.price, product.listedPrice) : null;
+  const outOfStock = product.stockQuantity === 0;
 
   return (
     <ScreenContainer>
-      <ProductImage src={product.imageUrl} alt={product.name} className="mb-4 h-[170px] w-full rounded-2xl border border-border" sizes="480px" />
+      <ProductImage
+        src={product.imageUrl}
+        alt={product.name}
+        className="mb-4 h-[170px] w-full rounded-2xl border border-border"
+        sizes="480px"
+        fit="contain"
+      />
       <div className="mb-[9px] flex items-start justify-between gap-2.5">
         <h2 className="font-display text-[22px] font-semibold text-canvas-ink">{product.name}</h2>
         <SaveButtonLabel productId={product.id} />
@@ -74,6 +121,72 @@ export default function ProductDetailPage({
         {product.sizeLabel ? ` · ${product.sizeLabel}` : ""}
         {product.tags.length > 0 ? ` · ${product.tags.join(" · ")}` : ""}
       </p>
+
+      {product.colorHex && (
+        <div className="mb-[18px]">
+          <SectionTitle>{t("shade")}</SectionTitle>
+          <div className="mb-[9px] flex items-center gap-[8px]">
+            <span
+              className="h-[22px] w-[22px] shrink-0 rounded-full border border-border"
+              style={{ backgroundColor: product.colorHex }}
+            />
+            <span className="text-[12.5px] text-canvas-ink-muted">{product.colorName}</span>
+          </div>
+          {distinctColors.length > 1 && (
+            <div className="no-scrollbar flex gap-[8px] overflow-x-auto pb-[2px]">
+              {distinctColors.map((hex) => {
+                const target = pickByColor(hex);
+                if (!target) return null;
+                const disabled = target.stockQuantity === 0;
+                return (
+                  <button
+                    key={hex}
+                    type="button"
+                    aria-label={target.colorName ?? hex}
+                    disabled={disabled}
+                    onClick={() => setSelectedId(target.id)}
+                    className={cn(
+                      "h-[28px] w-[28px] shrink-0 rounded-full border-2",
+                      disabled && "cursor-not-allowed opacity-30",
+                      hex === product.colorHex ? "border-primary" : "border-border"
+                    )}
+                    style={{ backgroundColor: hex }}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {distinctSizes.length > 1 && (
+        <div className="mb-[18px]">
+          <SectionTitle>{t("size")}</SectionTitle>
+          <div className="no-scrollbar flex gap-[8px] overflow-x-auto pb-[2px]">
+            {distinctSizes.map((sizeLabel) => {
+              const target = pickBySize(sizeLabel);
+              if (!target) return null;
+              const disabled = target.stockQuantity === 0;
+              const active = sizeLabel === product.sizeLabel;
+              return (
+                <button
+                  key={sizeLabel}
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => setSelectedId(target.id)}
+                  className={cn(
+                    "shrink-0 rounded-full border px-[12px] py-[6px] text-[11.5px] font-semibold",
+                    disabled && "cursor-not-allowed opacity-30",
+                    active ? "border-primary bg-primary-dim text-primary" : "border-border text-text-muted"
+                  )}
+                >
+                  {sizeLabel}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <SectionTitle>{t("whyRecommend")}</SectionTitle>
       <p className="mb-[13px] text-[12.5px] leading-relaxed text-canvas-ink-muted">
@@ -98,14 +211,29 @@ export default function ProductDetailPage({
       <Button
         onClick={() => addToCart(product.id, product.name)}
         added={inCart}
+        disabled={outOfStock}
         className="mb-2.5 w-full"
       >
-        {inCart ? t("added") : `${t("addToCart")} — ${formatCurrency(product.price)}`}
+        {outOfStock
+          ? t("outOfStock")
+          : inCart
+            ? t("added")
+            : `${t("addToCart")} — ${formatCurrency(product.price)}`}
       </Button>
       <div className="flex gap-2.5">
-        <Link href="/shop" className={buttonClassName({ variant: "ghost", className: "flex-1" })}>
-          {t("viewAlternatives")}
-        </Link>
+        {fromChat ? (
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className={buttonClassName({ variant: "ghost", className: "flex-1" })}
+          >
+            {t("viewAlternatives")}
+          </button>
+        ) : (
+          <Link href="/shop" className={buttonClassName({ variant: "ghost", className: "flex-1" })}>
+            {t("viewAlternatives")}
+          </Link>
+        )}
         <Link href="/routine" className={buttonClassName({ variant: "ghost", className: "flex-1" })}>
           {t("backToRoutine")}
         </Link>
