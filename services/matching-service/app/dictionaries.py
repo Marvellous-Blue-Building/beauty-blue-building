@@ -40,20 +40,33 @@ SENSITIVITY_KEYWORDS: dict[str, list[str]] = {
 }
 
 
+# services/skin-scanning's scoring v2 (app/metrics.py) scores every one of
+# the 5 metrics with the SAME linear formula: 95 at its "good" calibration
+# anchor, 45 at its "poor" anchor, clamped 5-99. A raw score of 70 is now
+# meaningfully the same thing on every metric — exactly halfway between
+# those two anchors — so one shared threshold is the principled choice,
+# where the old per-metric numbers (70/80/75/75/65) were leftover guesses
+# from a prior, non-uniform heuristic scoring version. Kept equal to
+# apps/web/lib/scan/score-bands.ts's "good" cutoff on purpose — a scan
+# metric starts boosting ingredients exactly where the diagnostic report
+# itself stops calling that metric "good".
+SCAN_METRIC_BOOST_THRESHOLD = 70
+
+
 def scan_metric_keywords(scan: Optional[dict]) -> list[str]:
     """Context resolution: boost ingredient keywords based on real scan metrics."""
     if not scan:
         return []
     boosts: list[str] = []
-    if scan["hydration"] < 70:
+    if scan["hydration"] < SCAN_METRIC_BOOST_THRESHOLD:
         boosts += ["hyaluronic acid", "glycerin", "ceramide", "squalane"]
-    if scan["elasticity"] < 80:
+    if scan["elasticity"] < SCAN_METRIC_BOOST_THRESHOLD:
         boosts += ["peptide", "retinol", "collagen"]
-    if scan["pigmentation"] < 75:
+    if scan["pigmentation"] < SCAN_METRIC_BOOST_THRESHOLD:
         boosts += ["vitamin c", "niacinamide", "alpha arbutin"]
-    if scan["texture"] < 75:
+    if scan["texture"] < SCAN_METRIC_BOOST_THRESHOLD:
         boosts += ["salicylic acid", "niacinamide"]
-    if scan["pores"] < 65:
+    if scan["pores"] < SCAN_METRIC_BOOST_THRESHOLD:
         boosts += ["niacinamide", "salicylic acid", "clay"]
     return boosts
 

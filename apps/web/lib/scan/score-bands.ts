@@ -13,8 +13,13 @@ export const METRIC_KEYS = [
 export type MetricKey = (typeof METRIC_KEYS)[number];
 
 /** Plain-language rating for a 0-100 score. "Good" starts at 70, which lines
- * up with where services/matching-service starts boosting ingredients for a
- * metric (65-80 depending on the metric). */
+ * up exactly with services/matching-service's SCAN_METRIC_BOOST_THRESHOLD —
+ * a metric starts boosting ingredients exactly where this stops calling it
+ * "good". Both are 70 on purpose: scoring v2 (services/skin-scanning's
+ * app/metrics.py) scores every metric with the same linear formula (95 at
+ * its "good" calibration anchor, 45 at "poor"), so 70 is a consistent
+ * "halfway between good and poor" line across all 5 metrics now, not an
+ * arbitrary per-metric guess. */
 export function scoreBand(score: number): ScoreBand {
   if (score >= 85) return "great";
   if (score >= 70) return "good";
