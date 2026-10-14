@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import type { CropRect } from "@/lib/image-crop";
 import type { ScanReport } from "@/types/scan";
 
 interface ScanState {
@@ -11,6 +12,9 @@ interface ScanState {
    * photo with the scan_results row.
    */
   imageDataUrl: string | null;
+  /** Where `imageDataUrl` sits in the analyzed frame, to map the report's
+   * zone positions onto it. In memory only, like the photo. */
+  imageCrop: CropRect | null;
   /**
    * Where the current scan was launched from. "checkin" (the weekly
    * "Recheck Your Skin" flow) turns the report's primary CTA into an explicit
@@ -19,7 +23,7 @@ interface ScanState {
    */
   origin: "scan" | "checkin";
   setResult: (result: ScanReport) => void;
-  setImage: (imageDataUrl: string | null) => void;
+  setImage: (imageDataUrl: string | null, imageCrop?: CropRect | null) => void;
   setOrigin: (origin: "scan" | "checkin") => void;
 }
 
@@ -28,9 +32,11 @@ export const useScanStore = create<ScanState>()(
     (set) => ({
       result: null,
       imageDataUrl: null,
+      imageCrop: null,
       origin: "scan",
       setResult: (result: ScanReport) => set({ result }),
-      setImage: (imageDataUrl: string | null) => set({ imageDataUrl }),
+      setImage: (imageDataUrl: string | null, imageCrop: CropRect | null = null) =>
+        set({ imageDataUrl, imageCrop }),
       setOrigin: (origin: "scan" | "checkin") => set({ origin }),
     }),
     {

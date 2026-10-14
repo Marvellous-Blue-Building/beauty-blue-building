@@ -17,7 +17,7 @@
     "skinScan": "Pindai Kulit",
     "recheckSkin": "Periksa Ulang Kulit Anda",
     "scanning": "Memindai",
-    "diagnosticReport": "Laporan Diagnostik",
+    "diagnosticReport": "Laporan Kulit",
     "skinType": "Jenis Kulit",
     "concerns": "Masalah Kulit",
     "sensitivities": "Sensitivitas",
@@ -56,46 +56,185 @@
     "startScan": "Mulai Pindai Kulit"
   },
   "scan": {
-    "stepLabel": "Pemindai Diagnostik Kulit AI",
+    "stepLabel": "Cek kulit AI",
     "title": "Posisikan wajah Anda di dalam bingkai",
     "subtitle": "Pencahayaan baik, tanpa riasan, ekspresi netral. Foto Anda diproses secara aman dan tidak pernah dibagikan.",
     "centerPrompt": "Posisikan wajah Anda di dalam panduan oval",
-    "lightingOptimal": "Pencahayaan: Optimal",
-    "landmarksLive": "468 Titik Wajah",
-    "progressLabel": "Menganalisis biomarker wajah",
-    "statusCalibrating": "Mengkalibrasi luminansi kulit & pantulan spekular…",
-    "statusTzone": "Menganalisis dilatasi pori & indeks sebum zona-T…",
-    "statusCheeks": "Mengukur gradien hidrasi pipi & mikro-eritema…",
-    "statusCompiling": "Menyusun laporan dermatologi klinis…",
-    "statusComplete": "Pindai selesai — membuka laporan Anda…",
+    "progressLabel": "Menganalisis kulit Anda",
+    "statusMapping": "Menemukan wajah & zona kulit Anda…",
+    "statusCalibrating": "Memeriksa pencahayaan & kilap…",
+    "statusTzone": "Melihat pori-pori & minyak di zona-T…",
+    "statusCheeks": "Memeriksa kehalusan & kemerahan pipi…",
+    "statusCompiling": "Menyusun laporan kulit Anda…",
+    "statusComplete": "Selesai — membuka laporan Anda…",
     "uploadPrompt": "Kamera tidak tersedia — unggah foto sebagai gantinya",
     "errorCamera": "Tidak dapat mengakses kamera. Periksa izin atau unggah foto.",
     "errorNoFace": "Wajah tidak terdeteksi. Posisikan wajah di dalam oval dan coba lagi.",
     "errorGeneric": "Gagal menganalisis foto. Pastikan layanan pemindai kulit berjalan.",
-    "capture": "Ambil dan analisis",
     "flipCamera": "Balik kamera",
-    "skipScan": "Lewati pindai, lanjut ke kuis"
+    "skipScan": "Lewati pindai, lanjut ke kuis",
+    "lightOk": "Cahaya: Baik",
+    "lightDim": "Cahaya: Terlalu redup",
+    "lightGlare": "Cahaya: Silau",
+    "sharpOk": "Fokus: Stabil",
+    "sharpBlur": "Fokus: Buram",
+    "poseOk": "Posisi: Di tengah",
+    "poseNoFace": "Posisi: Wajah tidak ada",
+    "poseOffCenter": "Posisi: Tidak di tengah",
+    "poseTooFar": "Posisi: Terlalu jauh",
+    "poseTooClose": "Posisi: Terlalu dekat",
+    "poseTurned": "Posisi: Menoleh",
+    "poseLoading": "Posisi: Memuat…",
+    "poseUnavailable": "Posisi: Nonaktif",
+    "colorNeutral": "Warna: Netral",
+    "colorWarm": "Warna: Cahaya hangat",
+    "colorCool": "Warna: Cahaya dingin",
+    "guideDim": "Pencahayaan terlalu redup · Pindah ke cahaya siang yang lebih terang",
+    "guideGlare": "Silau terdeteksi · Hindari flash langsung atau pantulan",
+    "guideBlur": "Kamera bergerak · Tahan agar tetap diam",
+    "guideOffCenter": "Posisikan wajah di tengah oval",
+    "guideTooFar": "Mendekat sedikit",
+    "guideTooClose": "Mundur sedikit",
+    "guideTurned": "Lihat lurus ke kamera",
+    "guideManual": "Posisikan wajah di dalam oval, lalu ketuk tombol rana",
+    "zoneForehead": "Dahi",
+    "zoneUnderEye": "Bawah mata",
+    "zoneNose": "Hidung",
+    "zoneLeftCheek": "Pipi kiri",
+    "zoneRightCheek": "Pipi kanan",
+    "zoneChin": "Dagu",
+    "severityLow": "Ringan",
+    "severityMedium": "Sedang",
+    "severityHigh": "Terlihat jelas",
+    "errorFaceTooSmall": "Wajah Anda terlalu kecil di foto. Mendekatlah atau gunakan foto yang lebih tajam.",
+    "errorNoSkin": "Kulit wajah kurang terlihat. Singkirkan rambut atau apa pun yang menutupi wajah.",
+    "errorTooDark": "Foto terlalu gelap. Pindah ke cahaya yang lebih terang dan merata, lalu coba lagi.",
+    "errorTooBlurry": "Foto buram. Tahan agar tetap diam dan coba lagi.",
+    "guideHold": "Sempurna — tahan posisi…",
+    "guideMoveLeft": "Geser sedikit ke kiri",
+    "guideMoveRight": "Geser sedikit ke kanan",
+    "guideMoveUp": "Naikkan sedikit",
+    "guideMoveDown": "Turunkan sedikit",
+    "stepPosition": "Posisi",
+    "stepHold": "Tahan",
+    "stepAnalyze": "Analisis",
+    "handsFreeHint": "Tanpa sentuh — foto diambil otomatis saat semuanya sudah pas.",
+    "takePhotoNow": "Ambil foto sekarang",
+    "uploadPhoto": "Unggah foto"
   },
   "scanning": {
     "title": "Memetakan titik wajah…",
     "subtitle": "Mensegmentasi zona — dahi, bawah mata, pipi, dagu, hidung."
   },
   "diagnostic": {
-    "stepLabel": "Laporan Kesehatan Kulit",
+    "stepLabel": "Laporan kulit Anda",
     "overall": "Keseluruhan",
     "hydration": "Hidrasi",
     "elasticity": "Elastisitas",
     "pigmentation": "Pigmentasi",
     "texture": "Tekstur",
     "pores": "Pori-pori",
-    "disclaimer": "Ini adalah penilaian kecantikan kosmetik, bukan diagnosis medis. Konsultasikan dengan dokter kulit untuk masalah klinis.",
-    "continueProfile": "Lanjutkan ke Pengaturan Profil",
-    "submitScan": "Kirim pemindaian",
+    "disclaimer": "Ini adalah pemeriksaan kosmetik dari satu foto, bukan diagnosis medis. Pencahayaan dan kamera dapat memengaruhi hasil — temui dokter kulit untuk masalah medis apa pun.",
+    "continueProfile": "Dapatkan rutinitas saya",
+    "submitScan": "Simpan ke progres",
     "submitting": "Mengirim…",
     "submitError": "Tidak dapat mengirim pemindaian Anda. Silakan coba lagi.",
-    "retakeScan": "Pindai Ulang",
+    "retakeScan": "Pindai ulang",
     "noReportTitle": "Belum ada pindai",
-    "noReportSubtitle": "Lakukan pemindaian kulit terlebih dahulu dan laporan diagnostik akan muncul di sini."
+    "noReportSubtitle": "Lakukan pemindaian kulit terlebih dahulu dan laporan kulit Anda akan muncul di sini.",
+    "outOf100": "dari 100",
+    "bands": {
+      "great": "Sangat baik",
+      "good": "Baik",
+      "fair": "Cukup",
+      "needsCare": "Perlu perawatan"
+    },
+    "verdict": {
+      "great": {
+        "title": "Kulit Anda tampak sangat baik",
+        "body": "Sehat dan seimbang secara keseluruhan — pertahankan kebiasaan Anda."
+      },
+      "good": {
+        "title": "Kulit Anda tampak baik",
+        "body": "Secara keseluruhan dalam kondisi baik, dengan beberapa hal yang perlu dirawat."
+      },
+      "fair": {
+        "title": "Beberapa area perlu perawatan",
+        "body": "Beberapa area perlu perhatian — rutinitas Anda akan berfokus di sana."
+      },
+      "needsCare": {
+        "title": "Yuk, rawat kulit Anda",
+        "body": "Beberapa area perlu perhatian. Rutinitas yang dicocokkan akan menanganinya lebih dulu."
+      }
+    },
+    "strongest": "Paling baik: {metric}",
+    "focusOn": "Fokus pada: {metric}",
+    "faceMapTitle": "Peta wajah Anda",
+    "faceMapHint": "Nomor di foto sesuai dengan daftar. Ketuk salah satu untuk menyorotnya.",
+    "areasTitle": "Area yang perlu diperhatikan",
+    "noAreasTitle": "Tidak ada yang menonjol",
+    "noAreasBody": "Tidak ada area kulit yang menonjol dalam pindaian ini. Bagus!",
+    "areas": {
+      "forehead_shine": {
+        "title": "Kilap dahi",
+        "body": "Dahi dan hidung Anda tampak berkilap — tanda zona-T berminyak.",
+        "tip": "Pelembap ringan bebas minyak dan pembersih BHA dapat membantu."
+      },
+      "under_eye": {
+        "title": "Bawah mata",
+        "body": "Kulit di bawah mata Anda tampak lebih gelap daripada pipi.",
+        "tip": "Tidur cukup, tabir surya harian, dan krim mata dengan kafein atau vitamin C dapat membantu."
+      },
+      "cheek_texture": {
+        "title": "Tekstur pipi",
+        "body": "Pipi Anda menunjukkan sedikit benjolan atau tekstur yang tidak rata.",
+        "tip": "Eksfoliasi lembut (AHA/BHA) 2–3 kali seminggu dapat menghaluskannya."
+      },
+      "cheek_redness": {
+        "title": "Kemerahan pipi",
+        "body": "Ada bercak yang lebih merah di pipi Anda.",
+        "tip": "Bahan penenang seperti centella atau niacinamide membantu; hindari scrub yang kasar."
+      },
+      "nose_pores": {
+        "title": "Pori-pori hidung",
+        "body": "Pori-pori di sekitar hidung Anda tampak lebih terlihat.",
+        "tip": "Asam salisilat (BHA) atau niacinamide membantu menjaga pori-pori tetap bersih."
+      }
+    },
+    "severity": {
+      "low": "Ringan",
+      "medium": "Sedang",
+      "high": "Terlihat jelas"
+    },
+    "scoresTitle": "Skor kulit Anda",
+    "scaleHint": "0–100 · makin tinggi makin baik",
+    "metrics": {
+      "hydration": {
+        "what": "Seberapa halus dan lembut permukaan kulit Anda terlihat. Kulit kering tampak lebih kasar dan kusam.",
+        "tip": "Gunakan serum hidrasi (asam hialuronat) dan pelembap setiap hari."
+      },
+      "elasticity": {
+        "what": "Seberapa sedikit garis halus di dahi dan di bawah mata Anda.",
+        "tip": "Tabir surya harian dan retinoid lembut di malam hari membantu mengurangi garis halus."
+      },
+      "pigmentation": {
+        "what": "Seberapa rata warna kulit Anda — makin sedikit noda gelap, makin tinggi skornya.",
+        "tip": "SPF harian ditambah vitamin C atau niacinamide membantu meratakan warna kulit."
+      },
+      "texture": {
+        "what": "Seberapa halus pipi Anda — makin sedikit benjolan dan bagian kasar, makin tinggi skornya.",
+        "tip": "Eksfoliasi lembut (AHA/BHA) 2–3 kali seminggu menghaluskan tekstur."
+      },
+      "pores": {
+        "what": "Seberapa terlihat pori-pori di hidung Anda — makin samar, makin tinggi skornya.",
+        "tip": "Asam salisilat (BHA) atau niacinamide membantu menjaga pori-pori tetap bersih."
+      }
+    },
+    "tipLabel": "Tips",
+    "nextTitle": "Berikutnya: rutinitas yang cocok untuk Anda",
+    "nextBody": "Jawab 5 pertanyaan singkat dan kami akan mencocokkan produk dengan hasil ini.",
+    "checkinNextTitle": "Simpan check-in ini",
+    "checkinNextBody": "Tambahkan pindaian ini ke progres Anda agar bisa dibandingkan dari waktu ke waktu."
   },
   "quiz": {
     "stepOf": "Langkah {step} dari 5 — {section}",
