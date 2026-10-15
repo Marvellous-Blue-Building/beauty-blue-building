@@ -117,7 +117,28 @@
       ".bw-typing{display:flex;gap:4px;padding:9px 12px;background:#F3ECE6;border-radius:13px;width:fit-content;border-bottom-left-radius:4px;}" +
       ".bw-typing span{width:5px;height:5px;border-radius:50%;background:#999;display:inline-block;animation:bwb 1.1s infinite ease-in-out;}" +
       ".bw-typing span:nth-child(2){animation-delay:.15s;}.bw-typing span:nth-child(3){animation-delay:.3s;}" +
-      "@keyframes bwb{0%,80%,100%{transform:translateY(0);opacity:.35;}40%{transform:translateY(-3px);opacity:.9;}}"
+      "@keyframes bwb{0%,80%,100%{transform:translateY(0);opacity:.35;}40%{transform:translateY(-3px);opacity:.9;}}" +
+      ".bw-head .bw-scanbtn{margin-left:8px;}" +
+      ".bw-scanview{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;color:var(--bw-ink);}" +
+      ".bw-scanview[hidden]{display:none;}" +
+      ".bw-video{width:100%;border-radius:12px;background:#111;aspect-ratio:3/4;object-fit:cover;}" +
+      ".bw-canvas{display:none;}" +
+      ".bw-scan-actions{display:flex;gap:8px;}" +
+      ".bw-btn-primary{flex:1;background:var(--bw-primary);color:#fff;border:none;border-radius:999px;padding:10px;font-size:12.5px;font-weight:600;cursor:pointer;}" +
+      ".bw-btn-ghost{flex:1;background:#fff;border:1px solid var(--bw-line);border-radius:999px;padding:9px;font-size:12.5px;cursor:pointer;color:var(--bw-ink);}" +
+      ".bw-scan-overall{text-align:center;padding:10px 0;}" +
+      ".bw-scan-overall .num{font-size:42px;font-weight:700;color:var(--bw-primary);line-height:1;}" +
+      ".bw-scan-overall .lbl{font-size:11px;opacity:.6;margin-top:4px;}" +
+      ".bw-scan-metric{display:flex;flex-direction:column;gap:4px;}" +
+      ".bw-scan-metric .row{display:flex;justify-content:space-between;font-size:11.5px;}" +
+      ".bw-scan-bar{height:6px;border-radius:999px;background:#F3ECE6;overflow:hidden;}" +
+      ".bw-scan-bar div{height:100%;background:var(--bw-primary);}" +
+      ".bw-scan-flag{font-size:11.5px;line-height:1.4;background:#F3ECE6;border-radius:8px;padding:8px 10px;}" +
+      ".bw-scan-error{font-size:12.5px;line-height:1.5;color:#9A3B3B;background:#FBEAEA;border-radius:10px;padding:12px;}" +
+      ".bw-scan-note{font-size:10.5px;opacity:.55;text-align:center;}" +
+      ".bw-scan-spinner{display:flex;flex-direction:column;align-items:center;gap:10px;padding:40px 0;font-size:12.5px;opacity:.7;}" +
+      ".bw-spin{width:26px;height:26px;border-radius:50%;border:3px solid #F3ECE6;border-top-color:var(--bw-primary);animation:bwspin .8s linear infinite;}" +
+      "@keyframes bwspin{to{transform:rotate(360deg);}}"
     );
   };
 
@@ -153,9 +174,14 @@
           '<div class="bw-head">' +
             '<div class="bw-avatar">' + (state.config.botName || "V").charAt(0) + "</div>" +
             '<div><div class="bw-name"></div><div class="bw-status">Online</div></div>' +
+            '<button class="bw-scanbtn" aria-label="Scan kulit" title="Scan kulit">' +
+              '<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M4 7a2 2 0 012-2h2l1.5-2h5L16 5h2a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.6"/></svg>' +
+            "</button>" +
             '<button aria-label="Tutup">&times;</button>' +
           "</div>" +
           '<div class="bw-body"></div>' +
+          '<div class="bw-scanview" hidden></div>' +
+          '<canvas class="bw-canvas"></canvas>' +
           '<div class="bw-foot">' +
             '<input type="text" placeholder="Tulis pertanyaan…" />' +
             '<button aria-label="Kirim">&#8594;</button>' +
@@ -169,7 +195,168 @@
       var body = panel.querySelector(".bw-body");
       var input = panel.querySelector("input");
       var sendBtn = panel.querySelector(".bw-foot button");
-      var closeBtn = panel.querySelector(".bw-head button");
+      var closeBtn = panel.querySelector(".bw-head > button[aria-label='Tutup']");
+      var scanBtn = panel.querySelector(".bw-scanbtn");
+      var scanView = panel.querySelector(".bw-scanview");
+      var canvas = panel.querySelector(".bw-canvas");
+      var footEl = panel.querySelector(".bw-foot");
+      var cameraStream = null;
+
+      function stopCamera() {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach(function (t) { t.stop(); });
+          cameraStream = null;
+        }
+      }
+
+      function showChatView() {
+        stopCamera();
+        scanView.hidden = true;
+        body.hidden = false;
+        footEl.hidden = false;
+      }
+
+      function renderScanError(message) {
+        scanView.innerHTML = "";
+        var box = el('<div class="bw-scan-error"></div>');
+        box.textContent = message;
+        scanView.appendChild(box);
+        var actions = el('<div class="bw-scan-actions"></div>');
+        var retry = el('<button class="bw-btn-primary">Coba Lagi</button>');
+        var back = el('<button class="bw-btn-ghost">Kembali ke Chat</button>');
+        retry.addEventListener("click", renderScanCamera);
+        back.addEventListener("click", showChatView);
+        actions.appendChild(retry);
+        actions.appendChild(back);
+        scanView.appendChild(actions);
+      }
+
+      function scoreBand(score) {
+        if (score >= 80) return "Sangat baik";
+        if (score >= 60) return "Baik";
+        if (score >= 40) return "Cukup";
+        return "Perlu perhatian";
+      }
+
+      function renderScanResult(report) {
+        scanView.innerHTML = "";
+        var overall = el(
+          '<div class="bw-scan-overall"><div class="num"></div><div class="lbl">Skor kulit keseluruhan</div></div>'
+        );
+        overall.querySelector(".num").textContent = Math.round(report.overall);
+        scanView.appendChild(overall);
+
+        var metrics = [
+          ["Hidrasi", report.hydration],
+          ["Elastisitas", report.elasticity],
+          ["Pigmentasi", report.pigmentation],
+          ["Tekstur", report.texture],
+          ["Pori-pori", report.pores],
+        ];
+        metrics.forEach(function (m) {
+          var row = el(
+            '<div class="bw-scan-metric">' +
+              '<div class="row"><span></span><span></span></div>' +
+              '<div class="bw-scan-bar"><div></div></div>' +
+            "</div>"
+          );
+          var spans = row.querySelectorAll(".row span");
+          spans[0].textContent = m[0];
+          spans[1].textContent = Math.round(m[1]) + " · " + scoreBand(m[1]);
+          row.querySelector(".bw-scan-bar div").style.width = Math.max(4, Math.round(m[1])) + "%";
+          scanView.appendChild(row);
+        });
+
+        if (report.flaggedZones && report.flaggedZones.length) {
+          report.flaggedZones.slice(0, 3).forEach(function (z) {
+            var flag = el('<div class="bw-scan-flag"></div>');
+            flag.textContent = "⚠ " + z.zone + " — " + z.description;
+            scanView.appendChild(flag);
+          });
+        }
+
+        var actions = el('<div class="bw-scan-actions"></div>');
+        var again = el('<button class="bw-btn-ghost">Scan Lagi</button>');
+        var chat = el('<button class="bw-btn-primary">Tanya di Chat</button>');
+        again.addEventListener("click", renderScanCamera);
+        chat.addEventListener("click", function () {
+          showChatView();
+          addBotText("Hasil scan sudah aku lihat. Mau rekomendasi produk berdasarkan hasil ini? Ceritain juga concern utamamu ya.");
+        });
+        actions.appendChild(again);
+        actions.appendChild(chat);
+        scanView.appendChild(actions);
+      }
+
+      function analyzeFrame(dataUrl) {
+        scanView.innerHTML = "";
+        scanView.appendChild(el('<div class="bw-scan-spinner"><div class="bw-spin"></div><div>Menganalisis kulit…</div></div>'));
+        api("/api/widget/scan-analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: dataUrl, sessionId: state.sessionId }),
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (report) {
+            if (report.error) {
+              var messages = {
+                no_face: "Wajah tidak terdeteksi. Pastikan wajahmu terlihat jelas di kamera.",
+                face_too_small: "Wajah terlalu kecil di frame. Dekatkan sedikit ke kamera.",
+                no_skin: "Area kulit tidak terdeteksi cukup jelas.",
+                too_dark: "Pencahayaan terlalu gelap. Coba di tempat yang lebih terang.",
+                too_blurry: "Gambar buram. Pastikan kamera stabil lalu coba lagi.",
+              };
+              renderScanError(messages[report.error] || report.message || "Analisis gagal, coba lagi ya.");
+              return;
+            }
+            stopCamera();
+            renderScanResult(report);
+          })
+          .catch(function () {
+            renderScanError("Tidak bisa terhubung ke server analisis. Coba lagi sebentar lagi.");
+          });
+      }
+
+      function renderScanCamera() {
+        scanView.innerHTML = "";
+        var video = el('<video class="bw-video" autoplay playsinline muted></video>');
+        scanView.appendChild(video);
+        var actions = el('<div class="bw-scan-actions"></div>');
+        var capture = el('<button class="bw-btn-primary">Ambil Foto</button>');
+        var back = el('<button class="bw-btn-ghost">Batal</button>');
+        actions.appendChild(capture);
+        actions.appendChild(back);
+        scanView.appendChild(actions);
+        scanView.appendChild(el('<div class="bw-scan-note">Foto diproses oleh model analisis kulit asli (MediaPipe + OpenCV), bukan simulasi.</div>'));
+
+        back.addEventListener("click", showChatView);
+        capture.addEventListener("click", function () {
+          var w = video.videoWidth || 480;
+          var h = video.videoHeight || 640;
+          canvas.width = w;
+          canvas.height = h;
+          var ctx = canvas.getContext("2d");
+          ctx.drawImage(video, 0, 0, w, h);
+          var dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          analyzeFrame(dataUrl);
+        });
+
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
+          .then(function (stream) {
+            cameraStream = stream;
+            video.srcObject = stream;
+          })
+          .catch(function () {
+            renderScanError("Tidak bisa mengakses kamera. Izinkan akses kamera di browser lalu coba lagi.");
+          });
+      }
+
+      function openScanView() {
+        body.hidden = true;
+        footEl.hidden = true;
+        scanView.hidden = false;
+        renderScanCamera();
+      }
 
       function addBotText(text) {
         var row = el('<div class="bw-row bot"><div class="bw-bubble"></div></div>');
@@ -248,9 +435,10 @@
       });
 
       function openPanel() { panel.hidden = false; }
-      function closePanel() { panel.hidden = true; }
+      function closePanel() { panel.hidden = true; stopCamera(); }
       launcher.addEventListener("click", function () { panel.hidden = !panel.hidden; });
       closeBtn.addEventListener("click", closePanel);
+      scanBtn.addEventListener("click", openScanView);
 
       addBotText(state.config.greeting || "Hai! Ada yang bisa aku bantu?");
 
@@ -262,11 +450,13 @@
         ask: function (text) { openPanel(); send(text); },
         send: send,
         reset: function () {
+          showChatView();
           state.conversationId = null;
           storageSet(CONVO_KEY, "");
           body.innerHTML = "";
           addBotText(state.config.greeting || "Hai! Ada yang bisa aku bantu?");
         },
+        scan: openScanView,
       };
     });
   }
