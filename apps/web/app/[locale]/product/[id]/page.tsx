@@ -124,14 +124,16 @@ export default function ProductDetailPage({
           sizes="480px"
           fit="contain"
         />
-        <button
-          type="button"
-          onClick={() => setShareUrl(window.location.href)}
-          aria-label={t("share")}
-          className="absolute top-2.5 right-2.5 flex h-[32px] w-[32px] items-center justify-center rounded-full border border-border bg-surface text-text shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
-        >
-          <ShareIcon className="h-4 w-4" />
-        </button>
+        {!(authLoaded && !user) && (
+          <button
+            type="button"
+            onClick={() => setShareUrl(window.location.href)}
+            aria-label={t("share")}
+            className="absolute top-2.5 right-2.5 flex h-[32px] w-[32px] items-center justify-center rounded-full border border-border bg-surface text-text shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
+          >
+            <ShareIcon className="h-4 w-4" />
+          </button>
+        )}
       </div>
       <div className="mb-[9px] flex items-start justify-between gap-2.5">
         <h2 className="font-display text-[22px] font-semibold text-canvas-ink">{product.name}</h2>

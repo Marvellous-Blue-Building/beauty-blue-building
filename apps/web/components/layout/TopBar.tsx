@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter, Link } from "@/i18n/navigation";
@@ -7,6 +8,7 @@ import { getRouteMeta, isGuestLockedRoute } from "@/lib/route-meta";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useChatUIStore } from "@/lib/store/chat-ui-store";
+import { consumeSignedInFromGate, clearSignedInFromGate } from "@/lib/auth/signin-handoff";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
 import { HistoryIcon, ClearChatIcon, CartIcon } from "@/components/layout/TabIcons";
 
@@ -48,12 +50,27 @@ export function TopBar() {
   // section, above Account).
   const isLoginScreen = pathname === "/login";
 
+  // A guest who signs in from a gated screen should not be sent Back to the
+  // /login they were bounced to at the root. Any real navigation since then
+  // means the handoff no longer applies, so drop it on every path change.
+  useEffect(() => {
+    clearSignedInFromGate();
+  }, [pathname]);
+
+  function handleBack() {
+    if (consumeSignedInFromGate()) {
+      router.push("/routine");
+      return;
+    }
+    router.back();
+  }
+
   return (
     <header className="flex items-center gap-[10px] border-b border-border px-[18px] py-[14px]">
       {showBack && (
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={handleBack}
           aria-label="Back"
           className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border border-border bg-surface font-bold text-text"
         >

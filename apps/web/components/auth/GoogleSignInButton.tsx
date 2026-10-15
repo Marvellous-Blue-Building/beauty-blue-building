@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { openGoogleSignInPopup, type GoogleSignInResult } from "@/lib/auth/popup-signin";
+import { markSignedInFromGate } from "@/lib/auth/signin-handoff";
 
 export function GoogleSignInButton({
   className,
@@ -20,6 +21,10 @@ export function GoogleSignInButton({
     setPending(true);
     try {
       const result = await openGoogleSignInPopup();
+      // Record that this session was just established, so the first Back
+      // press on the screen they signed in from returns to Your Routine
+      // instead of the /login the guest was bounced to at the root.
+      markSignedInFromGate();
       await onSignedIn(result);
     } catch {
       // Popup closed or sign-in failed — nothing to do, button just resets.

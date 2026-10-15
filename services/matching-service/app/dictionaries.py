@@ -28,6 +28,32 @@ GOAL_KEYWORDS: dict[str, list[str]] = {
     "Hydration": ["hyaluronic acid", "glycerin", "ceramide"],
 }
 
+# Union of every ingredient keyword any concern/goal maps to — tells whether
+# a message's recognized entities are facial-skin concern/active terms.
+CONCERN_GOAL_INGREDIENTS: set[str] = {
+    kw.lower() for kws in [*CONCERN_KEYWORDS.values(), *GOAL_KEYWORDS.values()] for kw in kws
+}
+
+# Real top-level DB categories that are NOT facial skin care (hair, makeup,
+# body, fragrance, nails, oral/intimate, accessories/tools). A facial skin
+# concern query is restricted away from these so e.g. an acne/dark-spot
+# question can't surface a body lotion, hair shampoo, concealer or a makeup
+# brush just because both mention a shared ingredient ("niacinamide",
+# "vitamin c", "tea tree"). Applied in chat_pipeline.py only when the message
+# is actually facial-concern-driven AND does not itself name a non-facial
+# product type (see NON_FACIAL_PRODUCT_PHRASES in app/entities.py) — so
+# "sampo untuk rambut kering" / "sabun badan" still return hair/body items.
+NON_FACIAL_CATEGORIES: list[str] = [
+    "accessories", "bath-and-body", "bath-and-body-set", "body-care",
+    "body-cleanser", "body-fragrance", "eyes", "face", "facial",
+    "feminine-sanitary", "fragrance", "gift-set", "gift-set-for-her",
+    "grooming", "hair-care", "hair-care-set", "hair-tools", "hair-treatments",
+    "lips", "makeup", "makeup-brushes", "makeup-palettes-and-set",
+    "manicure-and-pedicure", "nail-beauty", "nail-care", "oral-care",
+    "organizers", "others", "sanitary", "sociolla-gift-set", "shampoo",
+    "shaving-and-grooming", "styling", "tools",
+]
+
 # A message that only names a product CATEGORY ("sabun cuci muka terbaik
 # apa aja" — "what are the best face washes") never mentions an ingredient/
 # concern/goal keyword at all, so CONCERN_KEYWORDS/GOAL_KEYWORDS alone
@@ -40,6 +66,16 @@ PRODUCT_CATEGORY_WORDS_ID = {
     "serum", "obat", "krim", "cream", "lotion", "sunscreen", "pelembap", "moisturizer",
     "toner", "masker", "mask", "essence", "cleanser", "pembersih", "sabun", "produk", "skincare",
 }
+
+# Subset of PRODUCT_CATEGORY_WORDS_ID that names no ACTUAL product category —
+# "produk" ("product"), "obat" ("medicine"/"drug") and "skincare" are generic
+# filler that happens to be in this set for intent classification's benefit
+# ("produk apa yang bagus"), but carry zero retrieval signal: as FTS/trigram
+# search terms they match the word across almost every product's description
+# and admit completely unrelated items (a face brush or concealer for an acne
+# query). entity_recognition.py subtracts this set before those words can
+# become recognized entities / search terms.
+GENERIC_PRODUCT_WORDS_ID = {"produk", "obat", "skincare"}
 
 # Pattern dictionary / ontology of beauty & personal-care product TYPES
 # (as opposed to CONCERN_KEYWORDS/GOAL_KEYWORDS, which are cosmetic

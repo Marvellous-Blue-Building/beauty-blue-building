@@ -5,9 +5,14 @@ input) — orchestrates dictionaries.py (steps 2,4,6), fuzzy.py (step 5),
 intent.py (step 7), and embeddings.py (steps 8-9)."""
 
 from app.db import get_pool
+from app.dictionaries import CONCERN_GOAL_INGREDIENTS, NON_FACIAL_CATEGORIES
 from app.embeddings import encode, semantic_search
-from app.entities import INGREDIENT_FACTS
-from app.entity_recognition import normalize_text as _normalize, recognize_entities as _recognize_entities
+from app.entities import FACIAL_PRODUCT_PHRASES, INGREDIENT_FACTS, NON_FACIAL_PRODUCT_PHRASES
+from app.entity_recognition import (
+    normalize_text as _normalize,
+    primary_concern_terms as _primary_concern_terms,
+    recognize_entities as _recognize_entities,
+)
 from app.intent import classify_intent
 from app.product_row import to_product
 from app.schemas import ChatUnderstanding
@@ -65,39 +70,77 @@ async def _fetch_conversation_context(
     return [f"{r['role']}: {r['text']}" for r in ordered]
 
 
-async def _retrieve_candidates(normalized_text: str, recognized_entities: list[str], boost_keywords: list[str] | None = None):
+async def _retrieve_candidates(
+    normalized_text: str,
+    primary_terms: list[str],
+    context_terms: list[str] | None = None,
+    exclude_categories: list[str] | None = None,
+):
     """Steps 3/5/8/9/10: FTS + trigram + pgvector semantic search, merged
     into one ranked candidate list in a single query — same scoring shape
     as match_routine.py's _match_slot (dictionary-hit bonus on top of a
     base relevance score), extended with a semantic-similarity term.
 
-    `boost_keywords` is services/geotagging-weather's combined holiday+
-    weather formula output (e.g. "Broad-Spectrum SPF 50+ Sunscreens") —
-    folded into the same search/trigram terms as the user's own recognized
-    entities, so today's weather/holiday nudges candidate ranking without
-    overriding what the user actually asked for."""
+    Two deliberately separate signal tiers (not collapsed into one term
+    list, which was the bug this replaces):
+
+      * `primary_terms` — what THIS message actually asked for (its own
+        recognized entities, e.g. the acne ingredients for "produk untuk
+        jerawat saya"). When present, a candidate MUST match one of them
+        (FTS hit or fuzzy ingredient match) to be admitted at all.
+      * `context_terms` — the user's history keywords + weather/holiday
+        boost keywords. These only ADD to the ranking of already-admitted
+        candidates; they can never admit one on their own. Previously all
+        three were merged into the admission WHERE, so a past chat/scan
+        term ("retinol", "collagen") or a shared ingredient that isn't
+        category-specific ("tea tree", "zinc") could surface a completely
+        unrelated product — e.g. a tea-tree/zinc SHAMPOO for an acne query.
+
+    The semantic vector is built from the canonical English concepts in
+    `primary_terms` when we have them: the user is usually writing
+    Indonesian, but all-MiniLM-L6-v2 is English-trained, so embedding the
+    raw Indonesian message is noisy. The recognized entities already ARE
+    the English translation of what the user meant, so they're what gets
+    embedded (semantic user-input translation). With no recognized terms
+    at all (a vague free-text fallback), there's nothing to translate and
+    the raw normalized text is embedded instead.
+
+    `exclude_categories` (top-level product categories to filter OUT) is the
+    facial-concern scope computed in understand_chat_message — a facial
+    concern request must not surface hair/body/makeup/fragrance/nail items
+    that merely share an ingredient. Empty/None leaves it unfiltered.
+    """
     pool = await get_pool()
-    combined_terms = [*recognized_entities, *(boost_keywords or [])]
-    search_phrase = " OR ".join(combined_terms) if combined_terms else normalized_text
-    trigram_blob = " ".join(combined_terms) if combined_terms else normalized_text
-    query_vector = encode(normalized_text)
+    context_terms = context_terms or []
+    has_primary = bool(primary_terms)
+    primary_phrase = " OR ".join(primary_terms) if has_primary else normalized_text
+    primary_blob = " ".join(primary_terms) if has_primary else normalized_text
+    context_phrase = " OR ".join(context_terms)
+    query_vector = encode(primary_blob)
     vector_literal = "[" + ",".join(str(v) for v in query_vector) + "]"
 
-    # Whenever we have real recognized keyword/ontology terms, a candidate
-    # MUST actually mention one somewhere (search_vector now covers name/
-    # brand/category/description/usage_instructions) or be a fuzzy
-    # ingredient match — the embedding/semantic term alone can never admit
-    # a result on its own. all-MiniLM-L6-v2 is English-trained, so for
+    params: list = [primary_phrase, primary_blob, vector_literal, context_phrase]
+    category_filter = ""
+    if exclude_categories:
+        params.append(exclude_categories)
+        category_filter = f"AND category <> ALL(${len(params)})"
+
+    # Whenever we have real recognized keyword/ontology terms from THIS
+    # message, a candidate MUST actually mention one somewhere (search_vector
+    # now covers name/brand/category/description/usage_instructions) or be a
+    # fuzzy ingredient match — the embedding/semantic term alone can never
+    # admit a result on its own. all-MiniLM-L6-v2 is English-trained, so for
     # informal Indonesian queries its cosine similarities are noisy enough
     # that a completely unrelated product (e.g. eyelashes, for an acne
-    # query) can otherwise outscore genuinely relevant ones on the
-    # semantic term alone. With no recognized terms at all (a vague
+    # query) can otherwise outscore genuinely relevant ones on the semantic
+    # term alone. Context terms are deliberately NOT in this filter — they
+    # only re-rank below. With no recognized terms at all (a vague
     # free-text fallback), there's no lexical signal to require, so
     # semantic search stays the primary mechanism — its originally
     # intended fallback role (plan.md steps 8-9).
     lexical_filter = (
         "AND (search_vector @@ websearch_to_tsquery('simple', $1) OR similarity(COALESCE(ingredients, ''), $2) > 0.1)"
-        if combined_terms
+        if has_primary
         else ""
     )
 
@@ -109,6 +152,7 @@ async def _retrieve_candidates(normalized_text: str, recognized_entities: list[s
             + COALESCE(similarity(COALESCE(ingredients, ''), $2), 0) * 5
             + COALESCE(1 - (embedding <=> $3::vector), 0) * 8
             + (COALESCE(rating, 3.5) / 5.0) * 2
+            + ts_rank(search_vector, websearch_to_tsquery('simple', $4)) * 4
           ) AS merge_score,
           (SELECT count(*) FROM products p2 WHERE p2.parent_sku = products.parent_sku) AS variant_count,
           (SELECT array_agg(DISTINCT p3.color_variant) FROM products p3
@@ -116,12 +160,11 @@ async def _retrieve_candidates(normalized_text: str, recognized_entities: list[s
         FROM products
         WHERE stock_quantity > 0
         {lexical_filter}
+        {category_filter}
         ORDER BY merge_score DESC
         LIMIT 15
         """,
-        search_phrase,
-        trigram_blob,
-        vector_literal,
+        *params,
     )
     return rows
 
@@ -160,6 +203,26 @@ async def understand_chat_message(
             ]
 
     matched_fact = next((INGREDIENT_FACTS[e] for e in recognized_entities if e in INGREDIENT_FACTS), None)
+    # The concern's headline ingredient (e.g. "vitamin c" for "noda hitam")
+    # picks the reply fact that actually matches what was asked — otherwise
+    # whichever of the concern's recognized ingredients sorts first wins
+    # (niacinamide's acne fact answering a dark-spot question).
+    primary_terms = _primary_concern_terms(normalized_text)
+    matched_fact = (
+        next((INGREDIENT_FACTS[t] for t in primary_terms if t in INGREDIENT_FACTS), None) or matched_fact
+    )
+    # Facial-concern scoping: a request driven by a facial concern/active
+    # (or naming a facial product type) must not surface hair/body/makeup/
+    # fragrance/nail items that merely share an ingredient — a tea-tree/zinc
+    # shampoo, a concealer or a face brush for "produk untuk jerawat saya".
+    # Skipped when the message itself names a non-facial product type, so
+    # "sampo untuk rambut kering" / "sabun badan" keep their categories.
+    is_facial_request = any(e in CONCERN_GOAL_INGREDIENTS for e in recognized_entities) or any(
+        e in FACIAL_PRODUCT_PHRASES for e in recognized_entities
+    )
+    names_non_facial = any(e in NON_FACIAL_PRODUCT_PHRASES for e in recognized_entities)
+    exclude_categories = NON_FACIAL_CATEGORIES if is_facial_request and not names_non_facial else None
+
     # Whenever the pipeline actually recognized a keyword/ontology term in
     # the user's own message, a product search always runs and always
     # surfaces its closest match — independent of how classify_intent
@@ -176,7 +239,16 @@ async def understand_chat_message(
     top_candidate = None
     top_score = 0.0
     if needs_candidates:
-        rows = await _retrieve_candidates(normalized_text, recognized_entities, [*(boost_keywords or []), *history_keywords])
+        # THIS message's own entities are the admission gate; history/boost
+        # keywords are passed separately as ranking-only context (see
+        # _retrieve_candidates) so a past chat or scan can nudge ranking but
+        # never introduce a product the user didn't actually ask about.
+        rows = await _retrieve_candidates(
+            normalized_text,
+            recognized_entities,
+            [*(boost_keywords or []), *history_keywords],
+            exclude_categories,
+        )
         if rows:
             # Top 6 closest-ranked DISTINCT items (by parent_sku) for the
             # chat UI's full-width product list — the ranked pool often has

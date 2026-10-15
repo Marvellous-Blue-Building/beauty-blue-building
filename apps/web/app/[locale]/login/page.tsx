@@ -84,7 +84,9 @@ export default function LoginPage() {
           className="flex w-full items-center justify-center gap-2.5 rounded-[26px] border border-[#e3e3e3] bg-white py-3.5 text-[14px] font-semibold text-[#1f1f1f] disabled:opacity-60"
           onSignedIn={async ({ redirectTo }) => {
             await fetchUser();
-            router.push(redirectTo);
+            // replace, not push: sending a freshly-signed-in user Back into
+            // the login they just left is never what they want.
+            router.replace(redirectTo);
           }}
         >
           <GoogleIcon />
