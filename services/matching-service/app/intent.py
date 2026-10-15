@@ -7,7 +7,7 @@ is to not claim more than what's actually implemented."""
 import re
 from typing import Literal
 
-from app.dictionaries import PRODUCT_CATEGORY_WORDS_ID
+from app.dictionaries import PRODUCT_CATEGORY_WORDS_ID, PRODUCT_CATEGORY_WORDS_EN
 
 Intent = Literal["product_recommendation", "ingredient_inquiry", "routine_advice", "general_question"]
 
@@ -19,7 +19,8 @@ _PRODUCT_RECOMMENDATION_PATTERN = re.compile(
     r"\b(recommend|suggest|what should i use|what do you recommend|looking for|need a|"
     r"best .* for|which product|"
     r"cari|carikan|cariin|rekomendasi|rekomendasikan|rekomendasiin|mau beli|butuh|"
-    r"ada gak|ada ga|tolong carikan)\b",
+    r"ada gak|ada ga|tolong carikan|mau tau|mau tahu|ingin tau|ingin tahu|"
+    r"yang cocok|yang sesuai)\b",
     re.IGNORECASE,
 )
 _ROUTINE_ADVICE_PATTERN = re.compile(
@@ -48,7 +49,10 @@ _QUALITY_PRICE_WORDS_ID = {
 
 def _mentions_product_noun_with_quality(normalized_text: str) -> bool:
     words = set(normalized_text.split())
-    return bool(words & PRODUCT_CATEGORY_WORDS_ID) and bool(words & _QUALITY_PRICE_WORDS_ID)
+    # Check both Indonesian and English product category words
+    has_product_id = bool(words & PRODUCT_CATEGORY_WORDS_ID)
+    has_product_en = any(en_word in normalized_text for en_word in PRODUCT_CATEGORY_WORDS_EN.keys())
+    return (has_product_id or has_product_en) and bool(words & _QUALITY_PRICE_WORDS_ID)
 
 
 def classify_intent(normalized_text: str) -> Intent:

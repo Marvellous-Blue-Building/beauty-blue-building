@@ -12,6 +12,7 @@ from app.dictionaries import (
     GENERIC_PRODUCT_WORDS_ID,
     GOAL_KEYWORDS,
     PRODUCT_CATEGORY_WORDS_ID,
+    PRODUCT_CATEGORY_WORDS_EN,
 )
 from app.entities import ID_CONCERN_PHRASES, ID_PRODUCT_PHRASES, canonicalize
 from app.fuzzy import fuzzy_match_terms
@@ -121,10 +122,13 @@ def recognize_entities(normalized_text: str) -> list[str]:
             hits.add(canonical)
     for term in fuzzy_match_terms(normalized_text):
         hits.add(canonicalize(term))
-    # Generic filler words ("produk", "obat", "skincare") are dropped here —
-    # recognizing them as entities would make them FTS search terms, which
-    # match almost every product's description (see GENERIC_PRODUCT_WORDS_ID).
+    # Indonesian product-category words (minus generic filler).
     hits.update((set(normalized_text.split()) & PRODUCT_CATEGORY_WORDS_ID) - GENERIC_PRODUCT_WORDS_ID)
+    # English product-category words (nouns + gerunds like "cleansing", "moisturizing").
+    # Map each matched English word to its canonical noun form (e.g. "cleansing" -> "cleanser").
+    for en_word, canonical in PRODUCT_CATEGORY_WORDS_EN.items():
+        if en_word in normalized_text:
+            hits.add(canonical)
     for normalized_phrase, original_phrase in _BEAUTY_PRODUCT_ONTOLOGY_NORMALIZED.items():
         if normalized_phrase in normalized_text:
             hits.add(original_phrase)

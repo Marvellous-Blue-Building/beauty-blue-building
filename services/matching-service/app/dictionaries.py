@@ -77,6 +77,49 @@ PRODUCT_CATEGORY_WORDS_ID = {
 # become recognized entities / search terms.
 GENERIC_PRODUCT_WORDS_ID = {"produk", "obat", "skincare"}
 
+# English product-type words (nouns + gerunds) that users commonly mix into
+# Indonesian queries — e.g. "saya mau tau produk cleansing yang cocok".
+# These are added to entity recognition so "cleansing" -> "cleanser",
+# "moisturizing" -> "moisturizer", etc. are recognized as product category
+# search terms. Each maps to its canonical noun form used in the ontology.
+PRODUCT_CATEGORY_WORDS_EN: dict[str, str] = {
+    "cleansing": "facial cleanser",
+    "cleanser": "facial cleanser",
+    "moisturizing": "moisturizer",
+    "hydrating": "moisturizer",
+    "exfoliating": "exfoliant",
+    "brightening": "brightener",
+    "antiaging": "anti-aging",
+    "anti-aging": "anti-aging",
+    "sunscreen": "sunscreen",
+    "sunblock": "sunblock",
+    "toning": "toner",
+    "toner": "toner",
+    "serum": "serum",
+    "mask": "mask",
+    "moisturizer": "moisturizer",
+    "treatment": "treatment",
+    "essence": "essence",
+    "oil": "face oil",
+    "balm": "cleansing balm",
+    "cream": "cream",
+    "lotion": "lotion",
+    "gel": "gel moisturizer",
+    "mist": "facial mist",
+    "scrub": "exfoliating scrub",
+    "peel": "chemical exfoliant",
+    "retinol": "retinol treatment",
+    "vitamin c": "vitamin c serum",
+    "niacinamide": "niacinamide serum",
+    "hyaluronic": "hyaluronic acid serum",
+    "ceramide": "ceramide cream",
+    "salicylic": "salicylic acid",
+    "glycolic": "glycolic acid",
+    "aha": "chemical exfoliant",
+    "bha": "salicylic acid",
+    "pha": "chemical exfoliant",
+}
+
 # Pattern dictionary / ontology of beauty & personal-care product TYPES
 # (as opposed to CONCERN_KEYWORDS/GOAL_KEYWORDS, which are cosmetic
 # INGREDIENTS). A message naming a specific product type — "cleansing
