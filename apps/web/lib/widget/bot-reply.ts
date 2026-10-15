@@ -9,6 +9,7 @@
  */
 import type { Product } from "@/types/product";
 import { callChatUnderstand } from "@/lib/matching-client";
+import { getActiveTenantBoostKeywords } from "@/lib/tenant-boosts";
 
 export interface WidgetBotReply {
   text: string;
@@ -52,7 +53,9 @@ async function generateAiAdvisorReply(userText: string, grounding: {
 }
 
 export async function generateWidgetBotReply(conversationId: string, userText: string): Promise<WidgetBotReply> {
-  const understanding = await callChatUnderstand(conversationId, userText, null, null).catch(() => null);
+  const boostKeywords = await getActiveTenantBoostKeywords().catch(() => []);
+  const tenantContext = boostKeywords.length > 0 ? { guidanceText: "", boostKeywords } : null;
+  const understanding = await callChatUnderstand(conversationId, userText, tenantContext, null).catch(() => null);
 
   const products = understanding && understanding.candidates.length > 0 ? understanding.candidates.slice(0, 6) : undefined;
   const rawJsonText = understanding ? JSON.stringify(understanding) : undefined;
