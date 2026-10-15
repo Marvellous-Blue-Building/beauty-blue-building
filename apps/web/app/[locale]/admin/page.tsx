@@ -48,6 +48,10 @@ interface AnalyticsRow {
   cart_adds: number;
   chat_mentions: number;
   signal_score: number;
+  forecastNextHour: number;
+  trend: "up" | "down" | "flat";
+  trendValue: number;
+  dataPoints: number;
 }
 interface OverviewData {
   totalProducts: number;
@@ -376,23 +380,24 @@ function ForecastingSection() {
 
       <Card title="Status roadmap (3 fase, 8 bulan)">
         <div className="flex flex-col gap-2">
-          {phase("1", "Fondasi data & demand signal", "live", "Sinyal minat dari cart adds + chat mentions, data riil yang sudah terkumpul sejak widget dipakai. Bukan Holt-Winters, bukan prediksi penjualan — murni heuristik transparan.")}
+          {phase("1", "Fondasi data & activity forecast", "live", "Holt's linear trend method (exponential smoothing dengan tren) dijalankan per jam terhadap sinyal cart adds + chat mentions — algoritma forecasting sungguhan, bukan skor statis. Bukan Holt-Winters penuh (belum ada siklus musiman) dan bukan prediksi penjualan (tidak ada tabel order).")}
           {phase("2", "Event, promo, uplift & attribution", "planned", "Butuh kalender event 12 bulan, data belanja iklan, dan kode promo/UTM untuk attribution — belum ada sumber datanya di project ini.")}
           {phase("3", "ML forecasting, MMM, sentiment & simulasi", "planned", "Butuh ≥12 bulan histori penjualan untuk Prophet/LightGBM dan ≥24 bulan data mingguan untuk MMM — datanya belum ada sama sekali (tidak ada tabel order/transaksi di database saat ini).")}
         </div>
       </Card>
 
       <Card
-        title="Demand Signal — Fase 1"
-        subtitle="Skor = (cart adds × 2) + chat mentions. Diurutkan dari minat tertinggi. Bukan prediksi penjualan."
+        title="Activity Forecast — Fase 1"
+        subtitle="Holt's linear trend method per jam atas sinyal (cart adds × 2) + chat mentions. 'Titik data' = berapa jam berbeda ada aktivitas tercatat — makin sedikit, makin rendah keandalan tren/forecast-nya. Ini forecast AKTIVITAS, bukan prediksi penjualan."
       >
-        <table className="w-full min-w-[420px] border-collapse">
+        <table className="w-full min-w-[560px] border-collapse">
           <thead>
             <tr>
               <th className={thCls}>Produk</th>
-              <th className={thCls}>Cart</th>
-              <th className={thCls}>Chat</th>
-              <th className={thCls}>Skor</th>
+              <th className={thCls}>Sinyal sekarang</th>
+              <th className={thCls}>Tren</th>
+              <th className={thCls}>Forecast jam depan</th>
+              <th className={thCls}>Titik data</th>
             </tr>
           </thead>
           <tbody>
@@ -402,14 +407,27 @@ function ForecastingSection() {
                   <div className="font-semibold">{a.name}</div>
                   <div className="text-[11px] text-neutral-400">{a.brand}</div>
                 </td>
-                <td className={tdCls}>{a.cart_adds}</td>
-                <td className={tdCls}>{a.chat_mentions}</td>
-                <td className={`${tdCls} font-bold`}>{a.signal_score}</td>
+                <td className={tdCls}>{a.signal_score}</td>
+                <td className={tdCls}>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                      a.trend === "up" ? "bg-green-50 text-green-700" : a.trend === "down" ? "bg-red-50 text-red-700" : "bg-neutral-100 text-neutral-500"
+                    }`}
+                  >
+                    {a.trend === "up" ? "↑ naik" : a.trend === "down" ? "↓ turun" : "→ stabil"}
+                  </span>
+                </td>
+                <td className={`${tdCls} font-bold`}>{a.forecastNextHour}</td>
+                <td className={tdCls}>
+                  <span className={a.dataPoints < 3 ? "text-amber-600" : "text-neutral-600"}>
+                    {a.dataPoints} jam{a.dataPoints < 3 ? " (data tipis)" : ""}
+                  </span>
+                </td>
               </tr>
             ))}
             {analytics.length === 0 && (
               <tr>
-                <td className={tdCls} colSpan={4}>
+                <td className={tdCls} colSpan={5}>
                   Belum ada aktivitas cart/chat yang tercatat.
                 </td>
               </tr>
