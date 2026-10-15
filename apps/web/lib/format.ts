@@ -31,6 +31,29 @@ export function formatDateTime(iso: string): string {
   )}:${pad(d.getSeconds())}`;
 }
 
+/** "dd-mm-yyyy HH:mm:ss" — used in Your Progress History's list. */
+export function formatDateTimeDashed(iso: string): string {
+  const d = new Date(iso);
+  return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(
+    d.getMinutes()
+  )}:${pad(d.getSeconds())}`;
+}
+
+/**
+ * Filename for a downloadable/attachable scan report:
+ * "skin-scan-report-<email local part>-<yyyyMMdd-HHmmss>.pdf".
+ * The email's local part (everything before "@") stands in for the user's
+ * name; the timestamp is filename-safe (no colon/slash).
+ */
+export function scanReportFileName(email: string, createdAt: string): string {
+  const localPart = (email.split("@")[0] || "user").replace(/[^a-zA-Z0-9._-]/g, "");
+  const d = new Date(createdAt);
+  const stamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(
+    d.getMinutes()
+  )}${pad(d.getSeconds())}`;
+  return `skin-scan-report-${localPart}-${stamp}.pdf`;
+}
+
 /** "HH:mm" — shown beside each chat bubble. */
 export function formatTime(iso: string): string {
   const d = new Date(iso);

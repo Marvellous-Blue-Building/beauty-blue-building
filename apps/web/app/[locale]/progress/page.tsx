@@ -50,9 +50,17 @@ export default function ProgressPage() {
       <div className="mb-2 text-[10.5px] font-semibold tracking-[1.5px] text-text-faint uppercase">
         {t("stepLabel")}
       </div>
-      <h2 className="mb-1.5 font-display text-[22px] font-semibold text-canvas-ink">
-        {t("title")}
-      </h2>
+      <div className="mb-1.5 flex items-center justify-between gap-3">
+        <h2 className="font-display text-[22px] font-semibold text-canvas-ink">
+          {t("title")}
+        </h2>
+        <Link
+          href="/progress/history"
+          className="shrink-0 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-bold whitespace-nowrap text-canvas-ink"
+        >
+          {t("seeAll")}
+        </Link>
+      </div>
       <p className="mb-[18px] text-[12.5px] leading-relaxed text-canvas-ink-muted">
         {t("subtitle")}
       </p>

@@ -1,3 +1,13 @@
+/** One row of "Your Progress History" — a persisted scan_results entry for
+ * the signed-in user. `createdAt` is the scan row's own timestamp. */
+export interface ProgressHistoryItem {
+  id: string;
+  createdAt: string;
+  /** The report's overall skin score (0-100); null for very old rows whose
+   * raw_json_data predates the metric. */
+  overall: number | null;
+}
+
 export interface ProgressSnapshot {
   day: number;
   label: string;

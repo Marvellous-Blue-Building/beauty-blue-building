@@ -1,6 +1,7 @@
 import { renderToBuffer } from "@react-pdf/renderer";
 import { getSmtpTransporter, smtpFromAddress } from "@/lib/email/smtp-client";
 import { ScanReportPdf } from "@/lib/email/scan-report-pdf";
+import { scanReportFileName } from "@/lib/format";
 import type { ScanReport } from "@/types/scan";
 
 /**
@@ -13,6 +14,9 @@ import type { ScanReport } from "@/types/scan";
 interface ReportRecipient {
   email: string;
   fullName: string | null;
+}
+
+interface ReportRecipientWithPref extends ReportRecipient {
   sendReportEmail: boolean;
 }
 
@@ -32,18 +36,40 @@ Best regards,
 Blue Building Team`;
 
 /**
- * Emails the real skin-scan diagnostic report as a PDF — only when the
- * user has "Send My Report to Email" enabled (Profile screen,
- * users.send_report_email). No questionnaire/quiz data is included, only
- * the scan result itself (see lib/email/scan-report-pdf.tsx).
+ * Emails the real skin-scan diagnostic report as a PDF. No questionnaire/quiz
+ * data is included, only the scan result itself (see
+ * lib/email/scan-report-pdf.tsx).
  *
- * Best-effort: failures are logged, never thrown — matches this
- * codebase's existing pattern for non-critical persistence/side effects
- * around scan completion (see app/api/match-routine/route.ts's own
- * try/catch blocks for questionnaire/scan persistence).
+ * Throws on failure — callers decide whether that's best-effort (the
+ * automatic post-scan send below) or user-facing (the explicit "Send to my
+ * email" action on Your Progress History).
+ */
+export async function sendScanReportEmail(
+  user: ReportRecipient,
+  report: ScanReport,
+  locale: string,
+  imageBase64?: string | null
+): Promise<void> {
+  const pdfBuffer = await renderToBuffer(ScanReportPdf({ report, locale, imageBase64: imageBase64 ?? null }));
+
+  await getSmtpTransporter().sendMail({
+    from: smtpFromAddress(),
+    to: user.email,
+    subject: EMAIL_SUBJECT,
+    text: EMAIL_BODY,
+    attachments: [{ filename: scanReportFileName(user.email, report.createdAt), content: pdfBuffer }],
+  });
+}
+
+/**
+ * Emails the diagnostic report only when the user has "Send My Report to
+ * Email" enabled (Profile screen, users.send_report_email). Best-effort:
+ * failures are logged, never thrown — matches this codebase's existing
+ * pattern for non-critical persistence/side effects around scan completion
+ * (see app/api/match-routine/route.ts's own try/catch blocks).
  */
 export async function sendScanReportEmailIfEnabled(
-  user: ReportRecipient,
+  user: ReportRecipientWithPref,
   report: ScanReport,
   locale: string,
   imageBase64?: string | null
@@ -51,15 +77,7 @@ export async function sendScanReportEmailIfEnabled(
   if (!user.sendReportEmail) return;
 
   try {
-    const pdfBuffer = await renderToBuffer(ScanReportPdf({ report, locale, imageBase64: imageBase64 ?? null }));
-
-    await getSmtpTransporter().sendMail({
-      from: smtpFromAddress(),
-      to: user.email,
-      subject: EMAIL_SUBJECT,
-      text: EMAIL_BODY,
-      attachments: [{ filename: `skin-scan-report-${report.scanId}.pdf`, content: pdfBuffer }],
-    });
+    await sendScanReportEmail(user, report, locale, imageBase64);
   } catch (error) {
     console.error("Failed to send scan report email:", error);
   }

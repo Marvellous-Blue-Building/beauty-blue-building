@@ -93,8 +93,8 @@ const METRIC_ICON_PATH: Record<MetricKey, string> = {
   pores: "M7 7h.01M12 7h.01M17 7h.01M7 12h.01M12 12h.01M17 12h.01M7 17h.01M12 17h.01M17 17h.01",
 };
 
-const FACE_W = 140;
-const FACE_H = 204; // ~11/16 ratio, matching FaceMap.tsx's aspect-[11/16]
+const FACE_W = 120;
+const FACE_H = 175; // ~11/16 ratio, matching FaceMap.tsx's aspect-[11/16]
 
 // A4 width (595.28pt) minus the page's own 32pt padding minus the metric
 // card's own 10pt padding, each side — the exact inner width the progress
@@ -103,19 +103,19 @@ const METRIC_TRACK_W = 595.28 - 32 * 2 - 10 * 2;
 
 const styles = StyleSheet.create({
   page: { backgroundColor: PALETTE.bg, padding: 32, fontSize: 10, color: PALETTE.ink },
-  stepLabel: { fontSize: 9, letterSpacing: 1.5, color: PALETTE.inkMuted, marginBottom: 10, textTransform: "uppercase" },
+  stepLabel: { fontSize: 9, letterSpacing: 1.5, color: PALETTE.inkMuted, marginBottom: 8, textTransform: "uppercase" },
   verdictCard: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
+    gap: 12,
     backgroundColor: PALETTE.surface,
     borderRadius: 22,
     borderWidth: 1,
     borderColor: PALETTE.border,
-    padding: 16,
-    marginBottom: 12,
+    padding: 12,
+    marginBottom: 10,
   },
-  ringWrap: { width: 112, height: 112, position: "relative" },
+  ringWrap: { width: 96, height: 96, position: "relative" },
   ringCenter: {
     position: "absolute",
     top: 0,
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  scoreNum: { fontSize: 30, fontWeight: 700 },
+  scoreNum: { fontSize: 26, fontWeight: 700 },
   scoreOutOf: { fontSize: 9, color: PALETTE.inkMuted, marginTop: 4, letterSpacing: 0.4, textTransform: "uppercase" },
   bandBadge: {
     flexDirection: "row",
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   bandLabel: { fontSize: 8, fontWeight: 700 },
   verdictTitle: { fontSize: 13, fontWeight: 700, marginBottom: 3 },
   verdictBody: { fontSize: 9, color: PALETTE.inkMuted, lineHeight: 1.4 },
-  pillRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 20 },
+  pillRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 12 },
   strongestPill: {
     borderRadius: 20,
     backgroundColor: PALETTE.surface,
@@ -173,8 +173,8 @@ const styles = StyleSheet.create({
     borderColor: PALETTE.border,
     borderRadius: 22,
     backgroundColor: PALETTE.surface,
-    padding: 16,
-    marginBottom: 20,
+    padding: 12,
+    marginBottom: 12,
     alignItems: "center",
   },
   faceMapWrap: { width: FACE_W, height: FACE_H, position: "relative" },
@@ -209,8 +209,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: PALETTE.border,
     borderRadius: 16,
-    padding: 12,
-    marginTop: 8,
+    padding: 10,
+    marginTop: 6,
     backgroundColor: PALETTE.bg,
   },
   areaHeaderRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
@@ -241,8 +241,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: PALETTE.border,
     borderRadius: 16,
-    padding: 12,
-    marginBottom: 8,
+    padding: 10,
+    marginBottom: 4,
     backgroundColor: PALETTE.surface,
   },
   metricTopRow: { flexDirection: "row", alignItems: "center", gap: 12 },
@@ -259,22 +259,22 @@ const styles = StyleSheet.create({
   metricValue: { fontSize: 13, fontWeight: 700 },
   metricBandRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 2 },
   metricBandLabel: { fontSize: 8.5, color: PALETTE.inkMuted, fontWeight: 700 },
-  metricWhat: { fontSize: 8.5, color: PALETTE.inkMuted, lineHeight: 1.4, marginTop: 6 },
-  metricTip: { fontSize: 8.5, color: PALETTE.ink, lineHeight: 1.4, marginTop: 6, backgroundColor: PALETTE.mintDim, borderRadius: 8, padding: 7 },
+  metricWhat: { fontSize: 8.5, color: PALETTE.inkMuted, lineHeight: 1.4, marginTop: 4 },
+  metricTip: { fontSize: 8.5, color: PALETTE.ink, lineHeight: 1.4, marginTop: 4, backgroundColor: PALETTE.mintDim, borderRadius: 8, padding: 6 },
   disclaimer: {
     flexDirection: "row",
     gap: 6,
     backgroundColor: PALETTE.surface2,
     borderRadius: 10,
-    padding: 10,
-    marginTop: 4,
+    padding: 8,
+    marginTop: 3,
   },
   disclaimerText: { fontSize: 8.5, color: PALETTE.inkMuted, lineHeight: 1.4, flex: 1 },
 });
 
 function ScoreRingPdf({ score, outOf100 }: { score: number; outOf100: string }) {
-  const size = 112;
-  const stroke = 9;
+  const size = 96;
+  const stroke = 8;
   const radius = (size - stroke) / 2;
   const length = 2 * Math.PI * radius;
   const fraction = Math.max(0, Math.min(1, score / 100));
@@ -384,11 +384,14 @@ export function ScanReportPdf({
 
   return (
     <Document>
-      {/* Page 1: overall verdict + face map + flagged areas. */}
+      {/* One single flowing page (react-pdf paginates it automatically) so
+          the report uses as few pages as possible and never leaves a
+          half-empty trailing page. Each card/row is wrap={false} so it's
+          never split across a page boundary. */}
       <Page size="A4" style={styles.page}>
         <Text style={styles.stepLabel}>{email.pdfTitle} · {scannedOn}</Text>
 
-        <View style={styles.verdictCard}>
+        <View style={styles.verdictCard} wrap={false}>
           <ScoreRingPdf score={report.overall} outOf100={diagnostic.outOf100} />
           <View style={{ flex: 1 }}>
             <View style={styles.bandBadge}>
@@ -412,7 +415,7 @@ export function ScanReportPdf({
         </View>
 
         <Text style={styles.sectionTitle}>{diagnostic.faceMapTitle}</Text>
-        <View style={styles.faceMapCard}>
+        <View style={styles.faceMapCard} wrap={false}>
           <View style={styles.faceMapWrap}>
             {imageBase64 ? (
               // eslint-disable-next-line jsx-a11y/alt-text -- react-pdf's Image has no alt prop (PDFs aren't the DOM)
@@ -439,47 +442,40 @@ export function ScanReportPdf({
               );
             })}
           </View>
-
-          {areas.length > 0 ? (
-            <>
-              <Text style={[styles.sectionTitle, { marginTop: 16, marginBottom: 8, width: "100%" }]}>
-                {diagnostic.areasTitle}
-              </Text>
-              {areas.map((zone, i) => (
-                <View key={`${zone.key ?? zone.zone}-${i}`} style={styles.areaRow}>
-                  <View style={styles.areaHeaderRow}>
-                    <View style={[styles.areaMarker, { backgroundColor: SEVERITY_COLOR[zone.severity] }]}>
-                      <Text style={styles.areaMarkerText}>{i + 1}</Text>
-                    </View>
-                    <Text style={styles.areaTitle}>{areaText(zone, "title")}</Text>
-                    <Text style={styles.areaSeverity}>{diagnostic.severity[zone.severity]}</Text>
-                  </View>
-                  <Text style={styles.areaBody}>{areaText(zone, "body")}</Text>
-                  {areaText(zone, "tip") && (
-                    <Text style={styles.areaTip}>
-                      <Text style={{ fontWeight: 700 }}>{diagnostic.tipLabel}: </Text>
-                      {areaText(zone, "tip")}
-                    </Text>
-                  )}
-                </View>
-              ))}
-            </>
-          ) : (
-            <View style={styles.noAreas}>
-              <Text style={{ fontWeight: 700, marginBottom: 2 }}>{diagnostic.noAreasTitle}</Text>
-              <Text style={{ color: PALETTE.inkMuted }}>{diagnostic.noAreasBody}</Text>
-            </View>
-          )}
         </View>
-      </Page>
 
-      {/* Page 2: scores legend + per-metric cards + disclaimer — kept on its
-          own page so page 1's verdict + face map + areas never get split
-          awkwardly by react-pdf's automatic overflow pagination. */}
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.stepLabel}>{email.pdfTitle} · {scannedOn}</Text>
+        {areas.length > 0 ? (
+          <>
+            <Text style={[styles.sectionTitle, { marginTop: 4, marginBottom: 2, width: "100%" }]}>
+              {diagnostic.areasTitle}
+            </Text>
+            {areas.map((zone, i) => (
+              <View key={`${zone.key ?? zone.zone}-${i}`} style={styles.areaRow} wrap={false}>
+                <View style={styles.areaHeaderRow}>
+                  <View style={[styles.areaMarker, { backgroundColor: SEVERITY_COLOR[zone.severity] }]}>
+                    <Text style={styles.areaMarkerText}>{i + 1}</Text>
+                  </View>
+                  <Text style={styles.areaTitle}>{areaText(zone, "title")}</Text>
+                  <Text style={styles.areaSeverity}>{diagnostic.severity[zone.severity]}</Text>
+                </View>
+                <Text style={styles.areaBody}>{areaText(zone, "body")}</Text>
+                {areaText(zone, "tip") && (
+                  <Text style={styles.areaTip}>
+                    <Text style={{ fontWeight: 700 }}>{diagnostic.tipLabel}: </Text>
+                    {areaText(zone, "tip")}
+                  </Text>
+                )}
+              </View>
+            ))}
+          </>
+        ) : (
+          <View style={styles.noAreas}>
+            <Text style={{ fontWeight: 700, marginBottom: 2 }}>{diagnostic.noAreasTitle}</Text>
+            <Text style={{ color: PALETTE.inkMuted }}>{diagnostic.noAreasBody}</Text>
+          </View>
+        )}
 
-        <View style={styles.sectionHeaderRow}>
+        <View style={[styles.sectionHeaderRow, { marginTop: 4 }]}>
           <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>{diagnostic.scoresTitle}</Text>
           <Text style={styles.scaleHint}>{diagnostic.scaleHint}</Text>
         </View>
@@ -497,7 +493,7 @@ export function ScanReportPdf({
           const metricBand = scoreBand(value);
           const needsTip = metricBand === "fair" || metricBand === "needsCare";
           return (
-            <View key={metric} style={styles.metricCard}>
+            <View key={metric} style={styles.metricCard} wrap={false}>
               <View style={styles.metricTopRow}>
                 <View style={styles.metricIconBox}>
                   <MetricIconPdf metric={metric} />
@@ -527,7 +523,7 @@ export function ScanReportPdf({
           );
         })}
 
-        <View style={styles.disclaimer}>
+        <View style={styles.disclaimer} wrap={false}>
           <Text style={styles.disclaimerText}>{diagnostic.disclaimer}</Text>
         </View>
       </Page>

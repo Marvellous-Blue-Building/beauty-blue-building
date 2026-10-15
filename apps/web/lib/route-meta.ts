@@ -32,6 +32,7 @@ const ROUTE_META: Record<string, RouteMeta> = {
   "/chat": { titleKey: "aiAdvisor", showBack: false, showCart: true },
   "/chat/history": { titleKey: "chatHistory", showBack: true, showCart: false },
   "/progress": { titleKey: "progressTracker", showBack: false, showCart: true },
+  "/progress/history": { titleKey: "progressHistory", showBack: true, showCart: false },
   "/profile": { titleKey: "profile", showBack: false, showCart: true },
   "/cart": { titleKey: "yourCart", showBack: true, showCart: false },
 };
