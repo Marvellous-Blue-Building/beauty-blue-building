@@ -15,7 +15,7 @@ def advise(payload: AdviseRequest):
     if not text:
         raise HTTPException(status_code=422, detail="message must not be empty")
     try:
-        reply = generate_reply(
+        reply, nav_buttons = generate_reply(
             text,
             recognized_entities=payload.recognizedEntities,
             candidate_products=payload.candidateProducts,
@@ -23,4 +23,5 @@ def advise(payload: AdviseRequest):
         )
     except Exception as exc:  # model/download failure — surface as 503, not a 500 stack trace
         raise HTTPException(status_code=503, detail=f"Gemma model unavailable: {exc}") from exc
-    return AdviseResponse(reply=reply)
+    return AdviseResponse(reply=reply, navButtons=nav_buttons)
+

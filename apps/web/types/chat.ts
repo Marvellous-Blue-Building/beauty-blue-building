@@ -31,6 +31,11 @@ export interface ChatMessage {
   createdAt: string;
   /** Client-only: a bot bubble shown while waiting for the real reply (bouncing-dots UI). Never persisted. */
   pending?: boolean;
+  /** Optional navigation buttons to be displayed within the bot's reasoning/reply bubble. */
+  navButtons?: {
+    label: string;
+    target: string;
+  }[];
 }
 
 /** Row in the Conversation History list. */

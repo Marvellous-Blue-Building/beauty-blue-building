@@ -13,3 +13,5 @@ class AdviseRequest(BaseModel):
 
 class AdviseResponse(BaseModel):
     reply: str
+    navButtons: list[dict[str, str]] = []
+

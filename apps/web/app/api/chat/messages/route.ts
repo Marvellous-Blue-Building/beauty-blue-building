@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
     role: "bot",
     text: botReply.text,
     products: botReply.products,
+    navButtons: botReply.navButtons,
     createdAt: insertedBot.rows[0].created_at,
   };
   return NextResponse.json({ conversationId: targetConversationId, greetingMessage, message, botMessage });

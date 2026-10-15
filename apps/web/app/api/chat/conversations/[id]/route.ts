@@ -49,16 +49,31 @@ export async function GET(
     for (const row of productsResult.rows) productsById.set(row.id, toProduct(row));
   }
 
-  const messages: ChatMessage[] = messagesResult.rows.map((m) => ({
-    id: m.id,
-    role: m.role,
-    text: m.text ?? undefined,
-    imageColor: m.image_color ?? undefined,
-    products: m.recommended_product_ids
-      ? m.recommended_product_ids.map((pid) => productsById.get(pid)).filter((p) => p !== undefined)
-      : undefined,
-    createdAt: m.created_at,
-  }));
+  const messages: ChatMessage[] = messagesResult.rows.map((m) => {
+    const text = m.text ?? undefined;
+    const navButtons: { label: string; target: string }[] = [];
+
+    if (text) {
+      if (text.includes("[Track Your Progress]")) {
+        navButtons.push({ label: "Track Your Progress", target: "progress" });
+      }
+      if (text.includes("[Skin Scanning Analysis Tool]")) {
+        navButtons.push({ label: "Skin Scanning Analysis Tool", target: "progress/check-in" });
+      }
+    }
+
+    return {
+      id: m.id,
+      role: m.role,
+      text: text,
+      imageColor: m.image_color ?? undefined,
+      products: m.recommended_product_ids
+        ? m.recommended_product_ids.map((pid) => productsById.get(pid)).filter((p) => p !== undefined)
+        : undefined,
+      navButtons: navButtons.length > 0 ? navButtons : undefined,
+      createdAt: m.created_at,
+    };
+  });
 
   const detail: ConversationDetail = { id: conversation.id, title: conversation.title, messages };
   return NextResponse.json(detail);

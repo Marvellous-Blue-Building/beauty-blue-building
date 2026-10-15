@@ -6,7 +6,7 @@ import { dateSeparatorLabel } from "@/lib/format";
 /** Renders a message list with WhatsApp-style date separators — a badge
  * shows above the first message of each new day ("Yesterday" exactly one
  * day back, dd/MM/yyyy further back), nothing for today's group. */
-export function ChatTranscript({ messages }: { messages: ChatMessage[] }) {
+export function ChatTranscript({ messages, disabledNav = false }: { messages: ChatMessage[]; disabledNav?: boolean }) {
   return (
     <>
       {messages.map((m, i) => {
@@ -23,7 +23,7 @@ export function ChatTranscript({ messages }: { messages: ChatMessage[] }) {
                 </span>
               </div>
             )}
-            <ChatBubble message={m} />
+            <ChatBubble message={m} disabledNav={disabledNav} />
             {m.products && m.products.length > 0 && <ChatProductList products={m.products} />}
           </div>
         );

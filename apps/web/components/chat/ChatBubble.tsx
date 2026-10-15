@@ -4,6 +4,7 @@ import type { ChatMessage } from "@/types/chat";
 import { RobotIcon, ProfileIcon } from "@/components/layout/TabIcons";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { formatTime } from "@/lib/format";
+import { useRouter } from "next/navigation";
 
 function UserAvatar() {
   const avatarUrl = useAuthStore((s) => s.user?.avatarUrl ?? null);
@@ -46,15 +47,41 @@ function TypingDots() {
   );
 }
 
-export function ChatBubble({ message }: { message: ChatMessage }) {
+export function ChatBubble({ message, disabledNav = false }: { message: ChatMessage; disabledNav?: boolean }) {
+  const router = useRouter();
+
   if (message.role === "bot") {
+    const cleanText = message.text?.replace(/\[Track Your Progress\]/g, "").replace(/\[Skin Scanning Analysis Tool\]/g, "").trim();
+
     return (
       <div className="flex items-end gap-[9px]">
         <span className="flex h-[27px] w-[27px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-mint to-secondary text-surface shadow-[0_0_14px_-2px_rgba(224,169,150,0.7)]">
           <RobotIcon className="h-[15px] w-[15px]" />
         </span>
         <div className="max-w-[78%] rounded-2xl rounded-bl-[4px] border border-border bg-surface px-[13px] py-[11px] text-[13px] leading-relaxed text-text">
-          {message.pending ? <TypingDots /> : message.text}
+          {message.pending ? <TypingDots /> : (
+            <div className="flex flex-col gap-3">
+              <div>{cleanText}</div>
+              {message.navButtons && message.navButtons.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {message.navButtons.map((btn, idx) => (
+                    <button
+                      key={idx}
+                      disabled={disabledNav}
+                      onClick={() => !disabledNav && router.push(`/${btn.target}`)}
+                      className={`rounded-full px-3 py-1 text-[11px] font-medium shadow-sm transition-transform active:scale-95 ${
+                        disabledNav 
+                          ? "bg-surface-2 text-text-muted cursor-not-allowed" 
+                          : "bg-primary text-surface"
+                      }`}
+                    >
+                      {btn.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
         {!message.pending && <Timestamp createdAt={message.createdAt} />}
       </div>

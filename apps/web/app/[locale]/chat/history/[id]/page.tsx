@@ -48,7 +48,7 @@ export default function ChatHistoryDetailPage({
   return (
     <ScreenContainer>
       <div className="flex flex-col gap-[11px]">
-        <ChatTranscript messages={conversation.messages} />
+        <ChatTranscript messages={conversation.messages} disabledNav={true} />
       </div>
     </ScreenContainer>
   );

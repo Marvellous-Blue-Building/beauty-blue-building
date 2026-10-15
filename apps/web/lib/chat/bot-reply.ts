@@ -39,6 +39,11 @@ export interface BotReply {
    * as the raw record for the as-is learning from real chat history.
    * Undefined when the pipeline was unreachable. */
   rawJsonText?: string;
+  /** Optional navigation buttons to be displayed in the UI. */
+  navButtons?: {
+    label: string;
+    target: string;
+  }[];
 }
 
 const AI_ADVISOR_SERVICE_URL = process.env.AI_ADVISOR_SERVICE_URL;
@@ -47,7 +52,7 @@ const AI_ADVISOR_TIMEOUT_MS = 20_000;
 async function generateAiAdvisorReply(
   userText: string,
   grounding: { recognizedEntities: string[]; candidateProducts: string[]; conversationContext: string[] }
-): Promise<string> {
+): Promise<{ text: string; navButtons: { label: string; target: string }[] }> {
   if (!AI_ADVISOR_SERVICE_URL) {
     throw new Error("AI_ADVISOR_SERVICE_URL is not configured");
   }
@@ -70,9 +75,9 @@ async function generateAiAdvisorReply(
       const detail = await res.text().catch(() => "");
       throw new Error(`ai-advisor responded with ${res.status}: ${detail}`);
     }
-    const data = (await res.json()) as { reply: string };
+    const data = (await res.json()) as { reply: string; navButtons: { label: string; target: string }[] };
     if (!data.reply) throw new Error("ai-advisor returned an empty reply");
-    return data.reply;
+    return { text: data.reply, navButtons: data.navButtons ?? [] };
   } finally {
     clearTimeout(timeout);
   }
@@ -85,6 +90,29 @@ export async function generateBotReply(
 ): Promise<BotReply> {
   const environmentalContext = await getEnvironmentalContext(userId).catch(() => null);
   const understanding = await callChatUnderstand(conversationId, userText, environmentalContext, userId).catch(() => null);
+
+  // Intent detection for navigation buttons (Deterministic fallback)
+  // We keep this as a safety layer because LLMs can be inconsistent.
+  const navButtons: { label: string; target: string }[] = [];
+  const lowerText = userText.toLowerCase();
+  let textAppend = "";
+
+  if (
+    (lowerText.includes("track") && (lowerText.includes("progress") || lowerText.includes("perkembangan"))) ||
+    (lowerText.includes("progres") || lowerText.includes("progress"))
+  ) {
+    navButtons.push({ label: "Track Your Progress", target: "progress" });
+    textAppend += " [Track Your Progress]";
+  }
+  if (
+    lowerText.includes("skin scan") ||
+    lowerText.includes("scanning") ||
+    lowerText.includes("analisis kulit") ||
+    (lowerText.includes("cek") && lowerText.includes("kulit"))
+  ) {
+    navButtons.push({ label: "Skin Scanning Analysis Tool", target: "progress/check-in" });
+    textAppend += " [Skin Scanning Analysis Tool]";
+  }
 
   // Attach whatever the pipeline found whenever it found anything —
   // independent of both the reply TEXT's origin (deterministic pipeline vs.
@@ -102,16 +130,21 @@ export async function generateBotReply(
   const rawJsonText = understanding ? JSON.stringify(understanding) : undefined;
 
   if (understanding && !understanding.isAmbiguous && understanding.reply) {
-    return { text: understanding.reply, products, rawJsonText };
+    return { text: understanding.reply + textAppend, products, rawJsonText, navButtons };
   }
 
   const candidateProducts = (understanding?.candidates ?? []).map((p) => `${p.name} — ${p.category}`);
   // Propagates on failure — see route.ts for how that surfaces to the user.
-  const aiReply = await generateAiAdvisorReply(userText, {
+  const aiResponse = await generateAiAdvisorReply(userText, {
     recognizedEntities: understanding?.recognizedEntities ?? [],
     candidateProducts,
     conversationContext: understanding?.conversationContext ?? [],
   });
 
-  return { text: aiReply, products, rawJsonText };
+  return { 
+    text: aiResponse.text + textAppend, 
+    products, 
+    rawJsonText, 
+    navButtons: [...navButtons, ...aiResponse.navButtons] 
+  };
 }
