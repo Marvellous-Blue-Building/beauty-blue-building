@@ -1,15 +1,25 @@
 "use client";
 
+import { useState } from "react";
 import type { CartItem } from "@/types/cart";
 import type { Product } from "@/types/product";
 import { useCartStore } from "@/lib/store/cart-store";
 import { QtyStepper } from "@/components/cart/QtyStepper";
 import { ProductImage } from "@/components/product/ProductImage";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { formatCurrency } from "@/lib/format";
 
 export function CartItemRow({ item, product }: { item: CartItem; product: Product }) {
   const setQuantity = useCartStore((s) => s.setQuantity);
   const removeFromCart = useCartStore((s) => s.removeFromCart);
+  // Opens immediately if this item is already out of stock by the time the
+  // cart renders it (not just on an explicit X click) — an unfulfillable
+  // item shouldn't just sit there silently.
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(() => product.stockQuantity < 1);
+
+  function handleRemoveConfirm() {
+    setShowRemoveConfirm(true);
+  }
 
   return (
     <div className="mb-[10px] flex items-center gap-3 rounded-[14px] border border-border bg-surface p-3">
@@ -23,6 +33,7 @@ export function CartItemRow({ item, product }: { item: CartItem; product: Produc
           <QtyStepper
             quantity={item.quantity}
             onChange={(q) => setQuantity(item.productId, q)}
+            onRemoveConfirm={handleRemoveConfirm}
           />
           <span className="whitespace-nowrap font-mono text-[12px] font-extrabold text-text">
             {formatCurrency(product.price)}
@@ -31,12 +42,26 @@ export function CartItemRow({ item, product }: { item: CartItem; product: Produc
       </div>
       <button
         type="button"
-        onClick={() => removeFromCart(item.productId)}
+        onClick={() => setShowRemoveConfirm(true)}
         aria-label="Remove from cart"
         className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full border border-border bg-surface text-[11px] text-text-muted"
       >
         ✕
       </button>
+
+      {showRemoveConfirm && (
+        <ConfirmDialog
+          title="Remove item?"
+          message="Are you sure you want to remove this item?"
+          confirmLabel="Remove"
+          cancelLabel="Cancel"
+          onCancel={() => setShowRemoveConfirm(false)}
+          onConfirm={() => {
+            setShowRemoveConfirm(false);
+            removeFromCart(item.productId);
+          }}
+        />
+      )}
     </div>
   );
 }

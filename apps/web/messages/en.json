@@ -30,6 +30,7 @@
     "matchedToScan": "Shop Products · Matched to Your Scan",
     "savedProducts": "Saved Product",
     "allSavedProducts": "All Saved Product",
+    "emptySaved": "Empty Saved",
     "aiAdvisor": "AI Advisor",
     "chatHistory": "Conversation History",
     "chatHistoryDetail": "Conversation",
@@ -412,8 +413,7 @@
     "shipping": "Shipping",
     "free": "Free",
     "total": "Total",
-    "continueShopping": "Continue Shopping",
-    "checkout": "Checkout"
+    "continueShopping": "Continue Shopping"
   },
   "toast": {
     "addedToCart": "{name} is added to your cart",

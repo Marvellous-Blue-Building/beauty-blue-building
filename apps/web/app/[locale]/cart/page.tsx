@@ -1,13 +1,16 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ScreenContainer } from "@/components/layout/ScreenContainer";
 import { CartItemRow } from "@/components/cart/CartItemRow";
 import { CartSummary } from "@/components/cart/CartSummary";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { buttonClassName } from "@/components/ui/Button";
 import { SignInRequiredScreen } from "@/components/auth/SignInRequiredScreen";
 import { useCartStore } from "@/lib/store/cart-store";
+import { useCartUIStore } from "@/lib/store/cart-ui-store";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useProductsByIds } from "@/lib/hooks/use-products-by-ids";
 
@@ -16,8 +19,25 @@ export default function CartPage() {
   const items = useCartStore((s) => s.items);
   const requiresAuth = useCartStore((s) => s.requiresAuth);
   const fetchCart = useCartStore((s) => s.fetchCart);
+  const emptyCart = useCartStore((s) => s.emptyCart);
   const fetchUser = useAuthStore((s) => s.fetchUser);
   const productsById = useProductsByIds(items.map((i) => i.productId));
+
+  // TopBar's "Empty Cart" button lives in the shared layout, not this page
+  // — same request/report handshake as chat-ui-store's Clear Chat button.
+  const emptyToken = useCartUIStore((s) => s.emptyToken);
+  const setCanEmpty = useCartUIStore((s) => s.setCanEmpty);
+  const [showEmptyConfirm, setShowEmptyConfirm] = useState(false);
+  const [prevEmptyToken, setPrevEmptyToken] = useState(emptyToken);
+  const canEmpty = items.length > 0;
+  if (emptyToken !== prevEmptyToken) {
+    setPrevEmptyToken(emptyToken);
+    if (canEmpty) setShowEmptyConfirm(true);
+  }
+
+  useEffect(() => {
+    setCanEmpty(canEmpty);
+  }, [canEmpty, setCanEmpty]);
 
   const subtotal = items.reduce((sum, item) => {
     const product = productsById.get(item.productId);
@@ -61,14 +81,23 @@ export default function CartPage() {
       <CartSummary subtotal={subtotal} />
 
       <div className="flex-1" />
-      <div className="flex gap-2.5">
-        <Link href="/shop" className={buttonClassName({ variant: "ghost", className: "flex-1" })}>
-          {t("continueShopping")}
-        </Link>
-        <Link href="/profile" className={buttonClassName({ className: "flex-1" })}>
-          {t("checkout")}
-        </Link>
-      </div>
+      <Link href="/shop" className={buttonClassName({ variant: "ghost", className: "block w-full" })}>
+        {t("continueShopping")}
+      </Link>
+
+      {showEmptyConfirm && (
+        <ConfirmDialog
+          title="Empty cart?"
+          message="Are you sure you want to empty your cart?"
+          confirmLabel="Empty Cart"
+          cancelLabel="Cancel"
+          onCancel={() => setShowEmptyConfirm(false)}
+          onConfirm={async () => {
+            setShowEmptyConfirm(false);
+            await emptyCart();
+          }}
+        />
+      )}
     </ScreenContainer>
   );
 }

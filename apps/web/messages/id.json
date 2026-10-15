@@ -30,6 +30,7 @@
     "matchedToScan": "Belanja Produk · Sesuai Hasil Pindai",
     "savedProducts": "Produk Tersimpan",
     "allSavedProducts": "Semua Produk Tersimpan",
+    "emptySaved": "Kosongkan Tersimpan",
     "aiAdvisor": "Penasihat AI",
     "chatHistory": "Riwayat Percakapan",
     "chatHistoryDetail": "Percakapan",
@@ -412,8 +413,7 @@
     "shipping": "Pengiriman",
     "free": "Gratis",
     "total": "Total",
-    "continueShopping": "Lanjutkan Belanja",
-    "checkout": "Checkout"
+    "continueShopping": "Lanjutkan Belanja"
   },
   "toast": {
     "addedToCart": "{name} ditambahkan ke keranjang Anda",

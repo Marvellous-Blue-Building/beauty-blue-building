@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter, Link } from "@/i18n/navigation";
 import { getRouteMeta, isGuestLockedRoute } from "@/lib/route-meta";
 import { useCartStore } from "@/lib/store/cart-store";
+import { useSavedStore } from "@/lib/store/saved-store";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useChatUIStore } from "@/lib/store/chat-ui-store";
+import { useCartUIStore } from "@/lib/store/cart-ui-store";
 import { consumeSignedInFromGate, clearSignedInFromGate } from "@/lib/auth/signin-handoff";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { HistoryIcon, ClearChatIcon, CartIcon } from "@/components/layout/TabIcons";
 
 export function TopBar() {
@@ -42,9 +45,15 @@ export function TopBar() {
   // On the live AI Advisor screen, the cart icon slot is replaced by
   // Clear Chat + Conversation History buttons instead.
   const isChatScreen = pathname === "/chat";
+  const isCartScreen = pathname === "/cart";
   const showCart = meta.showCart && !isChatScreen && !isLockedOut;
   const requestClear = useChatUIStore((s) => s.requestClear);
   const canClear = useChatUIStore((s) => s.canClear);
+  const requestEmptyCart = useCartUIStore((s) => s.requestEmpty);
+  const canEmptyCart = useCartUIStore((s) => s.canEmpty);
+  const emptySaved = useSavedStore((s) => s.emptySaved);
+  const savedProductIds = useSavedStore((s) => s.productIds);
+  const [showEmptySavedConfirm, setShowEmptySavedConfirm] = useState(false);
   // The language switcher only makes sense before a session exists — on
   // Profile it lives in the page body instead (its own "Change Language"
   // section, above Account).
@@ -114,6 +123,27 @@ export function TopBar() {
             <HistoryIcon className="h-4 w-4" />
           </Link>
         </>
+      ) : isCartScreen ? (
+        <button
+          type="button"
+          onClick={requestEmptyCart}
+          disabled={!canEmptyCart}
+          aria-label="Empty Cart"
+          className="flex h-[30px] shrink-0 items-center gap-1.5 rounded-full border border-border bg-surface px-2.5 text-[10px] font-bold uppercase tracking-[0.3px] text-text disabled:opacity-40"
+        >
+          <ClearChatIcon className="h-3.5 w-3.5" />
+          Empty Cart
+        </button>
+      ) : isSavedFilter && savedProductIds.length > 0 ? (
+        <button
+          type="button"
+          onClick={() => setShowEmptySavedConfirm(true)}
+          aria-label="Empty Saved"
+          className="flex h-[30px] shrink-0 items-center gap-1.5 rounded-full border border-border bg-surface px-2.5 text-[10px] font-bold uppercase tracking-[0.3px] text-warn disabled:opacity-40"
+        >
+          <ClearChatIcon className="h-3.5 w-3.5" />
+          {t("emptySaved")}
+        </button>
       ) : showCart ? (
         <Link
           href="/cart"
@@ -129,6 +159,19 @@ export function TopBar() {
         </Link>
       ) : (
         <div className="h-[30px] w-[30px] shrink-0" />
+      )}
+      {showEmptySavedConfirm && (
+        <ConfirmDialog
+          title="Empty Saved?"
+          message="Are you sure you want to remove all saved products?"
+          confirmLabel="Empty Saved"
+          cancelLabel="Cancel"
+          onCancel={() => setShowEmptySavedConfirm(false)}
+          onConfirm={async () => {
+            setShowEmptySavedConfirm(false);
+            await emptySaved();
+          }}
+        />
       )}
     </header>
   );

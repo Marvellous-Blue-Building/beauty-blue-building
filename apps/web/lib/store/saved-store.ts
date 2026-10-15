@@ -10,6 +10,7 @@ interface SavedState {
   fetchSaved: () => Promise<void>;
   toggleSave: (productId: string) => Promise<void>;
   isSaved: (productId: string) => boolean;
+  emptySaved: () => Promise<void>;
 }
 
 export const useSavedStore = create<SavedState>((set, get) => ({
@@ -50,4 +51,18 @@ export const useSavedStore = create<SavedState>((set, get) => ({
     }
   },
   isSaved: (productId: string) => get().productIds.includes(productId),
+  emptySaved: async () => {
+    try {
+      const productIds = await deleteJSON<string[]>("/api/saved-products");
+      set({ productIds, requiresAuth: false });
+      useToastStore.getState().showToast("Saved products cleared");
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        set({ requiresAuth: true });
+        useToastStore.getState().showToast(SIGN_IN_REQUIRED_MESSAGE);
+      } else {
+        throw err;
+      }
+    }
+  },
 }));

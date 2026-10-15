@@ -29,3 +29,12 @@ export async function POST(request: NextRequest) {
   );
   return NextResponse.json(result.rows.map((r) => r.product_id));
 }
+
+export async function DELETE() {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+
+  await pool.query("DELETE FROM saved_products WHERE user_id = $1", [user.id]);
+
+  return NextResponse.json([]);
+}

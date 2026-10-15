@@ -12,6 +12,7 @@ interface CartState {
   addToCart: (productId: string, productName: string) => Promise<void>;
   setQuantity: (productId: string, quantity: number) => Promise<void>;
   removeFromCart: (productId: string) => Promise<void>;
+  emptyCart: () => Promise<void>;
 }
 
 export const useCartStore = create<CartState>((set) => ({
@@ -50,6 +51,10 @@ export const useCartStore = create<CartState>((set) => ({
   },
   removeFromCart: async (productId: string) => {
     const items = await deleteJSON<CartItem[]>(`/api/cart/${productId}`);
+    set({ items });
+  },
+  emptyCart: async () => {
+    const items = await deleteJSON<CartItem[]>("/api/cart");
     set({ items });
   },
 }));

@@ -15,6 +15,15 @@ export async function GET() {
   return NextResponse.json(items);
 }
 
+/** "Empty cart" — removes every item at once, not one product at a time. */
+export async function DELETE() {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+
+  await pool.query("DELETE FROM cart_items WHERE user_id = $1", [user.id]);
+  return NextResponse.json([] as CartItem[]);
+}
+
 export async function POST(request: NextRequest) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
