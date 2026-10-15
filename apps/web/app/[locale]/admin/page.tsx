@@ -52,6 +52,9 @@ interface AnalyticsRow {
   trend: "up" | "down" | "flat";
   trendValue: number;
   dataPoints: number;
+  alarmLevel: -1 | 0 | 1 | 2 | 3;
+  alarmLabel: string;
+  cusum: number;
 }
 interface OverviewData {
   totalProducts: number;
@@ -387,8 +390,8 @@ function ForecastingSection() {
       </Card>
 
       <Card
-        title="Activity Forecast — Fase 1"
-        subtitle="Holt's linear trend method per jam atas sinyal (cart adds × 2) + chat mentions. 'Titik data' = berapa jam berbeda ada aktivitas tercatat — makin sedikit, makin rendah keandalan tren/forecast-nya. Ini forecast AKTIVITAS, bukan prediksi penjualan."
+        title="Activity Forecast & Alert — Fase 1"
+        subtitle="Forecast: Holt's linear trend method per jam. Alert: robust z-score + CUSUM (dari Demand Signal System.md), diskalakan ke 2 sinyal nyata (cart, chat) — bukan 8 sinyal KB (Google Trends/sosial/review/kompetitor butuh integrasi API yang belum ada). 'Titik data' sedikit = keandalan rendah, ditandai jelas."
       >
         <table className="w-full min-w-[560px] border-collapse">
           <thead>
@@ -398,33 +401,48 @@ function ForecastingSection() {
               <th className={thCls}>Tren</th>
               <th className={thCls}>Forecast jam depan</th>
               <th className={thCls}>Titik data</th>
+              <th className={thCls}>Alert (CUSUM)</th>
             </tr>
           </thead>
           <tbody>
-            {analytics.map((a) => (
-              <tr key={a.id}>
-                <td className={tdCls}>
-                  <div className="font-semibold">{a.name}</div>
-                  <div className="text-[11px] text-neutral-400">{a.brand}</div>
-                </td>
-                <td className={tdCls}>{a.signal_score}</td>
-                <td className={tdCls}>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                      a.trend === "up" ? "bg-green-50 text-green-700" : a.trend === "down" ? "bg-red-50 text-red-700" : "bg-neutral-100 text-neutral-500"
-                    }`}
-                  >
-                    {a.trend === "up" ? "↑ naik" : a.trend === "down" ? "↓ turun" : "→ stabil"}
-                  </span>
-                </td>
-                <td className={`${tdCls} font-bold`}>{a.forecastNextHour}</td>
-                <td className={tdCls}>
-                  <span className={a.dataPoints < 3 ? "text-amber-600" : "text-neutral-600"}>
-                    {a.dataPoints} jam{a.dataPoints < 3 ? " (data tipis)" : ""}
-                  </span>
-                </td>
-              </tr>
-            ))}
+            {analytics.map((a) => {
+              const alarmStyle: Record<number, string> = {
+                "-1": "bg-blue-50 text-blue-700",
+                "0": "bg-neutral-100 text-neutral-500",
+                "1": "bg-amber-50 text-amber-700",
+                "2": "bg-orange-50 text-orange-700",
+                "3": "bg-red-50 text-red-700",
+              };
+              return (
+                <tr key={a.id}>
+                  <td className={tdCls}>
+                    <div className="font-semibold">{a.name}</div>
+                    <div className="text-[11px] text-neutral-400">{a.brand}</div>
+                  </td>
+                  <td className={tdCls}>{a.signal_score}</td>
+                  <td className={tdCls}>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                        a.trend === "up" ? "bg-green-50 text-green-700" : a.trend === "down" ? "bg-red-50 text-red-700" : "bg-neutral-100 text-neutral-500"
+                      }`}
+                    >
+                      {a.trend === "up" ? "↑ naik" : a.trend === "down" ? "↓ turun" : "→ stabil"}
+                    </span>
+                  </td>
+                  <td className={`${tdCls} font-bold`}>{a.forecastNextHour}</td>
+                  <td className={tdCls}>
+                    <span className={a.dataPoints < 3 ? "text-amber-600" : "text-neutral-600"}>
+                      {a.dataPoints} jam{a.dataPoints < 3 ? " (data tipis)" : ""}
+                    </span>
+                  </td>
+                  <td className={tdCls}>
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${alarmStyle[a.alarmLevel]}`}>
+                      {a.alarmLabel} · C={a.cusum}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
             {analytics.length === 0 && (
               <tr>
                 <td className={tdCls} colSpan={5}>
