@@ -348,9 +348,6 @@
   },
   "chat": {
     "placeholder": "Ask about ingredients, routines…",
-    "suggestAdjust": "Products for my acne",
-    "suggestRetinol": "is retinol safe for me?",
-    "suggestCheck": "Serum for dark spots",
     "aiPick": "AI Pick · based on photo",
     "clearChat": "Clear Chat",
     "noConversations": "No conversations yet — start chatting with your AI advisor.",

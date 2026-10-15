@@ -150,8 +150,15 @@ export default function ChatPage() {
         </div>
       </div>
       <div className="shrink-0 pt-2.5">
+        {/* Hardcoded Indonesian, like the greeting above — the AI Advisor
+            always works in Bahasa Indonesia regardless of the app's UI
+            locale. */}
         <ChatSuggestRow
-          suggestions={[t("suggestAdjust"), t("suggestRetinol"), t("suggestCheck")]}
+          suggestions={[
+            "Produk untuk jerawat saya",
+            "apakah retinol aman untuk saya?",
+            "Serum untuk noda hitam",
+          ]}
           onSelect={setDraft}
         />
         <ChatInputBar value={draft} onChange={setDraft} onSend={handleSend} />
