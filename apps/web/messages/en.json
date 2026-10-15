@@ -137,8 +137,6 @@
     "disclaimer": "This is a cosmetic check from one photo, not a medical diagnosis. Lighting and camera can affect results — see a dermatologist for any medical concern.",
     "continueProfile": "Get my routine",
     "submitScan": "Save to progress",
-    "submitting": "Submitting…",
-    "submitError": "Couldn't submit your scan. Please try again.",
     "retakeScan": "Retake scan",
     "noReportTitle": "No scan yet",
     "noReportSubtitle": "Take a skin scan first and your skin report will appear here.",
@@ -324,7 +322,12 @@
     "addToCart": "Add to Cart",
     "added": "✓ Added to Cart",
     "saveProduct": "♡ Save Product",
-    "saved": "♥ Saved"
+    "saved": "♥ Saved",
+    "share": "Share",
+    "close": "Close",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied!",
+    "linkCopyFailed": "Couldn't copy link"
   },
   "shop": {
     "filters": {
@@ -364,6 +367,8 @@
     "checkInSubtitle": "Same conditions as your baseline scan help the comparison stay accurate — good lighting, no makeup, neutral expression."
   },
   "profile": {
+    "realtimeLocation": "Get Realtime Location",
+    "realtimeLocationPending": "Waiting for your first location update…",
     "preferences": "Preferences",
     "edit": "Edit",
     "viewAll": "All Saved Products",
@@ -376,6 +381,7 @@
     "changeLanguage": "Change Language",
     "account": "Account",
     "sendReportToEmail": "Send My Report to Email",
+    "sendReportToEmailUnavailable": "Email reports aren't available right now — ask the team to finish SMTP setup.",
     "logout": "Logout",
     "logoutConfirmTitle": "Log out?",
     "logoutConfirmMessage": "Are you sure you want to log out?",
@@ -400,5 +406,9 @@
     "addedToCart": "{name} is added to your cart",
     "addedToSaved": "Added to Saved Products",
     "removedFromSaved": "Removed from Saved Products"
+  },
+  "email": {
+    "pdfTitle": "Your Skin Scan Report",
+    "pdfScannedOn": "Scanned on {date}"
   }
 }

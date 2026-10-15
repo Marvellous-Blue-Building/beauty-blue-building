@@ -12,6 +12,7 @@ import { ToggleRow } from "@/components/ui/ToggleRow";
 import { buttonClassName } from "@/components/ui/Button";
 import { getJSON } from "@/lib/api-client";
 import { useQuizStore } from "@/lib/store/quiz-store";
+import { useScanStore } from "@/lib/store/scan-store";
 import type { Climate } from "@/types/quiz";
 import type { PriceRange } from "@/app/api/products/price-range/route";
 
@@ -22,6 +23,12 @@ export default function QuizLifestylePage() {
   const tc = useTranslations("common");
   const { climate, budget, ethics, setClimate, setBudget, toggleEthic } = useQuizStore();
   const [range, setRange] = useState<PriceRange>(FALLBACK_RANGE);
+  // A weekly "Recheck Your Skin" re-quiz (see app/[locale]/scan/report/page.tsx)
+  // reuses this exact same as-is questionnaire, but only re-asks climate here —
+  // budget/ethical preferences were already set during the original onboarding
+  // and aren't re-asked on every check-in (their existing values are still
+  // submitted unchanged at the end of this flow, just not re-editable here).
+  const isCheckIn = useScanStore((s) => s.origin) === "checkin";
 
   useEffect(() => {
     let cancelled = false;
@@ -61,25 +68,29 @@ export default function QuizLifestylePage() {
         onChange={setClimate}
       />
 
-      <SectionTitle>{t("lifestyle.monthlyBudget")}</SectionTitle>
-      <BudgetSlider value={budget} onChange={setBudget} min={range.min} max={range.max} />
+      {!isCheckIn && (
+        <>
+          <SectionTitle>{t("lifestyle.monthlyBudget")}</SectionTitle>
+          <BudgetSlider value={budget} onChange={setBudget} min={range.min} max={range.max} />
 
-      <SectionTitle>{t("lifestyle.ethicalPreferences")}</SectionTitle>
-      <ToggleRow
-        label={t("lifestyle.veganFormulas")}
-        checked={ethics.vegan}
-        onChange={() => toggleEthic("vegan")}
-      />
-      <ToggleRow
-        label={t("lifestyle.crueltyFreeOnly")}
-        checked={ethics.crueltyFree}
-        onChange={() => toggleEthic("crueltyFree")}
-      />
-      <ToggleRow
-        label={t("lifestyle.fragranceFreeOnly")}
-        checked={ethics.fragranceFree}
-        onChange={() => toggleEthic("fragranceFree")}
-      />
+          <SectionTitle>{t("lifestyle.ethicalPreferences")}</SectionTitle>
+          <ToggleRow
+            label={t("lifestyle.veganFormulas")}
+            checked={ethics.vegan}
+            onChange={() => toggleEthic("vegan")}
+          />
+          <ToggleRow
+            label={t("lifestyle.crueltyFreeOnly")}
+            checked={ethics.crueltyFree}
+            onChange={() => toggleEthic("crueltyFree")}
+          />
+          <ToggleRow
+            label={t("lifestyle.fragranceFreeOnly")}
+            checked={ethics.fragranceFree}
+            onChange={() => toggleEthic("fragranceFree")}
+          />
+        </>
+      )}
 
       <div className="flex-1" />
       <Link href="/quiz/goals" className={buttonClassName({ className: "block w-full" })}>

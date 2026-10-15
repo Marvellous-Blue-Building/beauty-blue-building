@@ -12,6 +12,14 @@ export interface SessionUser {
   email: string;
   fullName: string | null;
   avatarUrl: string | null;
+  /** "Send My Report to Email" preference (Profile screen) — used to gate
+   * emailing the skin-scan PDF report, see lib/email/send-scan-report.ts. */
+  sendReportEmail: boolean;
+  /** "Get Realtime Location" preference (Profile screen, enabled by
+   * default) — gates both the client's periodic geolocation polling
+   * (components/layout/LocationTracker.tsx) and the server-side write in
+   * app/api/profile/location/route.ts. */
+  realtimeLocationEnabled: boolean;
 }
 
 /**
@@ -20,23 +28,51 @@ export interface SessionUser {
  * untouched (we don't clobber their avatar/preferences on every login).
  */
 export async function upsertUserFromGoogle(identity: GoogleIdentity): Promise<SessionUser> {
-  const existing = await pool.query<{ id: string; email: string; full_name: string | null; avatar_url: string | null }>(
-    "SELECT id, email, full_name, avatar_url FROM users WHERE email = $1",
+  const existing = await pool.query<{
+    id: string;
+    email: string;
+    full_name: string | null;
+    avatar_url: string | null;
+    send_report_email: boolean;
+    realtime_location_enabled: boolean;
+  }>(
+    "SELECT id, email, full_name, avatar_url, send_report_email, realtime_location_enabled FROM users WHERE email = $1",
     [identity.email]
   );
   if (existing.rows[0]) {
     const u = existing.rows[0];
-    return { id: u.id, email: u.email, fullName: u.full_name, avatarUrl: u.avatar_url };
+    return {
+      id: u.id,
+      email: u.email,
+      fullName: u.full_name,
+      avatarUrl: u.avatar_url,
+      sendReportEmail: u.send_report_email,
+      realtimeLocationEnabled: u.realtime_location_enabled,
+    };
   }
 
-  const inserted = await pool.query<{ id: string; email: string; full_name: string | null; avatar_url: string | null }>(
+  const inserted = await pool.query<{
+    id: string;
+    email: string;
+    full_name: string | null;
+    avatar_url: string | null;
+    send_report_email: boolean;
+    realtime_location_enabled: boolean;
+  }>(
     `INSERT INTO users (firebase_uid, email, full_name)
      VALUES ($1, $2, $3)
-     RETURNING id, email, full_name, avatar_url`,
+     RETURNING id, email, full_name, avatar_url, send_report_email, realtime_location_enabled`,
     [identity.sub, identity.email, identity.name]
   );
   const u = inserted.rows[0];
-  return { id: u.id, email: u.email, fullName: u.full_name, avatarUrl: u.avatar_url };
+  return {
+    id: u.id,
+    email: u.email,
+    fullName: u.full_name,
+    avatarUrl: u.avatar_url,
+    sendReportEmail: u.send_report_email,
+    realtimeLocationEnabled: u.realtime_location_enabled,
+  };
 }
 
 /**
@@ -94,12 +130,26 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   const email = await redis.get(`session:${token}`);
   if (!email) return null;
 
-  const result = await pool.query<{ id: string; email: string; full_name: string | null; avatar_url: string | null }>(
-    "SELECT id, email, full_name, avatar_url FROM users WHERE email = $1",
+  const result = await pool.query<{
+    id: string;
+    email: string;
+    full_name: string | null;
+    avatar_url: string | null;
+    send_report_email: boolean;
+    realtime_location_enabled: boolean;
+  }>(
+    "SELECT id, email, full_name, avatar_url, send_report_email, realtime_location_enabled FROM users WHERE email = $1",
     [email]
   );
   const u = result.rows[0];
   if (!u) return null;
 
-  return { id: u.id, email: u.email, fullName: u.full_name, avatarUrl: u.avatar_url };
+  return {
+    id: u.id,
+    email: u.email,
+    fullName: u.full_name,
+    avatarUrl: u.avatar_url,
+    sendReportEmail: u.send_report_email,
+    realtimeLocationEnabled: u.realtime_location_enabled,
+  };
 }

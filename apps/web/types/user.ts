@@ -19,4 +19,14 @@ export interface UserProfile {
   flaggedAllergenCount: number;
   preferences: EthicalPreferences;
   sendReportEmail: boolean;
+  /** Whether the server's SMTP env vars are actually usable right now —
+   * the Profile screen disables the "Send Report to My Email" toggle
+   * when this is false, since turning it on wouldn't do anything. */
+  smtpConfigured: boolean;
+  /** "Get Realtime Location" preference (enabled by default) — gates
+   * components/layout/LocationTracker.tsx's periodic geolocation polling. */
+  realtimeLocationEnabled: boolean;
+  /** Full reverse-geocoded address from the last location ping, or null
+   * until the first one lands (see app/api/profile/location/route.ts). */
+  address: string | null;
 }

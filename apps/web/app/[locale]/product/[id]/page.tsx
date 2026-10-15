@@ -12,12 +12,15 @@ import { SaveButtonLabel } from "@/components/product/SaveButtonLabel";
 import { DisclaimerBanner } from "@/components/ui/DisclaimerBanner";
 import { Button, buttonClassName } from "@/components/ui/Button";
 import { ProductImage } from "@/components/product/ProductImage";
+import { ShareModal } from "@/components/product/ShareModal";
+import { ShareIcon } from "@/components/product/ShareIcons";
 import { getJSON, ApiError } from "@/lib/api-client";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useQuizStore } from "@/lib/store/quiz-store";
 import { flagIngredients } from "@/lib/rag/sensitivity-flags";
 import { formatCurrency, discountPercent } from "@/lib/format";
 import { cn } from "@/lib/cn";
+import { productHref } from "@/lib/product-href";
 import type { Product } from "@/types/product";
 
 /** `id` in this route is a parent_sku, not one row's own UUID — every
@@ -32,13 +35,17 @@ export default function ProductDetailPage({
   const { id: parentSku } = use(params);
   const [variants, setVariants] = useState<Product[] | null | undefined>(undefined);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
   const t = useTranslations("product");
   const router = useRouter();
   const searchParams = useSearchParams();
   // Opened from the chat's product list (see CatalogCard's fromChat prop) —
   // "View Alternatives" should return to that conversation, not /shop.
   const fromChat = searchParams.get("from") === "chat";
-  const requestedVariantId = searchParams.get("variant");
+  // Which exact variant to show — /product/<parentSku>?color=<hex>&size=<label>,
+  // either/both/neither (see lib/product-href.ts).
+  const colorParam = searchParams.get("color");
+  const sizeParam = searchParams.get("size");
   const addToCart = useCartStore((s) => s.addToCart);
   const inCart = useCartStore((s) => s.items.some((i) => i.productId === selectedId));
   const sensitivities = useQuizStore((s) => s.sensitivities);
@@ -53,15 +60,18 @@ export default function ProductDetailPage({
   }, [parentSku]);
 
   // Default selection, derived at render time (not via a setState-in-effect)
-  // — honors a specific shade/size the user actually clicked from a list
-  // (even if it's since gone out of stock — they should see exactly what
+  // — honors the exact shade/size named in the URL (?color=/?size=, even if
+  // that variant's since gone out of stock — they should see exactly what
   // they picked), otherwise prefers an in-stock variant over landing on a
   // dead one. `selectedId` only ever gets set explicitly, on a real click.
+  const requestedVariant =
+    variants && (colorParam || sizeParam)
+      ? variants.find(
+          (v) => (!colorParam || v.colorHex === colorParam) && (!sizeParam || v.sizeLabel === sizeParam)
+        )
+      : undefined;
   const defaultVariantId =
-    variants &&
-    (requestedVariantId && variants.some((v) => v.id === requestedVariantId)
-      ? requestedVariantId
-      : (variants.find((v) => v.stockQuantity > 0) ?? variants[0])?.id);
+    variants && (requestedVariant ?? variants.find((v) => v.stockQuantity > 0) ?? variants[0])?.id;
   const product = variants?.find((v) => v.id === (selectedId ?? defaultVariantId));
 
   if (variants === undefined || !product) return null;
@@ -69,7 +79,16 @@ export default function ProductDetailPage({
 
   // Picks which sibling a shade/size click should switch to — prefers one
   // matching the OTHER currently-selected dimension too (e.g. clicking a
-  // new color keeps the current size if that combination exists).
+  // new color keeps the current size if that combination exists) — then
+  // updates both local state AND the URL (shallow — no reload) so the
+  // page's own URL always reflects exactly what's shown, for sharing (see
+  // the share button) and for landing directly on a specific shade/size
+  // from a product list.
+  function selectVariant(target: Product) {
+    setSelectedId(target.id);
+    router.replace(productHref(target, { fromChat }), { scroll: false });
+  }
+
   const pickByColor = (hex: string) =>
     variants.find((v) => v.colorHex === hex && v.sizeLabel === product.sizeLabel) ??
     variants.find((v) => v.colorHex === hex);
@@ -92,13 +111,23 @@ export default function ProductDetailPage({
 
   return (
     <ScreenContainer>
-      <ProductImage
-        src={product.imageUrl}
-        alt={product.name}
-        className="mb-4 h-[170px] w-full rounded-2xl border border-border"
-        sizes="480px"
-        fit="contain"
-      />
+      <div className="relative mb-4">
+        <ProductImage
+          src={product.imageUrl}
+          alt={product.name}
+          className="h-[170px] w-full rounded-2xl border border-border"
+          sizes="480px"
+          fit="contain"
+        />
+        <button
+          type="button"
+          onClick={() => setShareUrl(window.location.href)}
+          aria-label={t("share")}
+          className="absolute top-2.5 right-2.5 flex h-[32px] w-[32px] items-center justify-center rounded-full border border-border bg-surface text-text shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
+        >
+          <ShareIcon className="h-4 w-4" />
+        </button>
+      </div>
       <div className="mb-[9px] flex items-start justify-between gap-2.5">
         <h2 className="font-display text-[22px] font-semibold text-canvas-ink">{product.name}</h2>
         <SaveButtonLabel productId={product.id} />
@@ -144,7 +173,7 @@ export default function ProductDetailPage({
                     type="button"
                     aria-label={target.colorName ?? hex}
                     disabled={disabled}
-                    onClick={() => setSelectedId(target.id)}
+                    onClick={() => selectVariant(target)}
                     className={cn(
                       "h-[28px] w-[28px] shrink-0 rounded-full border-2",
                       disabled && "cursor-not-allowed opacity-30",
@@ -173,7 +202,7 @@ export default function ProductDetailPage({
                   key={sizeLabel}
                   type="button"
                   disabled={disabled}
-                  onClick={() => setSelectedId(target.id)}
+                  onClick={() => selectVariant(target)}
                   className={cn(
                     "shrink-0 rounded-full border px-[12px] py-[6px] text-[11.5px] font-semibold",
                     disabled && "cursor-not-allowed opacity-30",
@@ -238,6 +267,8 @@ export default function ProductDetailPage({
           {t("backToRoutine")}
         </Link>
       </div>
+
+      {shareUrl && <ShareModal product={product} url={shareUrl} onClose={() => setShareUrl(null)} />}
     </ScreenContainer>
   );
 }

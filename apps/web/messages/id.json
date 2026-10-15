@@ -137,8 +137,6 @@
     "disclaimer": "Ini adalah pemeriksaan kosmetik dari satu foto, bukan diagnosis medis. Pencahayaan dan kamera dapat memengaruhi hasil — temui dokter kulit untuk masalah medis apa pun.",
     "continueProfile": "Dapatkan rutinitas saya",
     "submitScan": "Simpan ke progres",
-    "submitting": "Mengirim…",
-    "submitError": "Tidak dapat mengirim pemindaian Anda. Silakan coba lagi.",
     "retakeScan": "Pindai ulang",
     "noReportTitle": "Belum ada pindai",
     "noReportSubtitle": "Lakukan pemindaian kulit terlebih dahulu dan laporan kulit Anda akan muncul di sini.",
@@ -324,7 +322,12 @@
     "addToCart": "Tambah ke Keranjang",
     "added": "✓ Ditambahkan ke Keranjang",
     "saveProduct": "♡ Simpan Produk",
-    "saved": "♥ Tersimpan"
+    "saved": "♥ Tersimpan",
+    "share": "Bagikan",
+    "close": "Tutup",
+    "copyLink": "Salin tautan",
+    "linkCopied": "Tautan disalin!",
+    "linkCopyFailed": "Gagal menyalin tautan"
   },
   "shop": {
     "filters": {
@@ -364,6 +367,8 @@
     "checkInSubtitle": "Kondisi yang sama seperti pindai awal Anda membantu perbandingan tetap akurat — pencahayaan baik, tanpa riasan, ekspresi netral."
   },
   "profile": {
+    "realtimeLocation": "Dapatkan Lokasi Real-time",
+    "realtimeLocationPending": "Menunggu pembaruan lokasi pertama Anda…",
     "preferences": "Preferensi",
     "edit": "Ubah",
     "viewAll": "Semua Produk Tersimpan",
@@ -376,6 +381,7 @@
     "changeLanguage": "Ganti Bahasa",
     "account": "Akun",
     "sendReportToEmail": "Kirim Laporan Saya ke Email",
+    "sendReportToEmailUnavailable": "Laporan email belum tersedia saat ini — minta tim menyelesaikan pengaturan SMTP.",
     "logout": "Keluar",
     "logoutConfirmTitle": "Keluar?",
     "logoutConfirmMessage": "Apakah Anda yakin ingin keluar?",
@@ -400,5 +406,9 @@
     "addedToCart": "{name} ditambahkan ke keranjang Anda",
     "addedToSaved": "Ditambahkan ke Produk Tersimpan",
     "removedFromSaved": "Dihapus dari Produk Tersimpan"
+  },
+  "email": {
+    "pdfTitle": "Laporan Pindai Kulit Anda",
+    "pdfScannedOn": "Dipindai pada {date}"
   }
 }

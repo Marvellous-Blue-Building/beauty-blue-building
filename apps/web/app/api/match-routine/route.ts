@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { callMatchingService } from "@/lib/matching-client";
 import { pool } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth/session";
 import { isQuestionnaireComplete, isScanComplete } from "@/lib/onboarding-complete";
+import { sendScanReportEmailIfEnabled } from "@/lib/email/send-scan-report";
 import type { QuizAnswers } from "@/types/quiz";
-import type { ScanMetrics } from "@/types/scan";
+import type { ScanReport } from "@/types/scan";
 
 export async function POST(request: NextRequest) {
+  // `scan` is typed as the full ScanReport (not just the bare 6 metrics) —
+  // useScanStore's `result` (what both call sites actually POST here) is
+  // already a real ScanReport (scanId/createdAt/flaggedZones included), so
+  // it's genuinely available, not just metrics.
   const { quiz, scan, imageBase64 } = (await request.json()) as {
     quiz: QuizAnswers;
-    scan: ScanMetrics | null;
+    scan: ScanReport | null;
     imageBase64?: string | null;
   };
 
@@ -52,11 +58,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // ON CONFLICT DO NOTHING against idx_scan_results_user_scan_id
+    // (data/08_scan_results_dedupe.sql) — a real scan's own scanId makes
+    // this insert naturally idempotent, so a retried/duplicate POST for
+    // the same scan never stores a second row NOR emails the report
+    // twice (only a genuine new row, confirmed by RETURNING, triggers it).
+    let didInsertScanResult = false;
     try {
-      await pool.query(
+      const inserted = await pool.query(
         `INSERT INTO scan_results
            (user_id, raw_json_data, hydration_score, pigmentation_score, image_data)
-         VALUES ($1, $2::jsonb, $3, $4, $5)`,
+         VALUES ($1, $2::jsonb, $3, $4, $5)
+         ON CONFLICT (user_id, (raw_json_data->>'scanId'))
+           WHERE (raw_json_data->>'scanId') IS NOT NULL
+         DO NOTHING
+         RETURNING id`,
         [
           user.id,
           JSON.stringify({ ...(scan ?? {}), questionnaire: quiz }),
@@ -65,8 +81,14 @@ export async function POST(request: NextRequest) {
           imageBase64 ?? null,
         ]
       );
+      didInsertScanResult = inserted.rows.length > 0;
     } catch (error) {
       console.error("Failed to persist scan result:", error);
+    }
+
+    if (scan && didInsertScanResult) {
+      const locale = (await cookies()).get("NEXT_LOCALE")?.value ?? "en";
+      await sendScanReportEmailIfEnabled(user, scan, locale, imageBase64);
     }
   }
 

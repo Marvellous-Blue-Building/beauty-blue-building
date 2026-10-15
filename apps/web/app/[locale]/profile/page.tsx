@@ -10,6 +10,7 @@ import { ToggleRow } from "@/components/ui/ToggleRow";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PreviewListSection } from "@/components/profile/PreviewListSection";
 import { EmailReportToggleRow } from "@/components/profile/EmailReportToggleRow";
+import { LocationToggleRow } from "@/components/profile/LocationToggleRow";
 import { Link, useRouter } from "@/i18n/navigation";
 import { buttonClassName } from "@/components/ui/Button";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
@@ -20,6 +21,7 @@ import { useAuthStore } from "@/lib/store/auth-store";
 import { useProductsByIds } from "@/lib/hooks/use-products-by-ids";
 import { ProductImage } from "@/components/product/ProductImage";
 import { formatCurrency } from "@/lib/format";
+import { productHref } from "@/lib/product-href";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
 import type { UserProfile } from "@/types/user";
 
@@ -56,6 +58,12 @@ export default function ProfilePage() {
   useEffect(() => {
     loadProfile();
   }, []);
+
+  // LocationTracker (mounted app-wide) flips this off in the background if
+  // the browser's geolocation permission gets denied/revoked — preferring
+  // the auth store's live value over the profile snapshot means an already-
+  // open Profile screen reflects that immediately, not just after a reload.
+  const authLocationEnabled = useAuthStore((s) => s.user?.realtimeLocationEnabled);
 
   async function handleLogout() {
     await postJSON("/api/auth/logout");
@@ -112,6 +120,15 @@ export default function ProfilePage() {
         ]}
       />
 
+      <SectionTitle>{t("realtimeLocation")}</SectionTitle>
+      <LocationToggleRow
+        checked={authLocationEnabled ?? profile.realtimeLocationEnabled}
+        address={profile.address}
+        onChanged={(checked) =>
+          setProfile((p) => (p ? { ...p, realtimeLocationEnabled: checked } : p))
+        }
+      />
+
       <SectionTitle action={t("edit")}>{t("preferences")}</SectionTitle>
       <ToggleRow
         label={t("veganFormulasOnly")}
@@ -137,7 +154,7 @@ export default function ProfilePage() {
         viewAllHref="/shop?filter=saved"
         renderItem={(product) => (
           <Link
-            href={`/product/${product.parentSku}?variant=${product.id}`}
+            href={productHref(product)}
             className="w-[132px] shrink-0 rounded-[14px] border border-border bg-surface p-[11px]"
           >
             <ProductImage src={product.imageUrl} alt={product.name} className="mb-[9px] h-[72px] w-full rounded-[10px]" sizes="132px" />
@@ -183,6 +200,7 @@ export default function ProfilePage() {
       <EmailReportToggleRow
         checked={profile.sendReportEmail}
         onChanged={(checked) => setProfile((p) => (p ? { ...p, sendReportEmail: checked } : p))}
+        smtpConfigured={profile.smtpConfigured}
       />
       <ToggleRow label={t("logout")} showToggle={false} onClick={() => setShowLogoutConfirm(true)} />
 

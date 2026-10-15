@@ -72,6 +72,12 @@ GOOGLE_REDIRECT_URI=http://localhost:3002/api/auth/google/callback
 MATCHING_SERVICE_URL=http://localhost:8000
 SKIN_SCAN_SERVICE_URL=http://localhost:3003
 AI_ADVISOR_SERVICE_URL=http://localhost:3004
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=<your-gmail-address>
+SMTP_PASS=<your-16-char-app-password>
+SMTP_FROM="Beauty AI Advisor <your-gmail-address>"
 EOF
 cd ../..
 
@@ -244,7 +250,8 @@ for f in data/01_alter_products_schema.sql \
          data/04_chat_schema.sql \
          data/05_chat_pinned_greeting.sql \
          data/06_scan_image.sql \
-         data/07_chat_recommended_products.sql; do
+         data/07_chat_recommended_products.sql \
+         data/08_scan_results_dedupe.sql; do
   docker exec -i beauty-advisor-db psql -U bluebuilding -d bluebuilding < "$f"
 done
 ```
@@ -293,6 +300,19 @@ GOOGLE_REDIRECT_URI=http://localhost:3002/api/auth/google/callback
 
 MATCHING_SERVICE_URL=http://localhost:8000
 SKIN_SCAN_SERVICE_URL=http://localhost:3003
+AI_ADVISOR_SERVICE_URL=http://localhost:3004
+
+# Gmail SMTP — emails the skin-scan PDF report when a user enables "Send
+# My Report to Email" (Profile screen). Create an App Password at
+# https://myaccount.google.com/apppasswords (requires 2-Step Verification
+# turned on for that Google account first) — the regular account
+# password will NOT work for SMTP.
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=<your-gmail-address>
+SMTP_PASS=<your-16-char-app-password>
+SMTP_FROM="Beauty AI Advisor <your-gmail-address>"
 ```
 
 > You'll need your own Google OAuth credentials — ask a teammate for the

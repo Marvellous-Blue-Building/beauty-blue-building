@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { ScreenContainer } from "@/components/layout/ScreenContainer";
 import { ScoreRing } from "@/components/scan/ScoreRing";
 import { FaceMap, SEVERITY_MARKER } from "@/components/scan/FaceMap";
 import { MetricCard } from "@/components/scan/MetricCard";
 import { buttonClassName } from "@/components/ui/Button";
 import { useScanStore } from "@/lib/store/scan-store";
-import { postJSON } from "@/lib/api-client";
 import { cn } from "@/lib/cn";
 import { BAND_STYLE, METRIC_KEYS, scoreBand, type ScoreBand } from "@/lib/scan/score-bands";
 import type { FlaggedZone } from "@/types/scan";
@@ -18,13 +17,10 @@ const BANDS: ScoreBand[] = ["great", "good", "fair", "needsCare"];
 
 export default function ScanReportPage() {
   const t = useTranslations("diagnostic");
-  const router = useRouter();
   const result = useScanStore((s) => s.result);
   const imageDataUrl = useScanStore((s) => s.imageDataUrl);
   const imageCrop = useScanStore((s) => s.imageCrop);
   const origin = useScanStore((s) => s.origin);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState(false);
   const [activeArea, setActiveArea] = useState<number | null>(null);
 
   if (!result) {
@@ -43,23 +39,14 @@ export default function ScanReportPage() {
     );
   }
 
-  // Weekly "Recheck Your Skin" scans commit the photo to the user's history
-  // here, rather than continuing into the onboarding questionnaire like a
-  // first-time baseline scan does.
+  // Weekly "Recheck Your Skin" scans also continue into the (as-is)
+  // questionnaire now, same as a first-time baseline scan — see
+  // app/[locale]/quiz/lifestyle/page.tsx, which trims that flow's step 4
+  // down to just the climate question for a check-in re-quiz. The actual
+  // persistence (scan + questionnaire together) happens at the very end
+  // of that flow, same place a baseline scan's does — see
+  // app/[locale]/analyzing/page.tsx.
   const isCheckIn = origin === "checkin";
-
-  async function handleSubmit() {
-    if (submitting) return;
-    setSubmitting(true);
-    setSubmitError(false);
-    try {
-      await postJSON("/api/scan-result", { report: result, imageBase64: imageDataUrl });
-      router.push("/progress");
-    } catch {
-      setSubmitting(false);
-      setSubmitError(true);
-    }
-  }
 
   const band = scoreBand(result.overall);
   const ranked = [...METRIC_KEYS].sort((a, b) => result[b] - result[a]);
@@ -221,31 +208,16 @@ export default function ScanReportPage() {
         <p className="mt-1 text-[12px] leading-relaxed text-surface/90">
           {isCheckIn ? t("checkinNextBody") : t("nextBody")}
         </p>
-        {submitError && (
-          <p className="mt-2 rounded-lg bg-surface px-2.5 py-1.5 text-[11px] text-warn">
-            {t("submitError")}
-          </p>
-        )}
-        {isCheckIn ? (
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={submitting}
-            className={cn(
-              "mt-3 block w-full rounded-[28px] bg-surface py-3 text-center text-[13.5px] font-bold text-primary",
-              submitting && "opacity-60"
-            )}
-          >
-            {submitting ? t("submitting") : t("submitScan")}
-          </button>
-        ) : (
-          <Link
-            href="/quiz/skin-type"
-            className="mt-3 block w-full rounded-[28px] bg-surface py-3 text-center text-[13.5px] font-bold text-primary"
-          >
-            {t("continueProfile")} →
-          </Link>
-        )}
+        {/* Both branches now continue into the same as-is questionnaire —
+            only the label/copy above differs by origin. The actual save
+            (scan + questionnaire together) happens at the end of that
+            flow, not here — see app/[locale]/analyzing/page.tsx. */}
+        <Link
+          href="/quiz/skin-type"
+          className="mt-3 block w-full rounded-[28px] bg-surface py-3 text-center text-[13.5px] font-bold text-primary"
+        >
+          {isCheckIn ? t("submitScan") : `${t("continueProfile")} →`}
+        </Link>
       </section>
       <Link
         href={isCheckIn ? "/progress/check-in" : "/scan"}

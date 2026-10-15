@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "1.0.1",
+    "@react-pdf/renderer": "^4.9.0",
     "clsx": "latest",
     "ioredis": "^6.0.0",
     "next": "latest",
     "next-intl": "latest",
+    "nodemailer": "^10.1.1",
     "pg": "^8.23.1",
     "react": "latest",
     "react-dom": "latest",
@@ -23,6 +25,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "latest",
     "@types/node": "latest",
+    "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.23.1",
     "@types/react": "latest",
     "eslint": "^9.39.5",

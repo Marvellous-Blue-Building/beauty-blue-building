@@ -1,6 +1,7 @@
 import type { MatchedRoutineStep } from "@/types/routine";
 import { Link } from "@/i18n/navigation";
 import { ProductImage } from "@/components/product/ProductImage";
+import { productHref } from "@/lib/product-href";
 
 export function RoutineCard({
   step,
@@ -36,7 +37,7 @@ export function RoutineCard({
 
   return (
     <Link
-      href={`/product/${product.parentSku}?variant=${product.id}`}
+      href={productHref(product)}
       className="mb-[10px] flex items-center gap-3 rounded-[14px] border border-border bg-surface p-[13px]"
     >
       {content}

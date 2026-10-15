@@ -12,10 +12,11 @@ export async function POST(request: NextRequest) {
     const report = await callSkinScanService(imageBase64);
     // Process-wide convenience cache so a /scan/report refresh (guest or
     // pre-quiz) still has the last real report. Persistence is deliberate and
-    // separate: the baseline flow writes at questionnaire submission
-    // (/api/match-routine), the weekly check-in at the report's "Submit scan"
-    // (/api/scan-result POST) — both keyed to an explicit user action rather
-    // than every camera capture.
+    // happens later, at an explicit user action rather than every camera
+    // capture — both the baseline flow AND the weekly check-in now write at
+    // questionnaire submission (/api/match-routine); a check-in's "Save
+    // report" button just routes into that same as-is questionnaire first
+    // (see app/[locale]/scan/report/page.tsx).
     serverStore.latestScanResult = report;
     return NextResponse.json(report);
   } catch (error) {

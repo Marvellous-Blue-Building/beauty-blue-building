@@ -6,6 +6,9 @@ export interface SessionUser {
   email: string;
   fullName: string | null;
   avatarUrl: string | null;
+  /** "Get Realtime Location" preference (Profile screen) — gates
+   * components/layout/LocationTracker.tsx's periodic geolocation polling. */
+  realtimeLocationEnabled: boolean;
 }
 
 interface AuthState {

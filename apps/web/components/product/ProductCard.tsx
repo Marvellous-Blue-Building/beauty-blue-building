@@ -4,6 +4,7 @@ import { SaveButton } from "@/components/product/SaveButton";
 import { AddToCartButton } from "@/components/product/AddToCartButton";
 import { ProductImage } from "@/components/product/ProductImage";
 import { formatPercent, discountPercent } from "@/lib/format";
+import { productHref } from "@/lib/product-href";
 
 /** Horizontal scroll card — used in "Matched to Your Scan" rows. */
 export function ProductCard({ product }: { product: Product }) {
@@ -14,7 +15,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link
-      href={`/product/${product.parentSku}?variant=${product.id}`}
+      href={productHref(product)}
       className="relative w-[132px] shrink-0 rounded-[14px] border border-border bg-surface p-[11px]"
     >
       <SaveButton productId={product.id} />

@@ -3,6 +3,8 @@ import { pool } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth/session";
 import { containsFlaggedIngredient } from "@/lib/rag/sensitivity-flags";
 import { withCacheBust } from "@/lib/avatar-url";
+import { isSmtpConfigured } from "@/lib/email/smtp-client";
+import { getMostRecentLocation } from "@/lib/location-cache";
 import type { UserProfile } from "@/types/user";
 import type { QuizAnswers } from "@/types/quiz";
 
@@ -12,12 +14,16 @@ interface UserRow {
   avatar_url: string | null;
   preferences: UserProfile["preferences"];
   send_report_email: boolean;
+  realtime_location_enabled: boolean;
+  last_address: string | null;
   updated_at: string;
 }
 
 async function loadProfile(userId: string): Promise<UserProfile> {
   const userResult = await pool.query<UserRow>(
-    "SELECT full_name, email, avatar_url, preferences, send_report_email, updated_at FROM users WHERE id = $1",
+    `SELECT full_name, email, avatar_url, preferences, send_report_email,
+            realtime_location_enabled, last_address, updated_at
+     FROM users WHERE id = $1`,
     [userId]
   );
   const user = userResult.rows[0];
@@ -67,6 +73,13 @@ async function loadProfile(userId: string): Promise<UserProfile> {
     ).length;
   }
 
+  // Redis still has up to the last 5 pings (every 5 minutes); Postgres
+  // only gets flushed once an hour (see app/api/profile/location/route.ts),
+  // so prefer Redis's freshest entry for display and fall back to the DB
+  // snapshot once Redis's entries have aged out.
+  const recentLocation = await getMostRecentLocation(userId);
+  const address = recentLocation?.address ?? user.last_address;
+
   return {
     name: user.full_name ?? user.email,
     email: user.email,
@@ -79,6 +92,9 @@ async function loadProfile(userId: string): Promise<UserProfile> {
     flaggedAllergenCount,
     preferences: user.preferences,
     sendReportEmail: user.send_report_email,
+    smtpConfigured: isSmtpConfigured(),
+    realtimeLocationEnabled: user.realtime_location_enabled,
+    address,
   };
 }
 
@@ -96,8 +112,18 @@ export async function PATCH(request: NextRequest) {
   const updates = (await request.json()) as {
     preferences?: UserProfile["preferences"];
     sendReportEmail?: boolean;
+    realtimeLocationEnabled?: boolean;
     fullName?: string;
   };
+
+  // Never trust a client-side disabled toggle alone — reject turning this
+  // on server-side too when SMTP genuinely isn't usable right now.
+  if (updates.sendReportEmail === true && !isSmtpConfigured()) {
+    return NextResponse.json(
+      { error: "Email reports aren't available right now — SMTP isn't configured." },
+      { status: 400 }
+    );
+  }
 
   const setClauses: string[] = [];
   const params: unknown[] = [];
@@ -109,6 +135,10 @@ export async function PATCH(request: NextRequest) {
   if (updates.sendReportEmail !== undefined) {
     params.push(updates.sendReportEmail);
     setClauses.push(`send_report_email = $${params.length}`);
+  }
+  if (updates.realtimeLocationEnabled !== undefined) {
+    params.push(updates.realtimeLocationEnabled);
+    setClauses.push(`realtime_location_enabled = $${params.length}`);
   }
   if (updates.fullName !== undefined) {
     params.push(updates.fullName);

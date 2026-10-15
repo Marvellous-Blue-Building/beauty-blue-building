@@ -4,6 +4,7 @@ import { SaveButton } from "@/components/product/SaveButton";
 import { AddToCartButton } from "@/components/product/AddToCartButton";
 import { ProductImage } from "@/components/product/ProductImage";
 import { formatCurrency, formatPercent, discountPercent } from "@/lib/format";
+import { productHref } from "@/lib/product-href";
 import { cn } from "@/lib/cn";
 
 /** Grid card — used in the full Browse Catalog grid. `compact` scales
@@ -25,7 +26,7 @@ export function CatalogCard({
   // likely a data artifact than a real markdown.
   const discount = product.variantCount > 1 ? discountPercent(product.price, product.listedPrice) : null;
 
-  const href = `/product/${product.parentSku}?variant=${product.id}${fromChat ? "&from=chat" : ""}`;
+  const href = productHref(product, { fromChat });
 
   return (
     <Link

@@ -24,7 +24,7 @@ const ROUTE_META: Record<string, RouteMeta> = {
   "/quiz/sensitivities": { titleKey: "sensitivities", showBack: true, showCart: false },
   "/quiz/lifestyle": { titleKey: "lifestyle", showBack: true, showCart: false },
   "/quiz/goals": { titleKey: "goals", showBack: true, showCart: false },
-  "/analyzing": { titleKey: "analyzing", showBack: true, showCart: false },
+  "/analyzing": { titleKey: "analyzing", showBack: false, showCart: false },
   "/routine": { titleKey: "yourRoutine", showBack: false, showCart: true },
   "/product": { titleKey: "productDetail", showBack: true, showCart: true },
   "/shop": { titleKey: "shopProducts", showBack: false, showCart: true },

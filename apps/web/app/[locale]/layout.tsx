@@ -7,6 +7,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { TabBarGate } from "@/components/layout/TabBarGate";
 import { ToastViewport } from "@/components/ui/ToastViewport";
 import { StoreBootstrap } from "@/components/layout/StoreBootstrap";
+import { LocationTracker } from "@/components/layout/LocationTracker";
 import "../globals.css";
 
 export function generateStaticParams() {
@@ -32,6 +33,7 @@ export default async function LocaleLayout({
       <body className="font-ui">
         <NextIntlClientProvider messages={messages}>
           <StoreBootstrap />
+          <LocationTracker />
           <div className="mx-auto flex h-dvh max-w-[480px] flex-col overflow-hidden bg-app-bg">
             <TopBar />
             <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">{children}</div>
