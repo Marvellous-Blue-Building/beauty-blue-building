@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import nodemailer, { type Transporter } from "nodemailer";
 
 /** Real SMTP transporter (Gmail SMTP by default — see .env.local /
@@ -6,7 +7,7 @@ import nodemailer, { type Transporter } from "nodemailer";
  * (same pattern as lib/db.ts's pg Pool). */
 
 const globalForSmtp = globalThis as unknown as {
-  __beautyAdvisorSmtp?: Transporter;
+  __beautyAdvisorSmtp?: { key: string; transporter: Transporter };
 };
 
 /** Mirrors lib/auth/google-oauth.ts's env() helper — read-and-throw inline,
@@ -33,11 +34,30 @@ function createTransporter(): Transporter {
   });
 }
 
+/** Fingerprint of the current SMTP config (hashed so the raw password is
+ * never stored on globalThis). The cached transporter is rebuilt whenever
+ * this changes, so editing .env.local's SMTP_* without a full server
+ * restart still switches the account the app authenticates as. */
+function smtpConfigFingerprint(): string {
+  return createHash("sha256")
+    .update(
+      [
+        process.env.SMTP_HOST ?? "",
+        process.env.SMTP_PORT ?? "",
+        process.env.SMTP_SECURE ?? "",
+        process.env.SMTP_USER ?? "",
+        process.env.SMTP_PASS ?? "",
+      ].join("\u0000")
+    )
+    .digest("hex");
+}
+
 export function getSmtpTransporter(): Transporter {
-  if (!globalForSmtp.__beautyAdvisorSmtp) {
-    globalForSmtp.__beautyAdvisorSmtp = createTransporter();
+  const key = smtpConfigFingerprint();
+  if (!globalForSmtp.__beautyAdvisorSmtp || globalForSmtp.__beautyAdvisorSmtp.key !== key) {
+    globalForSmtp.__beautyAdvisorSmtp = { key, transporter: createTransporter() };
   }
-  return globalForSmtp.__beautyAdvisorSmtp;
+  return globalForSmtp.__beautyAdvisorSmtp.transporter;
 }
 
 export function smtpFromAddress(): string {
