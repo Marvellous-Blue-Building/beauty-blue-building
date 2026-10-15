@@ -10,11 +10,16 @@ import { ChatInputBar } from "@/components/chat/ChatInputBar";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { getJSON, postJSON, ApiError } from "@/lib/api-client";
 import { useChatUIStore } from "@/lib/store/chat-ui-store";
+import { useAuthStore } from "@/lib/store/auth-store";
+import { SignInRequiredScreen } from "@/components/auth/SignInRequiredScreen";
 import type { ChatMessage, ConversationDetail, ConversationSummary } from "@/types/chat";
 
 export default function ChatPage() {
   const t = useTranslations("chat");
   const tc = useTranslations("common");
+  const user = useAuthStore((s) => s.user);
+  const authLoaded = useAuthStore((s) => s.loaded);
+  const fetchUser = useAuthStore((s) => s.fetchUser);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
@@ -107,6 +112,16 @@ export default function ChatPage() {
         setConversationId(res.conversationId);
         setMessages([res.greetingMessage]);
       }
+    );
+  }
+
+  if (authLoaded && !user) {
+    return (
+      <SignInRequiredScreen
+        title="Sign in to view your profile"
+        subtitle="Your profile, saved products, and cart are tied to your account."
+        onSignedIn={fetchUser}
+      />
     );
   }
 

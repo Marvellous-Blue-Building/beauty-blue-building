@@ -14,6 +14,8 @@ import { CatalogCard } from "@/components/product/CatalogCard";
 import { getJSON, patchJSON, ApiError } from "@/lib/api-client";
 import { useSavedStore } from "@/lib/store/saved-store";
 import { useRoutineStore } from "@/lib/store/routine-store";
+import { useAuthStore } from "@/lib/store/auth-store";
+import { SignInRequiredScreen } from "@/components/auth/SignInRequiredScreen";
 import { titleCaseFromSlug } from "@/lib/text";
 import { BudgetSlider } from "@/components/quiz/BudgetSlider";
 import { ToggleRow } from "@/components/ui/ToggleRow";
@@ -35,6 +37,9 @@ export default function ShopPage() {
   const searchParams = useSearchParams();
   const savedOnly = searchParams.get("filter") === "saved";
   const savedProductIds = useSavedStore((s) => s.productIds);
+  const user = useAuthStore((s) => s.user);
+  const authLoaded = useAuthStore((s) => s.loaded);
+  const fetchUser = useAuthStore((s) => s.fetchUser);
   const routine = useRoutineStore((s) => s.routine);
   const setRoutine = useRoutineStore((s) => s.setRoutine);
   const [activeFilter, setActiveFilter] = useState<string>("all");
@@ -145,6 +150,16 @@ export default function ShopPage() {
     .slice(0, visibleCount)
     .map((p) => (matchPercentById.has(p.id) ? { ...p, matchPercent: matchPercentById.get(p.id) } : p));
   const hasMore = visibleCount < fullCatalog.length;
+
+  if (authLoaded && !user) {
+    return (
+      <SignInRequiredScreen
+        title="Sign in to view your profile"
+        subtitle="Your profile, saved products, and cart are tied to your account."
+        onSignedIn={fetchUser}
+      />
+    );
+  }
 
   return (
     <ScreenContainer>

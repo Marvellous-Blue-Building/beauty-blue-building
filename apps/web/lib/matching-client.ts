@@ -10,12 +10,18 @@ const MATCHING_SERVICE_URL = process.env.MATCHING_SERVICE_URL ?? "http://localho
 export async function callMatchingService(
   quiz: QuizAnswers,
   scan: ScanMetrics | null,
-  environmentalContext?: EnvironmentalContext | null
+  environmentalContext?: EnvironmentalContext | null,
+  userId?: string | null
 ): Promise<MatchedRoutine> {
   const res = await fetch(`${MATCHING_SERVICE_URL}/match-routine`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ quiz, scan, boostKeywords: environmentalContext?.boostKeywords ?? [] }),
+    body: JSON.stringify({
+      quiz,
+      scan,
+      boostKeywords: environmentalContext?.boostKeywords ?? [],
+      userId: userId ?? null,
+    }),
   });
   if (!res.ok) {
     throw new Error(`matching-service responded with ${res.status}`);
@@ -31,7 +37,8 @@ export async function callMatchingService(
 export async function callChatUnderstand(
   conversationId: string | null,
   text: string,
-  environmentalContext?: EnvironmentalContext | null
+  environmentalContext?: EnvironmentalContext | null,
+  userId?: string | null
 ): Promise<ChatUnderstanding> {
   const res = await fetch(`${MATCHING_SERVICE_URL}/chat/understand`, {
     method: "POST",
@@ -41,6 +48,7 @@ export async function callChatUnderstand(
       text,
       environmentalContext: environmentalContext?.guidanceText ?? null,
       boostKeywords: environmentalContext?.boostKeywords ?? [],
+      userId: userId ?? null,
     }),
   });
   if (!res.ok) {

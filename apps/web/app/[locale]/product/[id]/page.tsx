@@ -14,8 +14,10 @@ import { Button, buttonClassName } from "@/components/ui/Button";
 import { ProductImage } from "@/components/product/ProductImage";
 import { ShareModal } from "@/components/product/ShareModal";
 import { ShareIcon } from "@/components/product/ShareIcons";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { getJSON, ApiError } from "@/lib/api-client";
 import { useCartStore } from "@/lib/store/cart-store";
+import { useAuthStore } from "@/lib/store/auth-store";
 import { useQuizStore } from "@/lib/store/quiz-store";
 import { flagIngredients } from "@/lib/rag/sensitivity-flags";
 import { formatCurrency, discountPercent } from "@/lib/format";
@@ -49,6 +51,9 @@ export default function ProductDetailPage({
   const addToCart = useCartStore((s) => s.addToCart);
   const inCart = useCartStore((s) => s.items.some((i) => i.productId === selectedId));
   const sensitivities = useQuizStore((s) => s.sensitivities);
+  const user = useAuthStore((s) => s.user);
+  const authLoaded = useAuthStore((s) => s.loaded);
+  const fetchUser = useAuthStore((s) => s.fetchUser);
 
   useEffect(() => {
     getJSON<{ variants: Product[] }>(`/api/products/${parentSku}`)
@@ -237,36 +242,48 @@ export default function ProductDetailPage({
       ))}
 
       <div className="flex-1" />
-      <Button
-        onClick={() => addToCart(product.id, product.name)}
-        added={inCart}
-        disabled={outOfStock}
-        className="mb-2.5 w-full"
-      >
-        {outOfStock
-          ? t("outOfStock")
-          : inCart
-            ? t("added")
-            : `${t("addToCart")} — ${formatCurrency(product.price)}`}
-      </Button>
-      <div className="flex gap-2.5">
-        {fromChat ? (
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className={buttonClassName({ variant: "ghost", className: "flex-1" })}
+      {!(authLoaded && !user) ? (
+        <>
+          <Button
+            onClick={() => addToCart(product.id, product.name)}
+            added={inCart}
+            disabled={outOfStock}
+            className="mb-2.5 w-full"
           >
-            {t("viewAlternatives")}
-          </button>
-        ) : (
-          <Link href="/shop" className={buttonClassName({ variant: "ghost", className: "flex-1" })}>
-            {t("viewAlternatives")}
-          </Link>
-        )}
-        <Link href="/routine" className={buttonClassName({ variant: "ghost", className: "flex-1" })}>
-          {t("backToRoutine")}
-        </Link>
-      </div>
+            {outOfStock
+              ? t("outOfStock")
+              : inCart
+                ? t("added")
+                : `${t("addToCart")} — ${formatCurrency(product.price)}`}
+          </Button>
+          <div className="flex gap-2.5">
+            {fromChat ? (
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className={buttonClassName({ variant: "ghost", className: "flex-1" })}
+              >
+                {t("viewAlternatives")}
+              </button>
+            ) : (
+              <Link href="/shop" className={buttonClassName({ variant: "ghost", className: "flex-1" })}>
+                {t("viewAlternatives")}
+              </Link>
+            )}
+            <Link href="/routine" className={buttonClassName({ variant: "ghost", className: "flex-1" })}>
+              {t("backToRoutine")}
+            </Link>
+          </div>
+        </>
+      ) : (
+        // No session — the product itself stays fully visible (name, price,
+        // description, ingredients, compatibility), only the cart/navigation
+        // CTAs are replaced, since actually adding to cart or viewing an
+        // account-tied routine both genuinely require an account.
+        <GoogleSignInButton className={buttonClassName({ className: "w-full" })} onSignedIn={fetchUser}>
+          Sign in with Google to access more
+        </GoogleSignInButton>
+      )}
 
       {shareUrl && <ShareModal product={product} url={shareUrl} onClose={() => setShareUrl(null)} />}
     </ScreenContainer>

@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { ScreenContainer } from "@/components/layout/ScreenContainer";
 import { ChatTranscript } from "@/components/chat/ChatTranscript";
 import { getJSON, ApiError } from "@/lib/api-client";
+import { useAuthStore } from "@/lib/store/auth-store";
+import { SignInRequiredScreen } from "@/components/auth/SignInRequiredScreen";
 import type { ConversationDetail } from "@/types/chat";
 
 export default function ChatHistoryDetailPage({
@@ -13,6 +15,9 @@ export default function ChatHistoryDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const user = useAuthStore((s) => s.user);
+  const authLoaded = useAuthStore((s) => s.loaded);
+  const fetchUser = useAuthStore((s) => s.fetchUser);
   const [conversation, setConversation] = useState<ConversationDetail | null | undefined>(undefined);
 
   useEffect(() => {
@@ -26,6 +31,16 @@ export default function ChatHistoryDetailPage({
         }
       });
   }, [id]);
+
+  if (authLoaded && !user) {
+    return (
+      <SignInRequiredScreen
+        title="Sign in to view your profile"
+        subtitle="Your profile, saved products, and cart are tied to your account."
+        onSignedIn={fetchUser}
+      />
+    );
+  }
 
   if (conversation === undefined) return null;
   if (conversation === null) notFound();

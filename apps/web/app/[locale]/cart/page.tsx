@@ -6,7 +6,7 @@ import { ScreenContainer } from "@/components/layout/ScreenContainer";
 import { CartItemRow } from "@/components/cart/CartItemRow";
 import { CartSummary } from "@/components/cart/CartSummary";
 import { buttonClassName } from "@/components/ui/Button";
-import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { SignInRequiredScreen } from "@/components/auth/SignInRequiredScreen";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useProductsByIds } from "@/lib/hooks/use-products-by-ids";
@@ -24,6 +24,19 @@ export default function CartPage() {
     return sum + (product ? product.price * item.quantity : 0);
   }, 0);
 
+  if (requiresAuth) {
+    return (
+      <SignInRequiredScreen
+        title="Sign in to view your profile"
+        subtitle="Your profile, saved products, and cart are tied to your account."
+        onSignedIn={async () => {
+          await fetchUser();
+          await fetchCart();
+        }}
+      />
+    );
+  }
+
   return (
     <ScreenContainer>
       <div className="mb-2 text-[10.5px] font-semibold tracking-[1.5px] text-text-faint uppercase">
@@ -36,17 +49,7 @@ export default function CartPage() {
         {t("subtitle")}
       </p>
 
-      {requiresAuth ? (
-        <GoogleSignInButton
-          className={buttonClassName({ className: "mb-4 block w-full" })}
-          onSignedIn={async () => {
-            await fetchUser();
-            await fetchCart();
-          }}
-        >
-          Sign in with Google to use your cart
-        </GoogleSignInButton>
-      ) : items.length === 0 ? (
+      {items.length === 0 ? (
         <p className="mb-4 text-[13px] text-text-muted">Your cart is empty.</p>
       ) : (
         items.map((item) => {

@@ -8,16 +8,31 @@ import { DayPhotoCards } from "@/components/progress/DayPhotoCards";
 import { MetricBar } from "@/components/scan/MetricBar";
 import { buttonClassName } from "@/components/ui/Button";
 import { getJSON } from "@/lib/api-client";
+import { useAuthStore } from "@/lib/store/auth-store";
+import { SignInRequiredScreen } from "@/components/auth/SignInRequiredScreen";
 import type { ProgressSnapshot } from "@/types/progress";
 
 export default function ProgressPage() {
   const t = useTranslations("progress");
+  const user = useAuthStore((s) => s.user);
+  const authLoaded = useAuthStore((s) => s.loaded);
+  const fetchUser = useAuthStore((s) => s.fetchUser);
   const [snapshots, setSnapshots] = useState<ProgressSnapshot[] | null>(null);
   const [activeDay, setActiveDay] = useState(0);
 
   useEffect(() => {
     getJSON<ProgressSnapshot[]>("/api/progress").then(setSnapshots);
   }, []);
+
+  if (authLoaded && !user) {
+    return (
+      <SignInRequiredScreen
+        title="Sign in to view your profile"
+        subtitle="Your profile, saved products, and cart are tied to your account."
+        onSignedIn={fetchUser}
+      />
+    );
+  }
 
   if (!snapshots) return null;
 

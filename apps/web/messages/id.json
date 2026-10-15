@@ -40,7 +40,8 @@
     "tabShop": "Belanja",
     "tabAdvisor": "Penasihat",
     "tabProgress": "Kemajuan",
-    "tabProfile": "Profil"
+    "tabProfile": "Profil",
+    "sessionExpired": "Sesi Berakhir"
   },
   "login": {
     "title": "Beauty AI Advisor",

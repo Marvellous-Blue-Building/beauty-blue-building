@@ -13,4 +13,5 @@ async def post_chat_understand(body: ChatUnderstandRequest) -> ChatUnderstanding
         body.conversationId,
         environmental_context=body.environmentalContext,
         boost_keywords=body.boostKeywords,
+        user_id=body.userId,
     )

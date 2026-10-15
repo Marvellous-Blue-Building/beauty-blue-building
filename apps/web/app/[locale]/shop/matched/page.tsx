@@ -5,9 +5,14 @@ import { ScreenContainer } from "@/components/layout/ScreenContainer";
 import { CatalogCard } from "@/components/product/CatalogCard";
 import { getJSON } from "@/lib/api-client";
 import { useRoutineStore } from "@/lib/store/routine-store";
+import { useAuthStore } from "@/lib/store/auth-store";
+import { SignInRequiredScreen } from "@/components/auth/SignInRequiredScreen";
 import type { MatchedRoutine } from "@/types/routine";
 
 export default function ShopMatchedPage() {
+  const user = useAuthStore((s) => s.user);
+  const authLoaded = useAuthStore((s) => s.loaded);
+  const fetchUser = useAuthStore((s) => s.fetchUser);
   const routine = useRoutineStore((s) => s.routine);
   const setRoutine = useRoutineStore((s) => s.setRoutine);
 
@@ -25,6 +30,16 @@ export default function ShopMatchedPage() {
     () => (routine ? [...routine.am, ...routine.pm].map((s) => s.product) : []),
     [routine]
   );
+
+  if (authLoaded && !user) {
+    return (
+      <SignInRequiredScreen
+        title="Sign in to view your profile"
+        subtitle="Your profile, saved products, and cart are tied to your account."
+        onSignedIn={fetchUser}
+      />
+    );
+  }
 
   return (
     <ScreenContainer>

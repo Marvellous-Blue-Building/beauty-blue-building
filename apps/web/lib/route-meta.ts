@@ -61,13 +61,23 @@ export function isTabRoute(pathWithoutLocale: string): boolean {
 }
 
 /**
- * Routes where "Continue as Guest" journey stops dead — chrome that would
- * let a guest navigate further (cart icon, bottom tab bar) is hidden, and
- * the page itself swaps its normal CTAs for a single "Sign in with Google
- * to Access More" button. Only applies when there's no real session.
+ * Routes that require a real session — chrome that would let a guest
+ * navigate further (back button, action button, bottom tab bar) is hidden
+ * here, in TopBar/TabBarGate, whenever there's no real session. Prefix-
+ * matched, so e.g. "/shop" also covers "/shop/matched".
+ *
+ * What each route's own BODY does with that is its own choice, not implied
+ * by this list: /profile, /cart, /shop, /chat, /progress each swap their
+ * entire body for the shared "Sign in to view your profile" gate
+ * (components/auth/SignInRequiredScreen); /product/[id] instead keeps the
+ * real product visible and only swaps its own CTAs (see that page);
+ * /routine shows a real routine preview to guests too, swapping only its
+ * bottom CTA for "Sign in with Google to Access More" (see that page).
  */
-const GUEST_LOCKED_ROUTES = ["/routine"] as const;
+const GUEST_LOCKED_ROUTES = ["/routine", "/profile", "/cart", "/shop", "/chat", "/progress", "/product"] as const;
 
 export function isGuestLockedRoute(pathWithoutLocale: string): boolean {
-  return (GUEST_LOCKED_ROUTES as readonly string[]).includes(pathWithoutLocale);
+  return GUEST_LOCKED_ROUTES.some(
+    (route) => pathWithoutLocale === route || pathWithoutLocale.startsWith(`${route}/`)
+  );
 }

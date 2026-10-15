@@ -4,75 +4,14 @@ equivalent, match_routine.py, already implements this shape for structured
 input) — orchestrates dictionaries.py (steps 2,4,6), fuzzy.py (step 5),
 intent.py (step 7), and embeddings.py (steps 8-9)."""
 
-import re
-
 from app.db import get_pool
-from app.dictionaries import CONCERN_KEYWORDS, GOAL_KEYWORDS
 from app.embeddings import encode, semantic_search
-from app.entities import ID_CONCERN_PHRASES, INGREDIENT_FACTS, canonicalize
-from app.fuzzy import fuzzy_match_terms
+from app.entities import INGREDIENT_FACTS
+from app.entity_recognition import normalize_text as _normalize, recognize_entities as _recognize_entities
 from app.intent import classify_intent
 from app.product_row import to_product
 from app.schemas import ChatUnderstanding
-
-_WHITESPACE_PATTERN = re.compile(r"\s+")
-_PUNCTUATION_PATTERN = re.compile(r"[^\w\s]")
-
-
-def _normalize(text: str) -> str:
-    """Step 1: lowercase, strip punctuation, collapse whitespace."""
-    lowered = text.lower()
-    stripped = _PUNCTUATION_PATTERN.sub(" ", lowered)
-    return _WHITESPACE_PATTERN.sub(" ", stripped).strip()
-
-
-def _dictionary_vocabulary() -> list[str]:
-    terms: set[str] = set()
-    for keywords in CONCERN_KEYWORDS.values():
-        terms.update(k.lower() for k in keywords)
-    for keywords in GOAL_KEYWORDS.values():
-        terms.update(k.lower() for k in keywords)
-    return sorted(terms)
-
-
-_DICTIONARY_VOCABULARY = _dictionary_vocabulary()
-
-
-def _concern_goal_phrase_map() -> dict[str, list[str]]:
-    """A chat message says "large pores" (the concern CATEGORY name), not
-    one of its mapped ingredient keywords — this is the lookup that turns
-    the former into the latter, same as the quiz flow's checkbox selection
-    already does structurally for match_routine.py. Also covers the
-    Bahasa Indonesia phrasing of the same concerns (ID_CONCERN_PHRASES),
-    since users overwhelmingly ask in Indonesian."""
-    mapping: dict[str, list[str]] = {}
-    for concern, keywords in CONCERN_KEYWORDS.items():
-        mapping[_normalize(concern)] = keywords
-    for goal, keywords in GOAL_KEYWORDS.items():
-        mapping[_normalize(goal)] = keywords
-    for id_phrase, concern in ID_CONCERN_PHRASES.items():
-        mapping[_normalize(id_phrase)] = CONCERN_KEYWORDS[concern]
-    return mapping
-
-
-_CONCERN_GOAL_PHRASE_MAP = _concern_goal_phrase_map()
-
-
-def _recognize_entities(normalized_text: str) -> list[str]:
-    """Steps 2/4/6: exact dictionary hits (both direct ingredient-keyword
-    mentions and concern/goal category-name phrases like "large pores") +
-    fuzzy near-misses, canonicalized to the same vocabulary
-    match_routine.py's dictionaries already use."""
-    hits: set[str] = set()
-    for term in _DICTIONARY_VOCABULARY:
-        if term in normalized_text:
-            hits.add(term)
-    for phrase, keywords in _CONCERN_GOAL_PHRASE_MAP.items():
-        if phrase in normalized_text:
-            hits.update(k.lower() for k in keywords)
-    for term in fuzzy_match_terms(normalized_text):
-        hits.add(canonicalize(term))
-    return sorted(hits)
+from app.user_history import get_user_chat_keywords, get_user_scan_keywords
 
 
 async def _fetch_conversation_context(
@@ -144,8 +83,26 @@ async def _retrieve_candidates(normalized_text: str, recognized_entities: list[s
     query_vector = encode(normalized_text)
     vector_literal = "[" + ",".join(str(v) for v in query_vector) + "]"
 
+    # Whenever we have real recognized keyword/ontology terms, a candidate
+    # MUST actually mention one somewhere (search_vector now covers name/
+    # brand/category/description/usage_instructions) or be a fuzzy
+    # ingredient match — the embedding/semantic term alone can never admit
+    # a result on its own. all-MiniLM-L6-v2 is English-trained, so for
+    # informal Indonesian queries its cosine similarities are noisy enough
+    # that a completely unrelated product (e.g. eyelashes, for an acne
+    # query) can otherwise outscore genuinely relevant ones on the
+    # semantic term alone. With no recognized terms at all (a vague
+    # free-text fallback), there's no lexical signal to require, so
+    # semantic search stays the primary mechanism — its originally
+    # intended fallback role (plan.md steps 8-9).
+    lexical_filter = (
+        "AND (search_vector @@ websearch_to_tsquery('simple', $1) OR similarity(COALESCE(ingredients, ''), $2) > 0.1)"
+        if combined_terms
+        else ""
+    )
+
     rows = await pool.fetch(
-        """
+        f"""
         SELECT *,
           (
             ts_rank(search_vector, websearch_to_tsquery('simple', $1)) * 10
@@ -158,6 +115,7 @@ async def _retrieve_candidates(normalized_text: str, recognized_entities: list[s
             WHERE p3.parent_sku = products.parent_sku AND p3.color_variant IS NOT NULL AND p3.stock_quantity > 0) AS color_palette
         FROM products
         WHERE stock_quantity > 0
+        {lexical_filter}
         ORDER BY merge_score DESC
         LIMIT 15
         """,
@@ -173,6 +131,7 @@ async def understand_chat_message(
     conversation_id: str | None,
     environmental_context: str | None = None,
     boost_keywords: list[str] | None = None,
+    user_id: str | None = None,
 ) -> ChatUnderstanding:
     normalized_text = _normalize(text)
     recognized_entities = _recognize_entities(normalized_text)
@@ -183,16 +142,41 @@ async def understand_chat_message(
         # step 14 (services/ai-advisor's Gemma call) consumes this list.
         conversation_context = [*conversation_context, f"context: {environmental_context}"]
 
+    # Learns from this user's OWN history, not just the single message/scan
+    # in front of it right now — recognized entities from every chat
+    # message they've ever sent (across all their conversations, not just
+    # this one) plus boost keywords from their last several real skin
+    # scans (not just whichever one happens to be current). Both fold into
+    # the same product-matching signal as the current message's own
+    # recognized entities, and are surfaced to step 14 (Gemma) as an
+    # explicit grounding note so it can reference them in its reply too.
+    history_keywords: list[str] = []
+    if user_id:
+        history_keywords = [*(await get_user_chat_keywords(user_id)), *(await get_user_scan_keywords(user_id))]
+        if history_keywords:
+            conversation_context = [
+                *conversation_context,
+                f"riwayat pengguna (percakapan & pemindaian kulit sebelumnya): {', '.join(dict.fromkeys(history_keywords))}",
+            ]
+
     matched_fact = next((INGREDIENT_FACTS[e] for e in recognized_entities if e in INGREDIENT_FACTS), None)
-    needs_candidates = intent in ("product_recommendation", "routine_advice") or (
-        intent == "ingredient_inquiry" and matched_fact is None
+    # Whenever the pipeline actually recognized a keyword/ontology term in
+    # the user's own message, a product search always runs and always
+    # surfaces its closest match — independent of how classify_intent
+    # happened to bucket the sentence structure. Without a recognized term
+    # at all (a bare "halo"/greeting), there's nothing meaningful to search
+    # on, so this still falls back to the narrower intent-based gate.
+    needs_candidates = (
+        bool(recognized_entities)
+        or intent in ("product_recommendation", "routine_advice")
+        or (intent == "ingredient_inquiry" and matched_fact is None)
     )
 
     candidates: list = []
     top_candidate = None
     top_score = 0.0
     if needs_candidates:
-        rows = await _retrieve_candidates(normalized_text, recognized_entities, boost_keywords)
+        rows = await _retrieve_candidates(normalized_text, recognized_entities, [*(boost_keywords or []), *history_keywords])
         if rows:
             # Top 6 closest-ranked DISTINCT items (by parent_sku) for the
             # chat UI's full-width product list — the ranked pool often has

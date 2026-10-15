@@ -28,6 +28,97 @@ GOAL_KEYWORDS: dict[str, list[str]] = {
     "Hydration": ["hyaluronic acid", "glycerin", "ceramide"],
 }
 
+# A message that only names a product CATEGORY ("sabun cuci muka terbaik
+# apa aja" — "what are the best face washes") never mentions an ingredient/
+# concern/goal keyword at all, so CONCERN_KEYWORDS/GOAL_KEYWORDS alone
+# would recognize nothing and (before this set existed) leave a genuine
+# product request with zero candidates. Used by both app/intent.py's
+# intent classification and app/entity_recognition.py's entity
+# recognition — a word here is itself a valid search term once it's
+# recognized (search_vector covers category text directly).
+PRODUCT_CATEGORY_WORDS_ID = {
+    "serum", "obat", "krim", "cream", "lotion", "sunscreen", "pelembap", "moisturizer",
+    "toner", "masker", "mask", "essence", "cleanser", "pembersih", "sabun", "produk", "skincare",
+}
+
+# Pattern dictionary / ontology of beauty & personal-care product TYPES
+# (as opposed to CONCERN_KEYWORDS/GOAL_KEYWORDS, which are cosmetic
+# INGREDIENTS). A message naming a specific product type — "cleansing
+# balm", "hyaluronic acid serum", "beard oil" — is itself a valid search
+# term the moment it's recognized (search_vector covers name/category/
+# description text directly), the same role PRODUCT_CATEGORY_WORDS_ID
+# plays for single common words; this is the longer, phrase-level
+# complement to that set. Matched as a substring against normalized text
+# (see app/entity_recognition.py), so multi-word phrases work the same way
+# CONCERN_KEYWORDS/GOAL_KEYWORDS terms already do.
+BEAUTY_PRODUCT_ONTOLOGY: list[str] = [
+    # Face
+    "facial cleanser", "cleansing oil", "cleansing balm", "micellar water",
+    "facial toner", "hydrating toner", "exfoliating toner", "facial essence",
+    "facial serum", "ampoule", "facial moisturizer", "face cream",
+    "gel moisturizer", "facial lotion", "face oil", "sunscreen", "sunblock",
+    "sunscreen stick", "sunscreen spray", "sunscreen serum", "eye cream",
+    "eye serum", "eye patches", "face mask", "sheet mask", "sleeping mask",
+    "clay mask", "peel-off mask", "exfoliating scrub", "chemical exfoliant",
+    "acne treatment", "spot treatment", "pore strips", "blackhead remover",
+    "facial mist", "makeup remover", "lip balm", "lip scrub", "neck cream",
+    "facial treatment pads",
+    # Hair & scalp
+    "shampoo", "conditioner", "hair mask", "hair treatment", "hair serum",
+    "hair oil", "leave-in conditioner", "hair milk", "hair tonic",
+    "scalp serum", "scalp scrub", "scalp treatment", "anti-dandruff shampoo",
+    "hair growth treatment", "heat protectant", "hair spray", "hair gel",
+    "hair wax", "hair clay", "hair pomade", "hair mousse", "dry shampoo",
+    "hair perfume", "hair dye", "hair bleach", "hair color conditioner",
+    "hair straightening treatment", "curl cream", "hair detangler",
+    "hair styling cream",
+    # Body
+    "body wash", "shower gel", "body soap", "body scrub", "body exfoliator",
+    "body lotion", "body cream", "body butter", "body oil", "body serum",
+    "body moisturizer", "body sunscreen", "hand cream", "foot cream",
+    "heel balm", "elbow cream", "body acne treatment", "stretch mark cream",
+    "firming lotion", "cellulite cream", "after-sun lotion", "body mist",
+    "deodorant", "antiperspirant", "body powder", "foot spray",
+    "hand sanitizer", "cuticle oil",
+    # Oral / dental
+    "toothpaste", "tooth whitening strips", "mouthwash", "dental floss",
+    "toothbrush", "tongue cleaner", "breath spray",
+    # Intimate / feminine care
+    "feminine wash", "intimate moisturizer", "intimate wipes",
+    "menstrual pads", "pantyliners", "tampons", "menstrual cup",
+    # Hair removal / shaving
+    "shaving cream", "aftershave balm", "hair removal cream",
+    "waxing strips", "depilatory wax", "razor",
+    # General hygiene
+    "hand wash", "body wipes", "wet wipes", "antibacterial soap",
+    # Fragrance
+    "perfume", "eau de parfum", "eau de toilette", "eau de cologne",
+    "perfume oil", "solid perfume", "deodorant spray", "fragrance lotion",
+    "fragrance gift set",
+    # Nails
+    "nail polish", "gel nail polish", "nail strengthener", "nail treatment",
+    "base coat", "top coat", "nail polish remover", "cuticle remover",
+    "nail serum", "nail glue", "press-on nails", "nail art stickers",
+    "nail hardener", "nail repair cream",
+    # Supplements / ingestible wellness
+    "collagen supplement", "biotin supplement",
+    "hair skin and nails supplement", "vitamin c supplement",
+    "vitamin e supplement", "zinc supplement", "general multivitamin",
+    "probiotic supplement", "hydration electrolyte powder",
+    "collagen drink", "beauty gummies", "protein powder",
+    "herbal wellness drink",
+    # Men's grooming
+    "men's facial cleanser", "men's moisturizer", "beard oil", "beard balm",
+    "beard shampoo", "beard conditioner",
+    # Dermatological / targeted treatment
+    "anti-aging cream", "retinol treatment", "vitamin c serum",
+    "niacinamide serum", "hyaluronic acid serum", "ceramide cream",
+    "barrier repair cream", "sensitive skin moisturizer",
+    "rosacea-compatible skincare", "hyperpigmentation treatment",
+    "dark spot corrector", "scar care gel", "keratosis pilaris treatment",
+    "eczema-compatible moisturizer",
+]
+
 # Also duplicated in apps/web/lib/rag/sensitivity-flags.ts, which still needs
 # it for viewer-side ingredient flagging unrelated to this matching service.
 SENSITIVITY_KEYWORDS: dict[str, list[str]] = {

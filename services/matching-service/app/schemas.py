@@ -115,6 +115,11 @@ class MatchRoutineRequest(BaseModel):
     # holiday+weather formula (e.g. "Broad-Spectrum SPF 50+ Sunscreens") —
     # boosts matching products the same way scan-metric keywords already do.
     boostKeywords: list[str] = []
+    # When present, app/routers/match_routine.py also folds in recognized
+    # entities from this user's own past chat messages and boost keywords
+    # from their last several real skin scans — not just the single
+    # quiz/scan this particular request carries. See app/user_history.py.
+    userId: Optional[str] = None
 
 
 Intent = Literal["product_recommendation", "ingredient_inquiry", "routine_advice", "general_question"]
@@ -130,6 +135,11 @@ class ChatUnderstandRequest(BaseModel):
     # Same formula's product-type keywords, boosting candidate retrieval —
     # mirrors MatchRoutineRequest.boostKeywords.
     boostKeywords: list[str] = []
+    # When present, app/chat_pipeline.py also folds in recognized entities
+    # from this user's own past chat messages (across every conversation,
+    # not just this one) and boost keywords from their last several real
+    # skin scans. See app/user_history.py.
+    userId: Optional[str] = None
 
 
 class ChatUnderstanding(BaseModel):

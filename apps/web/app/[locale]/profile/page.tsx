@@ -12,12 +12,11 @@ import { PreviewListSection } from "@/components/profile/PreviewListSection";
 import { EmailReportToggleRow } from "@/components/profile/EmailReportToggleRow";
 import { LocationToggleRow } from "@/components/profile/LocationToggleRow";
 import { Link, useRouter } from "@/i18n/navigation";
-import { buttonClassName } from "@/components/ui/Button";
-import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { SignInRequiredScreen } from "@/components/auth/SignInRequiredScreen";
 import { getJSON, patchJSON, postJSON, ApiError } from "@/lib/api-client";
 import { useSavedStore } from "@/lib/store/saved-store";
 import { useCartStore } from "@/lib/store/cart-store";
-import { useAuthStore } from "@/lib/store/auth-store";
+import { useAuthStore, clearSessionMarker } from "@/lib/store/auth-store";
 import { useProductsByIds } from "@/lib/hooks/use-products-by-ids";
 import { ProductImage } from "@/components/product/ProductImage";
 import { formatCurrency } from "@/lib/format";
@@ -48,6 +47,10 @@ export default function ProfilePage() {
       })
       .catch((err) => {
         if (err instanceof ApiError && err.status === 401) {
+          // "Session expired" chrome (TopBar/TabBarGate) is driven entirely
+          // by the auth store's own sessionExpired flag, kept correct by
+          // fetchUser() itself (see lib/store/auth-store.ts) — this just
+          // needs to show the sign-in body.
           setNeedsAuth(true);
         } else {
           throw err;
@@ -67,26 +70,22 @@ export default function ProfilePage() {
 
   async function handleLogout() {
     await postJSON("/api/auth/logout");
+    // Intentional logout, not a session dying on its own — a later guest
+    // visit should get the normal sign-in prompt, not "Session expired".
+    clearSessionMarker();
     router.push("/login");
   }
 
   if (needsAuth) {
     return (
-      <ScreenContainer className="items-center justify-center gap-4 text-center">
-        <h2 className="font-display text-[20px] font-semibold text-canvas-ink">Sign in to view your profile</h2>
-        <p className="text-[12.5px] text-canvas-ink-muted">
-          Your profile, saved products, and cart are tied to your account.
-        </p>
-        <GoogleSignInButton
-          className={buttonClassName({ className: "w-full" })}
-          onSignedIn={async () => {
-            await fetchUser();
-            await Promise.all([loadProfile(), fetchCart(), fetchSaved()]);
-          }}
-        >
-          Sign in with Google
-        </GoogleSignInButton>
-      </ScreenContainer>
+      <SignInRequiredScreen
+        title="Sign in to view your profile"
+        subtitle="Your profile, saved products, and cart are tied to your account."
+        onSignedIn={async () => {
+          await fetchUser();
+          await Promise.all([loadProfile(), fetchCart(), fetchSaved()]);
+        }}
+      />
     );
   }
 

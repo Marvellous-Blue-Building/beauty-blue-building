@@ -52,6 +52,7 @@ from app.db import get_pool
 from app.dictionaries import CONCERN_KEYWORDS, GOAL_KEYWORDS, SENSITIVITY_KEYWORDS, scan_metric_keywords
 from app.product_row import to_product
 from app.schemas import MatchedRoutine, MatchedRoutineStep, MatchRoutineRequest
+from app.user_history import get_user_chat_keywords, get_user_scan_keywords
 
 router = APIRouter()
 
@@ -227,18 +228,34 @@ def _compact_steps(steps: list[Optional[MatchedRoutineStep]]) -> list[MatchedRou
     return [s for s in steps if s is not None]
 
 
-async def match_routine(quiz: dict, scan: Optional[dict], boost_keywords: Optional[list[str]] = None) -> MatchedRoutine:
+async def match_routine(
+    quiz: dict,
+    scan: Optional[dict],
+    boost_keywords: Optional[list[str]] = None,
+    user_id: Optional[str] = None,
+) -> MatchedRoutine:
     concern_keywords = [kw for c in quiz["concerns"] for kw in CONCERN_KEYWORDS.get(c, [])]
     goal_keywords = GOAL_KEYWORDS.get(quiz["goal"], []) if quiz["goal"] else []
     priority_keywords = list(dict.fromkeys([*concern_keywords, *goal_keywords]))
     scan_keywords = scan_metric_keywords(scan)
+
+    # Learns from this user's OWN history, not just the single quiz/scan
+    # this particular request carries — recognized entities from every
+    # chat message they've ever sent plus boost keywords from their last
+    # several real skin scans (not just whichever one is "current" here),
+    # so a recurring concern still boosts matching even if today's scan or
+    # this request's quiz happens not to mention it. See
+    # app/user_history.py — same mechanism app/chat_pipeline.py uses.
+    history_keywords: list[str] = []
+    if user_id:
+        history_keywords = [*(await get_user_chat_keywords(user_id)), *(await get_user_scan_keywords(user_id))]
 
     def ctx(exclude_ids: Optional[list[str]] = None) -> _Ctx:
         return _Ctx(
             quiz=quiz,
             scan_keywords=scan_keywords,
             exclude_ids=exclude_ids or [],
-            boost_keywords=boost_keywords or [],
+            boost_keywords=[*(boost_keywords or []), *history_keywords],
         )
 
     am_cleanser = await _match_slot(
@@ -320,4 +337,4 @@ async def match_routine(quiz: dict, scan: Optional[dict], boost_keywords: Option
 async def post_match_routine(body: MatchRoutineRequest) -> MatchedRoutine:
     quiz = body.quiz.model_dump()
     scan = body.scan.model_dump() if body.scan else None
-    return await match_routine(quiz, scan, boost_keywords=body.boostKeywords)
+    return await match_routine(quiz, scan, boost_keywords=body.boostKeywords, user_id=body.userId)

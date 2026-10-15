@@ -78,17 +78,18 @@ export async function generateBotReply(
   userId: string
 ): Promise<BotReply> {
   const environmentalContext = await getEnvironmentalContext(userId).catch(() => null);
-  const understanding = await callChatUnderstand(conversationId, userText, environmentalContext).catch(() => null);
+  const understanding = await callChatUnderstand(conversationId, userText, environmentalContext, userId).catch(() => null);
 
-  // Whenever the user is asking for a product, always attach whatever the
-  // pipeline found — independent of whether the reply TEXT itself came
-  // from the deterministic pipeline or Gemma below. A product request
-  // should never end up with zero products just because confidence was
-  // borderline enough to defer the text to Gemma.
-  const products =
-    understanding?.intent === "product_recommendation" && understanding.candidates.length > 0
-      ? understanding.candidates.slice(0, 6)
-      : undefined;
+  // Attach whatever the pipeline found whenever it found anything —
+  // independent of both the reply TEXT's origin (deterministic pipeline vs.
+  // Gemma below) and the classified intent. services/matching-service's
+  // chat_pipeline.py only ever populates candidates when it recognized a
+  // real keyword/ontology term in the user's own message (or the intent
+  // itself calls for it), so trusting that gate here means any message
+  // that genuinely named a need always surfaces at least its closest
+  // product match, not just ones intent.py happened to bucket as
+  // "product_recommendation".
+  const products = understanding && understanding.candidates.length > 0 ? understanding.candidates.slice(0, 6) : undefined;
 
   if (understanding && !understanding.isAmbiguous && understanding.reply) {
     return { text: understanding.reply, products };

@@ -42,6 +42,6 @@ export async function GET() {
   if (!isQuestionnaireComplete(quiz) || !isScanComplete(scan)) return NextResponse.json(null);
 
   const environmentalContext = await getEnvironmentalContext(user.id).catch(() => null);
-  const routine = await callMatchingService(quiz, scan, environmentalContext);
+  const routine = await callMatchingService(quiz, scan, environmentalContext, user.id);
   return NextResponse.json(routine);
 }

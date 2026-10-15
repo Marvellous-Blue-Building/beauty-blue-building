@@ -7,6 +7,8 @@ is to not claim more than what's actually implemented."""
 import re
 from typing import Literal
 
+from app.dictionaries import PRODUCT_CATEGORY_WORDS_ID
+
 Intent = Literal["product_recommendation", "ingredient_inquiry", "routine_advice", "general_question"]
 
 # English + Bahasa Indonesia patterns — the AI Advisor always responds in
@@ -35,19 +37,18 @@ _INGREDIENT_INQUIRY_PATTERN = re.compile(
 )
 
 # A message naming a product category alongside a price/quality adjective
-# (e.g. "serum murah bagus") has no action verb at all, so the regex above
-# won't catch it — this is a second, independent signal checked as a
-# word-set intersection instead.
-_PRODUCT_NOUNS_ID = {
-    "serum", "obat", "krim", "cream", "lotion", "sunscreen", "pelembap", "moisturizer",
-    "toner", "masker", "mask", "essence", "cleanser", "pembersih", "sabun", "produk", "skincare",
+# (e.g. "serum murah bagus", "sabun cuci muka terbaik") has no action verb
+# at all, so the regex above won't catch it — this is a second, independent
+# signal checked as a word-set intersection instead.
+_QUALITY_PRICE_WORDS_ID = {
+    "murah", "terjangkau", "bagus", "ampuh", "worth", "oke", "ok", "recommended",
+    "terbaik", "favorit", "top",
 }
-_QUALITY_PRICE_WORDS_ID = {"murah", "terjangkau", "bagus", "ampuh", "worth", "oke", "ok", "recommended"}
 
 
 def _mentions_product_noun_with_quality(normalized_text: str) -> bool:
     words = set(normalized_text.split())
-    return bool(words & _PRODUCT_NOUNS_ID) and bool(words & _QUALITY_PRICE_WORDS_ID)
+    return bool(words & PRODUCT_CATEGORY_WORDS_ID) and bool(words & _QUALITY_PRICE_WORDS_ID)
 
 
 def classify_intent(normalized_text: str) -> Intent:

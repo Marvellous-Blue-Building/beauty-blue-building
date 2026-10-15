@@ -40,7 +40,8 @@
     "tabShop": "Shop",
     "tabAdvisor": "Advisor",
     "tabProgress": "Progress",
-    "tabProfile": "Profile"
+    "tabProfile": "Profile",
+    "sessionExpired": "Session Expired"
   },
   "login": {
     "title": "Beauty AI Advisor",

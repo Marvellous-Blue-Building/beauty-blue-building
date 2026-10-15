@@ -94,6 +94,6 @@ export async function POST(request: NextRequest) {
   }
 
   const environmentalContext = user ? await getEnvironmentalContext(user.id).catch(() => null) : null;
-  const routine = await callMatchingService(quiz, scan, environmentalContext);
+  const routine = await callMatchingService(quiz, scan, environmentalContext, user?.id);
   return NextResponse.json(routine);
 }

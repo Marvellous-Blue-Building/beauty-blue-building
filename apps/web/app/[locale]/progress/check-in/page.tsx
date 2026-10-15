@@ -3,9 +3,24 @@
 import { useTranslations } from "next-intl";
 import { ScreenContainer } from "@/components/layout/ScreenContainer";
 import { NativeSkinScanEngine } from "@/components/scan/NativeSkinScanEngine";
+import { useAuthStore } from "@/lib/store/auth-store";
+import { SignInRequiredScreen } from "@/components/auth/SignInRequiredScreen";
 
 export default function ProgressCheckInPage() {
   const t = useTranslations("progress");
+  const user = useAuthStore((s) => s.user);
+  const authLoaded = useAuthStore((s) => s.loaded);
+  const fetchUser = useAuthStore((s) => s.fetchUser);
+
+  if (authLoaded && !user) {
+    return (
+      <SignInRequiredScreen
+        title="Sign in to view your profile"
+        subtitle="Your profile, saved products, and cart are tied to your account."
+        onSignedIn={fetchUser}
+      />
+    );
+  }
 
   return (
     <ScreenContainer>

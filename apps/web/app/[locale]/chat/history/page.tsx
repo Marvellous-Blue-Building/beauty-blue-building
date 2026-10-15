@@ -6,10 +6,15 @@ import { Link } from "@/i18n/navigation";
 import { ScreenContainer } from "@/components/layout/ScreenContainer";
 import { getJSON, ApiError } from "@/lib/api-client";
 import { formatDateTime } from "@/lib/format";
+import { useAuthStore } from "@/lib/store/auth-store";
+import { SignInRequiredScreen } from "@/components/auth/SignInRequiredScreen";
 import type { ConversationSummary } from "@/types/chat";
 
 export default function ChatHistoryPage() {
   const t = useTranslations("chat");
+  const user = useAuthStore((s) => s.user);
+  const authLoaded = useAuthStore((s) => s.loaded);
+  const fetchUser = useAuthStore((s) => s.fetchUser);
   const [conversations, setConversations] = useState<ConversationSummary[] | null>(null);
 
   useEffect(() => {
@@ -23,6 +28,16 @@ export default function ChatHistoryPage() {
         }
       });
   }, []);
+
+  if (authLoaded && !user) {
+    return (
+      <SignInRequiredScreen
+        title="Sign in to view your profile"
+        subtitle="Your profile, saved products, and cart are tied to your account."
+        onSignedIn={fetchUser}
+      />
+    );
+  }
 
   if (conversations === null) return null;
 

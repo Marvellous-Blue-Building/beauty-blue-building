@@ -81,14 +81,6 @@ export default function RoutinePage() {
           onSignedIn={async () => {
             await fetchUser();
             await Promise.all([fetchCart(), fetchSaved()]);
-            // A guest's questionnaire/scan stay client-side (sessionStorage)
-            // during the whole guest journey — nothing is written to the DB.
-            // Only now, after Google sign-in actually created a session, do we
-            // re-POST the same answers so they're finally attached to the new
-            // account's email. Guard on a real session first (registration may
-            // not have completed) and only when onboarding is genuinely
-            // complete: a finished scan AND all required questionnaire answers.
-            // A partial onboarding (or a scan-less guest) writes nothing.
             const signedInUser = useAuthStore.getState().user;
             if (!signedInUser) return;
             const { skinType, concerns, sensitivities, climate, budget, ethics, goal } =
@@ -114,7 +106,7 @@ export default function RoutinePage() {
           <Link href="/shop" className={buttonClassName({ variant: "ghost", className: "flex-1" })}>
             {t("shopProducts")}
           </Link>
-          <Link href="/chat" className={buttonClassName({ className: "flex-1" })}>
+          <Link href="/chat" className={buttonClassName({ variant: "ghost", className: "flex-1" })}>
             {t("askAdvisor")}
           </Link>
         </div>

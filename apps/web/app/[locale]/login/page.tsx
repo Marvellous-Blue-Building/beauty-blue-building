@@ -7,7 +7,7 @@ import { Pill } from "@/components/ui/Pill";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { SparkleIcon } from "@/components/layout/TabIcons";
 import { postJSON } from "@/lib/api-client";
-import { useAuthStore } from "@/lib/store/auth-store";
+import { useAuthStore, clearSessionMarker } from "@/lib/store/auth-store";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useSavedStore } from "@/lib/store/saved-store";
 
@@ -36,6 +36,7 @@ export default function LoginPage() {
     // so isGuest checks downstream (Welcome, Your Routine, TopBar, tab bar)
     // aren't fooled into treating this as an authenticated journey.
     await postJSON("/api/auth/logout").catch(() => {});
+    clearSessionMarker();
     await Promise.all([fetchUser(), fetchCart(), fetchSaved()]);
     router.push("/welcome?from=guest");
   }

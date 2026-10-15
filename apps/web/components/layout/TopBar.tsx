@@ -17,6 +17,7 @@ export function TopBar() {
   const t = useTranslations("nav");
   const meta = getRouteMeta(pathname);
   const user = useAuthStore((s) => s.user);
+  const sessionExpired = useAuthStore((s) => s.sessionExpired);
   const cartCount = useCartStore((s) =>
     s.items.reduce((sum, i) => sum + i.quantity, 0)
   );
@@ -28,14 +29,18 @@ export function TopBar() {
   const isWelcomeFromGuest =
     pathname === "/welcome" && searchParams.get("from") === "guest";
   const titleKey = isSavedFilter ? "savedProducts" : meta.titleKey;
-  const showBack = isSavedFilter || meta.showBack || isWelcomeFromGuest;
+  // Any of these overrides every other chrome rule for this bar — no back
+  // button, no action button (cart/clear chat/etc.), no bottom tab bar
+  // (see TabBarGate) — just the title and nothing else.
+  const isLockedOut = sessionExpired || (isGuestLockedRoute(pathname) && !user);
+  const showBack = !isLockedOut && (isSavedFilter || meta.showBack || isWelcomeFromGuest);
   // Shortcut to the saved-products view, shown only on the main Shop
   // Products screen (not when already viewing it via ?filter=saved).
   const showSavedShortcut = pathname === "/shop" && !isSavedFilter;
   // On the live AI Advisor screen, the cart icon slot is replaced by
   // Clear Chat + Conversation History buttons instead.
   const isChatScreen = pathname === "/chat";
-  const showCart = meta.showCart && !isChatScreen && !(isGuestLockedRoute(pathname) && !user);
+  const showCart = meta.showCart && !isChatScreen && !isLockedOut;
   const requestClear = useChatUIStore((s) => s.requestClear);
   const canClear = useChatUIStore((s) => s.canClear);
   // The language switcher only makes sense before a session exists — on
@@ -56,9 +61,9 @@ export function TopBar() {
         </button>
       )}
       <h1 className="flex-1 text-[13.5px] font-semibold tracking-[0.4px] text-canvas-ink uppercase">
-        {t(titleKey)}
+        {sessionExpired ? t("sessionExpired") : t(titleKey)}
       </h1>
-      {showSavedShortcut && (
+      {!isLockedOut && showSavedShortcut && (
         <Link
           href="/shop?filter=saved"
           aria-label="All Saved Products"
@@ -67,7 +72,9 @@ export function TopBar() {
           {t("allSavedProducts")}
         </Link>
       )}
-      {isLoginScreen ? (
+      {isLockedOut ? (
+        <div className="h-[30px] w-[30px] shrink-0" />
+      ) : isLoginScreen ? (
         <LocaleSwitcher />
       ) : isChatScreen ? (
         <>
