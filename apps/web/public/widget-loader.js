@@ -138,7 +138,17 @@
       ".bw-scan-note{font-size:10.5px;opacity:.55;text-align:center;}" +
       ".bw-scan-spinner{display:flex;flex-direction:column;align-items:center;gap:10px;padding:40px 0;font-size:12.5px;opacity:.7;}" +
       ".bw-spin{width:26px;height:26px;border-radius:50%;border:3px solid #F3ECE6;border-top-color:var(--bw-primary);animation:bwspin .8s linear infinite;}" +
-      "@keyframes bwspin{to{transform:rotate(360deg);}}"
+      "@keyframes bwspin{to{transform:rotate(360deg);}}" +
+      ".bw-tone-row{display:flex;align-items:center;gap:14px;padding:6px 0 10px;}" +
+      ".bw-tone-swatch{width:52px;height:52px;border-radius:50%;flex:none;border:2px solid #fff;box-shadow:0 0 0 1px var(--bw-line);}" +
+      ".bw-tone-meta b{font-size:14px;text-transform:capitalize;}" +
+      ".bw-tone-meta div{font-size:11px;opacity:.65;}" +
+      ".bw-shade-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}" +
+      ".bw-shade-card{border:1px solid var(--bw-line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px;}" +
+      ".bw-shade-dot{width:100%;height:28px;border-radius:6px;}" +
+      ".bw-shade-card .bw-sname{font-size:10.5px;font-weight:600;line-height:1.3;}" +
+      ".bw-shade-card .bw-sbrand{font-size:9.5px;opacity:.6;text-transform:uppercase;}" +
+      ".bw-shade-card .bw-sprice{font-size:10.5px;font-weight:600;}"
     );
   };
 
@@ -201,6 +211,7 @@
       var canvas = panel.querySelector(".bw-canvas");
       var footEl = panel.querySelector(".bw-foot");
       var cameraStream = null;
+      var lastCapturedDataUrl = null;
 
       function stopCamera() {
         if (cameraStream) {
@@ -275,9 +286,13 @@
           });
         }
 
+        var colorBtn = el('<button class="bw-btn-primary">Cek Shade Makeup</button>');
+        colorBtn.addEventListener("click", analyzeColor);
+        scanView.appendChild(colorBtn);
+
         var actions = el('<div class="bw-scan-actions"></div>');
         var again = el('<button class="bw-btn-ghost">Scan Lagi</button>');
-        var chat = el('<button class="bw-btn-primary">Tanya di Chat</button>');
+        var chat = el('<button class="bw-btn-ghost">Tanya di Chat</button>');
         again.addEventListener("click", renderScanCamera);
         chat.addEventListener("click", function () {
           showChatView();
@@ -288,7 +303,96 @@
         scanView.appendChild(actions);
       }
 
+      function renderColorError(message) {
+        scanView.innerHTML = "";
+        var box = el('<div class="bw-scan-error"></div>');
+        box.textContent = message;
+        scanView.appendChild(box);
+        var back = el('<button class="bw-btn-ghost">Kembali</button>');
+        back.addEventListener("click", renderScanCamera);
+        scanView.appendChild(back);
+      }
+
+      function undertoneLabel(u) {
+        if (u === "warm") return "Hangat (warm)";
+        if (u === "cool") return "Sejuk (cool)";
+        return "Netral";
+      }
+
+      function renderColorResult(data) {
+        scanView.innerHTML = "";
+        var toneRow = el(
+          '<div class="bw-tone-row">' +
+            '<div class="bw-tone-swatch"></div>' +
+            '<div class="bw-tone-meta"><b></b><div>Undertone</div><div class="depth"></div></div>' +
+          "</div>"
+        );
+        toneRow.querySelector(".bw-tone-swatch").style.background = data.skinToneHex;
+        toneRow.querySelector("b").textContent = undertoneLabel(data.undertone);
+        toneRow.querySelector(".depth").textContent = "Kedalaman warna: " + data.depthCategory;
+        scanView.appendChild(toneRow);
+
+        scanView.appendChild(el('<div class="bw-scan-note" style="text-align:left">Shade paling cocok dari katalog, diurutkan berdasarkan kedekatan warna kulitmu:</div>'));
+
+        if (data.shades && data.shades.length) {
+          var grid = el('<div class="bw-shade-grid"></div>');
+          data.shades.slice(0, 6).forEach(function (s) {
+            var card = el(
+              '<div class="bw-shade-card">' +
+                '<div class="bw-shade-dot"></div>' +
+                '<div class="bw-sbrand"></div>' +
+                '<div class="bw-sname"></div>' +
+                '<div class="bw-sprice"></div>' +
+              "</div>"
+            );
+            card.querySelector(".bw-shade-dot").style.background = s.colorHex;
+            card.querySelector(".bw-sbrand").textContent = s.brand || "";
+            card.querySelector(".bw-sname").textContent = (s.colorName ? s.colorName + " — " : "") + s.name;
+            card.querySelector(".bw-sprice").textContent = s.price != null ? "Rp " + Number(s.price).toLocaleString("id-ID") : "";
+            grid.appendChild(card);
+          });
+          scanView.appendChild(grid);
+        } else {
+          scanView.appendChild(el('<div class="bw-scan-note">Belum ada shade yang cukup dekat di katalog saat ini.</div>'));
+        }
+
+        var actions = el('<div class="bw-scan-actions"></div>');
+        var again = el('<button class="bw-btn-ghost">Scan Lagi</button>');
+        var chat = el('<button class="bw-btn-primary">Tanya di Chat</button>');
+        again.addEventListener("click", renderScanCamera);
+        chat.addEventListener("click", function () {
+          showChatView();
+          addBotText("Sudah lihat shade yang cocok buat kamu. Mau aku bantu cari produk lain juga?");
+        });
+        actions.appendChild(again);
+        actions.appendChild(chat);
+        scanView.appendChild(actions);
+      }
+
+      function analyzeColor() {
+        if (!lastCapturedDataUrl) return;
+        scanView.innerHTML = "";
+        scanView.appendChild(el('<div class="bw-scan-spinner"><div class="bw-spin"></div><div>Mencocokkan warna kulit…</div></div>'));
+        api("/api/widget/color-analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: lastCapturedDataUrl, sessionId: state.sessionId }),
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (data.error) {
+              renderColorError(data.message || "Tidak bisa membaca warna kulit dari foto ini.");
+              return;
+            }
+            renderColorResult(data);
+          })
+          .catch(function () {
+            renderColorError("Tidak bisa terhubung ke server analisis warna.");
+          });
+      }
+
       function analyzeFrame(dataUrl) {
+        lastCapturedDataUrl = dataUrl;
         scanView.innerHTML = "";
         scanView.appendChild(el('<div class="bw-scan-spinner"><div class="bw-spin"></div><div>Menganalisis kulit…</div></div>'));
         api("/api/widget/scan-analyze", {
