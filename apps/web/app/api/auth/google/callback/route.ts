@@ -3,6 +3,7 @@ import { exchangeCodeForTokens, verifyIdToken } from "@/lib/auth/google-oauth";
 import { upsertUserFromGoogle, createSession } from "@/lib/auth/session";
 import { popupMessageResponse } from "@/lib/auth/popup-response";
 import { resolvePostLoginRedirect } from "@/lib/auth/post-login-redirect";
+import { ensureIndonesiaHolidaysForYear } from "@/lib/indonesia-holiday";
 
 const STATE_COOKIE = "oauth_state";
 
@@ -34,6 +35,12 @@ export async function GET(request: NextRequest) {
 
     const user = await upsertUserFromGoogle(identity);
     await createSession(user);
+
+    // Best-effort, fire-and-forget — this route is the single path every
+    // register/login/relogin funnels through, so it's the natural place to
+    // keep Indonesia's national holiday calendar current for
+    // services/geotagging-weather's formula. Never blocks the redirect.
+    ensureIndonesiaHolidaysForYear(new Date().getFullYear()).catch(() => {});
 
     // Returning user with a real scan on file → skip onboarding, land
     // straight on Your Routine. First-time/no-scan users still go to

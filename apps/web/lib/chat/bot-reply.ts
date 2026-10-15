@@ -25,6 +25,7 @@
  */
 import type { Product } from "@/types/product";
 import { callChatUnderstand } from "@/lib/matching-client";
+import { getEnvironmentalContext } from "@/lib/geotagging-weather-client";
 
 export interface BotReply {
   text: string;
@@ -71,8 +72,13 @@ async function generateAiAdvisorReply(
   }
 }
 
-export async function generateBotReply(conversationId: string | null, userText: string): Promise<BotReply> {
-  const understanding = await callChatUnderstand(conversationId, userText).catch(() => null);
+export async function generateBotReply(
+  conversationId: string | null,
+  userText: string,
+  userId: string
+): Promise<BotReply> {
+  const environmentalContext = await getEnvironmentalContext(userId).catch(() => null);
+  const understanding = await callChatUnderstand(conversationId, userText, environmentalContext).catch(() => null);
 
   // Whenever the user is asking for a product, always attach whatever the
   // pipeline found — independent of whether the reply TEXT itself came

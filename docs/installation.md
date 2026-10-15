@@ -13,6 +13,7 @@ For architecture/design background, see `docs/plan.md`.
 | Skin scanning service | http://localhost:3003 |
 | Matching service | http://localhost:8000 |
 | AI advisor (Gemma chat fallback) | http://localhost:3004 |
+| Geotagging/weather service | http://localhost:8010 |
 
 ## Database connection
 
@@ -72,6 +73,7 @@ GOOGLE_REDIRECT_URI=http://localhost:3002/api/auth/google/callback
 MATCHING_SERVICE_URL=http://localhost:8000
 SKIN_SCAN_SERVICE_URL=http://localhost:3003
 AI_ADVISOR_SERVICE_URL=http://localhost:3004
+GEOTAGGING_WEATHER_SERVICE_URL=http://localhost:8010
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=465
 SMTP_SECURE=true
@@ -112,6 +114,15 @@ pip install -q -r requirements.txt
 deactivate
 cd ../..
 
+# --- 6c. Geotagging/weather service deps ---
+cd services/geotagging-weather
+[ -d .venv ] || python3 -m venv .venv
+source .venv/bin/activate
+pip install -q -r requirements.txt
+[ -f .env ] || cp .env.example .env
+deactivate
+cd ../..
+
 # --- 7. Start all dev servers in the background with logs ---
 # Skip any that are already listening on their port (idempotent re-run).
 mkdir -p /tmp/beauty-advisor-logs
@@ -131,6 +142,11 @@ if ! lsof -iTCP:3004 -sTCP:LISTEN >/dev/null 2>&1; then
     nohup uvicorn app.main:app --port 3004 > /tmp/beauty-advisor-logs/ai-advisor.log 2>&1 &)
 fi
 
+if ! lsof -iTCP:8010 -sTCP:LISTEN >/dev/null 2>&1; then
+  (cd services/geotagging-weather && source .venv/bin/activate && \
+    nohup uvicorn app.main:app --port 8010 > /tmp/beauty-advisor-logs/geotagging-weather.log 2>&1 &)
+fi
+
 if ! lsof -iTCP:3002 -sTCP:LISTEN >/dev/null 2>&1; then
   (cd apps/web && nohup npm run dev -- -p 3002 > /tmp/beauty-advisor-logs/web.log 2>&1 &)
 fi
@@ -143,11 +159,12 @@ for i in $(seq 1 30); do
   curl -sf http://localhost:8000/health >/dev/null 2>&1 && ok=$((ok+1))
   curl -sf http://localhost:3003/health >/dev/null 2>&1 && ok=$((ok+1))
   curl -sf http://localhost:3004/health >/dev/null 2>&1 && ok=$((ok+1))
+  curl -sf http://localhost:8010/health >/dev/null 2>&1 && ok=$((ok+1))
   curl -sf http://localhost:3002/login  >/dev/null 2>&1 && ok=$((ok+1))
-  [ "$ok" = "4" ] && break
+  [ "$ok" = "5" ] && break
   sleep 2
 done
-echo "services healthy: $ok/4 (matching:8000, skin-scan:3003, ai-advisor:3004, web:3002)"
+echo "services healthy: $ok/5 (matching:8000, skin-scan:3003, ai-advisor:3004, geotagging-weather:8010, web:3002)"
 ```
 
 Notes for an agent running this unattended:
@@ -167,7 +184,7 @@ Notes for an agent running this unattended:
     and skips work that's already done — use this same script to verify or
     repair a partially-up environment, not just for first-time setup.
 *   To stop everything cleanly: `docker stop beauty-advisor-db beauty-advisor-redis`
-    and kill the three `uvicorn`/`next dev` processes (`lsof -iTCP:3002,3003,8000 -sTCP:LISTEN`
+    and kill the `uvicorn`/`next dev` processes (`lsof -iTCP:3002,3003,3004,8000,8010 -sTCP:LISTEN`
     to find PIDs).
 
 The rest of this document explains each step in more detail, for a human
@@ -410,6 +427,41 @@ comes back or comes back as the generic "Thanks for sharing..." message.
 
 ---
 
+## 6c. Set up the geotagging/weather service (`services/geotagging-weather`)
+
+Combines Indonesia's national holiday calendar (`indonesia_holiday` table,
+refreshed on every login — see `apps/web/lib/indonesia-holiday.ts`) and live
+weather into the "environmental context" that nudges both chat replies and
+product matching — see `services/geotagging-weather/README.md`.
+
+**Requires `kb_holiday.md` and `kb_weather.md` at the repo root** — parsed at
+runtime by `services/geotagging-weather/app/kb_loader.py` (no other file in
+this repo reads them directly; every consumer goes through that module's
+functions). **Neither file is git-tracked** (no `.gitignore` entry excludes
+them — they were simply never committed), so a fresh clone or a reset
+environment won't have them; `/context` returns a 500 for any request that
+needs weather (holiday-only, no-location requests still work, since they
+never touch `kb_weather.md`) until both files exist at the repo root again.
+If they're missing, restore them before starting this service.
+
+```bash
+cd services/geotagging-weather
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env   # defaults to the DB connection details above; edit if needed
+uvicorn app.main:app --reload --port 8010
+```
+
+Verify it's up: **http://localhost:8010/docs** (Swagger UI), or:
+
+```bash
+curl http://localhost:8010/health
+curl "http://localhost:8010/context?lat=-6.2088&lon=106.8456"
+```
+
+---
+
 ## 7. Running everything together
 
 Each component runs independently (there's no root-level orchestrator). For
@@ -419,7 +471,8 @@ manual/interactive use, start them in separate terminals in this order:
 2. Matching service: `cd services/matching-service && source .venv/bin/activate && uvicorn app.main:app --reload --port 8000`
 3. Skin-scanning service: `cd services/skin-scanning && source .venv/bin/activate && uvicorn app.main:app --reload --port 3003`
 4. AI advisor service: `cd services/ai-advisor && source .venv/bin/activate && uvicorn app.main:app --reload --port 3004`
-5. Web app: `cd apps/web && npm run dev -- -p 3002`
+5. Geotagging/weather service: `cd services/geotagging-weather && source .venv/bin/activate && uvicorn app.main:app --reload --port 8010`
+6. Web app: `cd apps/web && npm run dev -- -p 3002`
 
 Then visit **http://localhost:3002/login**.
 
@@ -434,6 +487,8 @@ idempotent script in **Section 0** instead.
 *   **Skin-scan camera flow fails / "Couldn't analyze the photo"** — make sure `services/skin-scanning` is running on port 3003 and `SKIN_SCAN_SERVICE_URL` is set correctly in `.env.local`.
 *   **Quiz/onboarding routine matching fails** — make sure `services/matching-service` is running on port 8000 and `MATCHING_SERVICE_URL` is set correctly.
 *   **Chat always gives the generic "Thanks for sharing..." reply for ambiguous questions** — either `services/ai-advisor` isn't running / `AI_ADVISOR_SERVICE_URL` isn't set in `.env.local`, or the Gemma model failed to download/load (check `services/ai-advisor` logs — usually a missing/invalid `KAGGLE_USERNAME`/`KAGGLE_KEY` or the Gemma license not being accepted on Kaggle yet).
+*   **Holiday/weather context never shows up in recommendations or chat** — this degrades silently by design (best-effort), so check each link in the chain: `services/geotagging-weather` running on port 8010 and `GEOTAGGING_WEATHER_SERVICE_URL` set; the user actually has a cached location (`Get Realtime Location` toggle on in Profile, and the browser granted geolocation permission); and `indonesia_holiday` has rows for the current year (populated on login — re-login to refresh it).
+*   **`/context` returns a 500 (or the above degrades even with a real cached location)** — `kb_holiday.md`/`kb_weather.md` are missing from the repo root; check `services/geotagging-weather`'s logs for a `FileNotFoundError`. They're not git-tracked (see Section 6c), so restore them manually if they're gone.
 *   **Scan shows "Pose: Off" and never takes the photo by itself** — the browser couldn't load MediaPipe's in-browser face tracker (fetched on first visit from `cdn.jsdelivr.net` and `storage.googleapis.com`), so hands-free capture is off. Check your network/ad-blocker; "Take photo now" and photo upload still work.
 *   **`pip install` fails on `mediapipe`** — you're very likely not on Python 3.12. Re-create the virtualenv with `python3.12 -m venv .venv` explicitly.
 *   **Login redirect fails** — your Google OAuth client's "Authorized redirect URI" must exactly match `http://localhost:3002/api/auth/google/callback`.

@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
 
   let botReply;
   try {
-    botReply = await generateBotReply(targetConversationId, text);
+    botReply = await generateBotReply(targetConversationId, text, user.id);
   } catch (err) {
     console.error("generateBotReply failed:", err);
     botReply = { text: BOT_REPLY_UNAVAILABLE };

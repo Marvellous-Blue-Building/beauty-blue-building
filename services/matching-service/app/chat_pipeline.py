@@ -126,14 +126,21 @@ async def _fetch_conversation_context(
     return [f"{r['role']}: {r['text']}" for r in ordered]
 
 
-async def _retrieve_candidates(normalized_text: str, recognized_entities: list[str]):
+async def _retrieve_candidates(normalized_text: str, recognized_entities: list[str], boost_keywords: list[str] | None = None):
     """Steps 3/5/8/9/10: FTS + trigram + pgvector semantic search, merged
     into one ranked candidate list in a single query — same scoring shape
     as match_routine.py's _match_slot (dictionary-hit bonus on top of a
-    base relevance score), extended with a semantic-similarity term."""
+    base relevance score), extended with a semantic-similarity term.
+
+    `boost_keywords` is services/geotagging-weather's combined holiday+
+    weather formula output (e.g. "Broad-Spectrum SPF 50+ Sunscreens") —
+    folded into the same search/trigram terms as the user's own recognized
+    entities, so today's weather/holiday nudges candidate ranking without
+    overriding what the user actually asked for."""
     pool = await get_pool()
-    search_phrase = " OR ".join(recognized_entities) if recognized_entities else normalized_text
-    trigram_blob = " ".join(recognized_entities) if recognized_entities else normalized_text
+    combined_terms = [*recognized_entities, *(boost_keywords or [])]
+    search_phrase = " OR ".join(combined_terms) if combined_terms else normalized_text
+    trigram_blob = " ".join(combined_terms) if combined_terms else normalized_text
     query_vector = encode(normalized_text)
     vector_literal = "[" + ",".join(str(v) for v in query_vector) + "]"
 
@@ -161,11 +168,20 @@ async def _retrieve_candidates(normalized_text: str, recognized_entities: list[s
     return rows
 
 
-async def understand_chat_message(text: str, conversation_id: str | None) -> ChatUnderstanding:
+async def understand_chat_message(
+    text: str,
+    conversation_id: str | None,
+    environmental_context: str | None = None,
+    boost_keywords: list[str] | None = None,
+) -> ChatUnderstanding:
     normalized_text = _normalize(text)
     recognized_entities = _recognize_entities(normalized_text)
     intent = classify_intent(normalized_text)
     conversation_context = await _fetch_conversation_context(conversation_id, normalized_text)
+    if environmental_context:
+        # Appended last so it reads as the most current grounding note when
+        # step 14 (services/ai-advisor's Gemma call) consumes this list.
+        conversation_context = [*conversation_context, f"context: {environmental_context}"]
 
     matched_fact = next((INGREDIENT_FACTS[e] for e in recognized_entities if e in INGREDIENT_FACTS), None)
     needs_candidates = intent in ("product_recommendation", "routine_advice") or (
@@ -176,7 +192,7 @@ async def understand_chat_message(text: str, conversation_id: str | None) -> Cha
     top_candidate = None
     top_score = 0.0
     if needs_candidates:
-        rows = await _retrieve_candidates(normalized_text, recognized_entities)
+        rows = await _retrieve_candidates(normalized_text, recognized_entities, boost_keywords)
         if rows:
             # Top 6 closest-ranked DISTINCT items (by parent_sku) for the
             # chat UI's full-width product list — the ranked pool often has

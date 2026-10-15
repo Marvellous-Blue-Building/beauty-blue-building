@@ -3,6 +3,8 @@ import { pool } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth/session";
 import { reverseGeocode } from "@/lib/geocode";
 import { claimDbFlush, getMostRecentLocation, pushRecentLocation } from "@/lib/location-cache";
+import { fetchCurrentWeather } from "@/lib/weather-client";
+import { setLatestWeather } from "@/lib/weather-cache";
 
 /**
  * Receives one geolocation ping from components/layout/LocationTracker.tsx
@@ -35,6 +37,13 @@ export async function POST(request: NextRequest) {
   const address = await reverseGeocode(latitude, longitude);
   await pushRecentLocation(user.id, { latitude, longitude, address, capturedAt: new Date().toISOString() });
 
+  // Weather is re-fetched every ping (every 5 minutes) and only ever cached
+  // in Redis — it's never persisted to Postgres, see lib/weather-cache.ts.
+  const weather = await fetchCurrentWeather(latitude, longitude);
+  if (weather) {
+    await setLatestWeather(user.id, weather);
+  }
+
   let dbSynced = false;
   if (await claimDbFlush(user.id)) {
     const latest = await getMostRecentLocation(user.id);
@@ -49,5 +58,5 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  return NextResponse.json({ address, dbSynced });
+  return NextResponse.json({ address, weather, dbSynced });
 }

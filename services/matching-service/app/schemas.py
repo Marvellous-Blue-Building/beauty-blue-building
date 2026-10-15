@@ -111,6 +111,10 @@ class MatchedRoutine(BaseModel):
 class MatchRoutineRequest(BaseModel):
     quiz: QuizAnswers
     scan: Optional[ScanMetrics] = None
+    # Product-type keywords from services/geotagging-weather's combined
+    # holiday+weather formula (e.g. "Broad-Spectrum SPF 50+ Sunscreens") —
+    # boosts matching products the same way scan-metric keywords already do.
+    boostKeywords: list[str] = []
 
 
 Intent = Literal["product_recommendation", "ingredient_inquiry", "routine_advice", "general_question"]
@@ -119,6 +123,13 @@ Intent = Literal["product_recommendation", "ingredient_inquiry", "routine_advice
 class ChatUnderstandRequest(BaseModel):
     conversationId: Optional[str] = None
     text: str
+    # Plain-language holiday/weather skincare guidance from
+    # services/geotagging-weather, appended to the LLM's reasoning context —
+    # see app/chat_pipeline.py's understand_chat_message.
+    environmentalContext: Optional[str] = None
+    # Same formula's product-type keywords, boosting candidate retrieval —
+    # mirrors MatchRoutineRequest.boostKeywords.
+    boostKeywords: list[str] = []
 
 
 class ChatUnderstanding(BaseModel):

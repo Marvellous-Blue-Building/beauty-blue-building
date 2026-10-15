@@ -2,18 +2,20 @@ import type { QuizAnswers } from "@/types/quiz";
 import type { ScanMetrics } from "@/types/scan";
 import type { MatchedRoutine } from "@/types/routine";
 import type { ChatUnderstanding } from "@/types/chat";
+import type { EnvironmentalContext } from "@/lib/geotagging-weather-client";
 
 const MATCHING_SERVICE_URL = process.env.MATCHING_SERVICE_URL ?? "http://localhost:8000";
 
 /** Calls the real matching-service (services/matching-service, FastAPI) — the questionnaire + scan → routine calculation itself lives there, not in this app. */
 export async function callMatchingService(
   quiz: QuizAnswers,
-  scan: ScanMetrics | null
+  scan: ScanMetrics | null,
+  environmentalContext?: EnvironmentalContext | null
 ): Promise<MatchedRoutine> {
   const res = await fetch(`${MATCHING_SERVICE_URL}/match-routine`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ quiz, scan }),
+    body: JSON.stringify({ quiz, scan, boostKeywords: environmentalContext?.boostKeywords ?? [] }),
   });
   if (!res.ok) {
     throw new Error(`matching-service responded with ${res.status}`);
@@ -28,12 +30,18 @@ export async function callMatchingService(
  * services/matching-service/app/chat_pipeline.py. */
 export async function callChatUnderstand(
   conversationId: string | null,
-  text: string
+  text: string,
+  environmentalContext?: EnvironmentalContext | null
 ): Promise<ChatUnderstanding> {
   const res = await fetch(`${MATCHING_SERVICE_URL}/chat/understand`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ conversationId, text }),
+    body: JSON.stringify({
+      conversationId,
+      text,
+      environmentalContext: environmentalContext?.guidanceText ?? null,
+      boostKeywords: environmentalContext?.boostKeywords ?? [],
+    }),
   });
   if (!res.ok) {
     throw new Error(`matching-service responded with ${res.status}`);

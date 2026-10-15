@@ -9,23 +9,27 @@ const globalForSmtp = globalThis as unknown as {
   __beautyAdvisorSmtp?: Transporter;
 };
 
-function createTransporter(): Transporter {
-  const host = process.env.SMTP_HOST;
-  const port = process.env.SMTP_PORT;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-
-  if (!host || !port || !user || !pass) {
+/** Mirrors lib/auth/google-oauth.ts's env() helper — read-and-throw inline,
+ * so a credential is never assigned to a bare local variable that outlives
+ * the single expression that needs it (and so an accidental future
+ * `console.log`/error-serialization of this module's locals can't include
+ * it either). */
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
     throw new Error(
       "SMTP is not configured — set SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS in .env.local (see docs/installation.md)."
     );
   }
+  return value;
+}
 
+function createTransporter(): Transporter {
   return nodemailer.createTransport({
-    host,
-    port: Number(port),
+    host: requireEnv("SMTP_HOST"),
+    port: Number(requireEnv("SMTP_PORT")),
     secure: process.env.SMTP_SECURE !== "false",
-    auth: { user, pass },
+    auth: { user: requireEnv("SMTP_USER"), pass: requireEnv("SMTP_PASS") },
   });
 }
 

@@ -94,11 +94,16 @@ class _Ctx:
     quiz: dict
     scan_keywords: list[str]
     exclude_ids: list[str] = field(default_factory=list)
+    # From services/geotagging-weather's combined holiday+weather formula —
+    # e.g. "Broad-Spectrum SPF 50+ Sunscreens" on a sunny day, or a holiday's
+    # "Electrolyte & Hydrating Serums" — boosted the same way scan/concern
+    # keywords already are.
+    boost_keywords: list[str] = field(default_factory=list)
 
 
 async def _match_slot(slot: SlotDef, ctx: _Ctx) -> Optional[MatchedRoutineStep]:
     pool = await get_pool()
-    all_keywords = list(dict.fromkeys([*slot.priority_keywords, *ctx.scan_keywords]))
+    all_keywords = list(dict.fromkeys([*slot.priority_keywords, *ctx.scan_keywords, *ctx.boost_keywords]))
     search_phrase = " OR ".join(all_keywords)
     trigram_blob = " ".join(all_keywords)
 
@@ -164,6 +169,7 @@ async def _match_slot(slot: SlotDef, ctx: _Ctx) -> Optional[MatchedRoutineStep]:
     for row in rows:
         haystack = f"{row['name']} {row['ingredients'] or ''}".lower()
         dictionary_hits = [kw for kw in slot.priority_keywords if kw.lower() in haystack]
+        environment_hits = [kw for kw in ctx.boost_keywords if kw.lower() in haystack]
         product = to_product(row)
         ethics_bonus = 0
         ethics = ctx.quiz["ethics"]
@@ -174,8 +180,19 @@ async def _match_slot(slot: SlotDef, ctx: _Ctx) -> Optional[MatchedRoutineStep]:
         if ethics["fragranceFree"] and "Fragrance-Free" in product.tags:
             ethics_bonus += 2
 
-        final_score = float(row["base_score"]) + len(dictionary_hits) * 5 + ethics_bonus
-        ranked.append({"row": row, "product": product, "final_score": final_score, "dictionary_hits": dictionary_hits})
+        # Weighted below dictionary_hits (5) — today's holiday/weather is
+        # contextual signal, not a substitute for the user's own stated
+        # concerns/goals.
+        final_score = float(row["base_score"]) + len(dictionary_hits) * 5 + ethics_bonus + len(environment_hits) * 3
+        ranked.append(
+            {
+                "row": row,
+                "product": product,
+                "final_score": final_score,
+                "dictionary_hits": dictionary_hits,
+                "environment_hits": environment_hits,
+            }
+        )
 
     ranked.sort(key=lambda r: r["final_score"], reverse=True)
     top = ranked[0]
@@ -191,6 +208,8 @@ async def _match_slot(slot: SlotDef, ctx: _Ctx) -> Optional[MatchedRoutineStep]:
 
     if top["dictionary_hits"]:
         why = f"Contains {' & '.join(top['dictionary_hits'][:2])} — matched to your profile"
+    elif top["environment_hits"]:
+        why = f"Contains {' & '.join(top['environment_hits'][:2])} — matched to today's weather/holiday"
     else:
         why = slot.generic_why
 
@@ -208,14 +227,19 @@ def _compact_steps(steps: list[Optional[MatchedRoutineStep]]) -> list[MatchedRou
     return [s for s in steps if s is not None]
 
 
-async def match_routine(quiz: dict, scan: Optional[dict]) -> MatchedRoutine:
+async def match_routine(quiz: dict, scan: Optional[dict], boost_keywords: Optional[list[str]] = None) -> MatchedRoutine:
     concern_keywords = [kw for c in quiz["concerns"] for kw in CONCERN_KEYWORDS.get(c, [])]
     goal_keywords = GOAL_KEYWORDS.get(quiz["goal"], []) if quiz["goal"] else []
     priority_keywords = list(dict.fromkeys([*concern_keywords, *goal_keywords]))
     scan_keywords = scan_metric_keywords(scan)
 
     def ctx(exclude_ids: Optional[list[str]] = None) -> _Ctx:
-        return _Ctx(quiz=quiz, scan_keywords=scan_keywords, exclude_ids=exclude_ids or [])
+        return _Ctx(
+            quiz=quiz,
+            scan_keywords=scan_keywords,
+            exclude_ids=exclude_ids or [],
+            boost_keywords=boost_keywords or [],
+        )
 
     am_cleanser = await _match_slot(
         SlotDef(
@@ -296,4 +320,4 @@ async def match_routine(quiz: dict, scan: Optional[dict]) -> MatchedRoutine:
 async def post_match_routine(body: MatchRoutineRequest) -> MatchedRoutine:
     quiz = body.quiz.model_dump()
     scan = body.scan.model_dump() if body.scan else None
-    return await match_routine(quiz, scan)
+    return await match_routine(quiz, scan, boost_keywords=body.boostKeywords)

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { callMatchingService } from "@/lib/matching-client";
+import { getEnvironmentalContext } from "@/lib/geotagging-weather-client";
 import { pool } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth/session";
 import { isQuestionnaireComplete, isScanComplete } from "@/lib/onboarding-complete";
@@ -92,6 +93,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const routine = await callMatchingService(quiz, scan);
+  const environmentalContext = user ? await getEnvironmentalContext(user.id).catch(() => null) : null;
+  const routine = await callMatchingService(quiz, scan, environmentalContext);
   return NextResponse.json(routine);
 }

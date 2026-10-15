@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth/session";
 import { callMatchingService } from "@/lib/matching-client";
+import { getEnvironmentalContext } from "@/lib/geotagging-weather-client";
 import { isQuestionnaireComplete, isScanComplete } from "@/lib/onboarding-complete";
 import type { QuizAnswers } from "@/types/quiz";
 import type { ScanMetrics } from "@/types/scan";
@@ -40,6 +41,7 @@ export async function GET() {
 
   if (!isQuestionnaireComplete(quiz) || !isScanComplete(scan)) return NextResponse.json(null);
 
-  const routine = await callMatchingService(quiz, scan);
+  const environmentalContext = await getEnvironmentalContext(user.id).catch(() => null);
+  const routine = await callMatchingService(quiz, scan, environmentalContext);
   return NextResponse.json(routine);
 }
