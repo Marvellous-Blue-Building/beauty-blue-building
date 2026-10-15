@@ -61,7 +61,9 @@ export function TopBar() {
         </button>
       )}
       <h1 className="flex-1 text-[13.5px] font-semibold tracking-[0.4px] text-canvas-ink uppercase">
-        {sessionExpired ? t("sessionExpired") : t(titleKey)}
+        {/* /routine keeps its own title even when the session has died — its
+            body is what communicates the expired state. */}
+        {sessionExpired && pathname !== "/routine" ? t("sessionExpired") : t(titleKey)}
       </h1>
       {!isLockedOut && showSavedShortcut && (
         <Link

@@ -8,7 +8,7 @@ import { buttonClassName } from "@/components/ui/Button";
 import { postJSON } from "@/lib/api-client";
 import { useQuizStore } from "@/lib/store/quiz-store";
 import { useScanStore } from "@/lib/store/scan-store";
-import { useRoutineStore } from "@/lib/store/routine-store";
+import { useRoutineStore, markArrivedFromAnalyzing } from "@/lib/store/routine-store";
 import type { MatchedRoutine } from "@/types/routine";
 import type { QuizAnswers } from "@/types/quiz";
 
@@ -42,6 +42,9 @@ export default function AnalyzingPage() {
         imageBase64: useScanStore.getState().imageDataUrl,
       });
       setRoutine(routine);
+      // Flag this as a real post-quiz arrival so /routine shows the product
+      // recommendations to everyone — even a guest or a dead session.
+      markArrivedFromAnalyzing();
       router.replace("/routine");
     } catch {
       setError(true);

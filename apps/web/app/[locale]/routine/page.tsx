@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ScreenContainer } from "@/components/layout/ScreenContainer";
@@ -10,11 +10,12 @@ import { DisclaimerBanner } from "@/components/ui/DisclaimerBanner";
 import { Pill } from "@/components/ui/Pill";
 import { buttonClassName } from "@/components/ui/Button";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { SignInRequiredScreen } from "@/components/auth/SignInRequiredScreen";
 import { getJSON, postJSON } from "@/lib/api-client";
 import { isQuestionnaireComplete, isScanComplete } from "@/lib/onboarding-complete";
 import { useQuizStore } from "@/lib/store/quiz-store";
 import { useScanStore } from "@/lib/store/scan-store";
-import { useRoutineStore } from "@/lib/store/routine-store";
+import { useRoutineStore, consumeArrivedFromAnalyzing } from "@/lib/store/routine-store";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useSavedStore } from "@/lib/store/saved-store";
@@ -36,6 +37,18 @@ export default function RoutinePage() {
   const fetchSaved = useSavedStore((s) => s.fetchSaved);
   const isGuest = authLoaded && !user;
 
+  // null = haven't read the sessionStorage handoff flag yet. Guards the
+  // double-invoke of effects under React Strict Mode in dev so the flag
+  // isn't consumed (and reset to "false") before it's actually used.
+  const [fromAnalyzing, setFromAnalyzing] = useState<boolean | null>(null);
+  const consumedFlag = useRef(false);
+
+  useEffect(() => {
+    if (consumedFlag.current) return;
+    consumedFlag.current = true;
+    setFromAnalyzing(consumeArrivedFromAnalyzing());
+  }, []);
+
   useEffect(() => {
     // Falls back to the server's cached last-computed routine if the
     // client store is empty (e.g. a hard refresh cleared sessionStorage).
@@ -45,6 +58,55 @@ export default function RoutinePage() {
       });
     }
   }, [routine, setRoutine]);
+
+  async function handleSignedIn() {
+    await fetchUser();
+    await Promise.all([fetchCart(), fetchSaved()]);
+    const signedInUser = useAuthStore.getState().user;
+    if (!signedInUser) return;
+    const { skinType, concerns, sensitivities, climate, budget, ethics, goal } =
+      useQuizStore.getState();
+    const quiz: QuizAnswers = { skinType, concerns, sensitivities, climate, budget, ethics, goal };
+    const scan = useScanStore.getState().result;
+    if (isScanComplete(scan) && isQuestionnaireComplete(quiz)) {
+      try {
+        const matched = await postJSON<MatchedRoutine>("/api/match-routine", {
+          quiz,
+          scan,
+          imageBase64: useScanStore.getState().imageDataUrl,
+        });
+        setRoutine(matched);
+        return;
+      } catch (error) {
+        console.error("Failed to attach onboarding data after sign-in:", error);
+      }
+    }
+    // No local onboarding data to attach (e.g. a returning user whose
+    // session had died) — pull whatever the account already has persisted.
+    const existing = await getJSON<MatchedRoutine | null>("/api/routine").catch(() => null);
+    if (existing) setRoutine(existing);
+  }
+
+  // Wait for both the handoff flag and the session to resolve before
+  // choosing a layout, so an expired session never flashes the routine
+  // list (or vice versa) for a frame.
+  if (fromAnalyzing === null || !authLoaded) return null;
+
+  // Direct visit (not the post-quiz arrival) without a real session — an
+  // expired session or a plain guest. The routine is genuinely account-tied,
+  // so gate it exactly the way Profile does (Profile's own /api/profile call
+  // 401s for any unauthenticated visitor, not just an expired one). The
+  // post-quiz arrival above is the one exception, so a guest who just
+  // finished onboarding still sees the recommendations.
+  if (!fromAnalyzing && !user) {
+    return (
+      <SignInRequiredScreen
+        title="Sign in to view your routine"
+        subtitle="Your routine is tied to your account."
+        onSignedIn={handleSignedIn}
+      />
+    );
+  }
 
   const preference = ethics.vegan ? "Vegan Only" : ethics.crueltyFree ? "Cruelty-Free" : "No preference";
 
@@ -78,26 +140,7 @@ export default function RoutinePage() {
       {isGuest ? (
         <GoogleSignInButton
           className={buttonClassName({ className: "block w-full" })}
-          onSignedIn={async () => {
-            await fetchUser();
-            await Promise.all([fetchCart(), fetchSaved()]);
-            const signedInUser = useAuthStore.getState().user;
-            if (!signedInUser) return;
-            const { skinType, concerns, sensitivities, climate, budget, ethics, goal } =
-              useQuizStore.getState();
-            const quiz: QuizAnswers = { skinType, concerns, sensitivities, climate, budget, ethics, goal };
-            const scan = useScanStore.getState().result;
-            if (!isScanComplete(scan) || !isQuestionnaireComplete(quiz)) return;
-            try {
-              await postJSON("/api/match-routine", {
-                quiz,
-                scan,
-                imageBase64: useScanStore.getState().imageDataUrl,
-              });
-            } catch (error) {
-              console.error("Failed to attach onboarding data after sign-in:", error);
-            }
-          }}
+          onSignedIn={handleSignedIn}
         >
           Sign in with Google to Access More
         </GoogleSignInButton>
