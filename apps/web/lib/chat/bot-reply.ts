@@ -33,6 +33,12 @@ export interface BotReply {
    * below the bubble (see ChatProductList) when the pipeline found what
    * the user was looking for. */
   products?: Product[];
+  /** The as-is step-13 Structured Understanding Object (services/
+   * matching-service POST /chat/understand's ChatUnderstanding JSON) that
+   * produced this reply — persisted verbatim to chat_messages.raw_json_text
+   * as the raw record for the as-is learning from real chat history.
+   * Undefined when the pipeline was unreachable. */
+  rawJsonText?: string;
 }
 
 const AI_ADVISOR_SERVICE_URL = process.env.AI_ADVISOR_SERVICE_URL;
@@ -90,9 +96,13 @@ export async function generateBotReply(
   // product match, not just ones intent.py happened to bucket as
   // "product_recommendation".
   const products = understanding && understanding.candidates.length > 0 ? understanding.candidates.slice(0, 6) : undefined;
+  // The exact object the pipeline returned, serialized once and carried
+  // through both the deterministic and Gemma branches below — this is what
+  // route.ts stores verbatim in chat_messages.raw_json_text.
+  const rawJsonText = understanding ? JSON.stringify(understanding) : undefined;
 
   if (understanding && !understanding.isAmbiguous && understanding.reply) {
-    return { text: understanding.reply, products };
+    return { text: understanding.reply, products, rawJsonText };
   }
 
   const candidateProducts = (understanding?.candidates ?? []).map((p) => `${p.name} — ${p.category}`);
@@ -103,5 +113,5 @@ export async function generateBotReply(
     conversationContext: understanding?.conversationContext ?? [],
   });
 
-  return { text: aiReply, products };
+  return { text: aiReply, products, rawJsonText };
 }

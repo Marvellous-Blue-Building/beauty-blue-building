@@ -7,15 +7,16 @@ const DAY_THRESHOLDS = [0, 30, 60, 90] as const;
 
 interface ScanRow {
   created_at: string;
-  raw_json_data: { hydration?: number; texture?: number; pigmentation?: number };
+  raw_json_data: { hydration?: number; texture?: number; pigmentation?: number; overall?: number };
   image_data: string | null;
 }
 
-function metricsFrom(row: ScanRow | undefined): Pick<ProgressSnapshot, "hydration" | "texture" | "pigmentation"> {
+function metricsFrom(row: ScanRow | undefined): Pick<ProgressSnapshot, "hydration" | "texture" | "pigmentation" | "overall"> {
   return {
     hydration: row?.raw_json_data.hydration ?? null,
     texture: row?.raw_json_data.texture ?? null,
     pigmentation: row?.raw_json_data.pigmentation ?? null,
+    overall: row?.raw_json_data.overall ?? null,
   };
 }
 
@@ -73,7 +74,7 @@ export async function GET() {
             ...metricsFrom(day === 0 ? baseline : latest),
             image: imageFrom(day === 0 ? baseline : latest, baseline),
           }
-        : { hydration: null, texture: null, pigmentation: null, image: null }),
+        : { hydration: null, texture: null, pigmentation: null, overall: null, image: null }),
     };
   });
 

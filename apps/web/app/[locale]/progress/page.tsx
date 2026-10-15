@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { ScreenContainer } from "@/components/layout/ScreenContainer";
 import { DayPhotoCards } from "@/components/progress/DayPhotoCards";
 import { MetricBar } from "@/components/scan/MetricBar";
+import { ScoreRing } from "@/components/scan/ScoreRing";
 import { buttonClassName } from "@/components/ui/Button";
 import { getJSON } from "@/lib/api-client";
 import { useAuthStore } from "@/lib/store/auth-store";
@@ -65,6 +66,9 @@ export default function ProgressPage() {
         {t("subtitle")}
       </p>
       <DayPhotoCards snapshots={snapshots} activeDay={activeDay} onSelect={setActiveDay} />
+      <div className="flex justify-center gap-2 my-[10px]">
+        <ScoreRing score={active.overall ?? 0} size={112} />
+      </div>
       <MetricBar
         label="Hydration"
         value={active.hydration ?? 0}

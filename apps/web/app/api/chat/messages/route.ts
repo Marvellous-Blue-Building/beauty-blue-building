@@ -67,9 +67,9 @@ export async function POST(request: NextRequest) {
   }
 
   const insertedBot = await pool.query<{ id: string; created_at: string }>(
-    `INSERT INTO chat_messages (conversation_id, role, text, recommended_product_ids)
-     VALUES ($1, 'bot', $2, $3) RETURNING id, created_at`,
-    [targetConversationId, botReply.text, botReply.products?.map((p) => p.id) ?? null]
+    `INSERT INTO chat_messages (conversation_id, role, text, recommended_product_ids, raw_json_text)
+     VALUES ($1, 'bot', $2, $3, $4) RETURNING id, created_at`,
+    [targetConversationId, botReply.text, botReply.products?.map((p) => p.id) ?? null, botReply.rawJsonText ?? null]
   );
 
   const botMessage: ChatMessage = {

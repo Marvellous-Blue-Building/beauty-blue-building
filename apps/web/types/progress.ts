@@ -17,6 +17,8 @@ export interface ProgressSnapshot {
   hydration: number | null;
   texture: number | null;
   pigmentation: number | null;
+  /** Overall skin score (0-100) from scan_results.raw_json_data.overall */
+  overall: number | null;
   /**
    * The face photo captured for this snapshot. Falls back to the Day 0
    * baseline photo whenever a later day has no stored image of its own.
