@@ -1,0 +1,115 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: bluebuilding
+      POSTGRES_PASSWORD: bluebuilding
+      POSTGRES_DB: bluebuilding
+    ports:
+      # Host-side 5000 collides with macOS AirPlay Receiver (ControlCenter) —
+      # this mapping is only for manual host access (e.g. the dump-restore
+      # step below); containers on the compose network reach Postgres via
+      # postgres:5432 regardless of this host port.
+      - "5001:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bluebuilding -d bluebuilding"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+
+  matching-service:
+    build: ./services/matching-service
+    environment:
+      DATABASE_URL: postgresql://bluebuilding:bluebuilding@postgres:5432/bluebuilding
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  skin-scanning:
+    build: ./services/skin-scanning
+    ports:
+      - "3003:3003"
+
+  ai-advisor:
+    build: ./services/ai-advisor
+    environment:
+      KAGGLE_USERNAME: ${KAGGLE_USERNAME:-}
+      KAGGLE_KEY: ${KAGGLE_KEY:-}
+      KAGGLE_API_TOKEN: ${KAGGLE_API_TOKEN:-}
+      GEMMA_KAGGLE_HANDLE: ${GEMMA_KAGGLE_HANDLE:-google/gemma-2/transformers/gemma-2-2b-it}
+    ports:
+      - "3004:3004"
+
+  geotagging-weather:
+    build: ./services/geotagging-weather
+    environment:
+      DATABASE_URL: postgresql://bluebuilding:bluebuilding@postgres:5432/bluebuilding
+    ports:
+      - "8010:8010"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # kb_holiday.md / kb_weather.md are not git-tracked (see
+    # docs/installation.md §6c). If you have them locally, uncomment
+    # and point at wherever they live on the host — otherwise
+    # weather-dependent endpoints 500, same as the non-Docker setup:
+    # volumes:
+    #   - ./kb_holiday.md:/kb/kb_holiday.md:ro
+    #   - ./kb_weather.md:/kb/kb_weather.md:ro
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-}
+    environment:
+      DATABASE_URL: postgresql://bluebuilding:bluebuilding@postgres:5432/bluebuilding
+      REDIS_URL: redis://redis:6379
+      MATCHING_SERVICE_URL: http://matching-service:8000
+      SKIN_SCAN_SERVICE_URL: http://skin-scanning:3003
+      AI_ADVISOR_SERVICE_URL: http://ai-advisor:3004
+      GEOTAGGING_WEATHER_SERVICE_URL: http://geotagging-weather:8010
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-}
+      ALLOWED_WIDGET_ORIGINS: ${ALLOWED_WIDGET_ORIGINS:-}
+      WIDGET_BOT_NAME: ${WIDGET_BOT_NAME:-}
+      WIDGET_GREETING: ${WIDGET_GREETING:-}
+      WIDGET_COLOR: ${WIDGET_COLOR:-}
+      WIDGET_POSITION: ${WIDGET_POSITION:-}
+      WIDGET_PRIVACY_URL: ${WIDGET_PRIVACY_URL:-}
+      WIDGET_TERMS_URL: ${WIDGET_TERMS_URL:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_SECURE: ${SMTP_SECURE:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      matching-service:
+        condition: service_started
+      skin-scanning:
+        condition: service_started
+      ai-advisor:
+        condition: service_started
+      geotagging-weather:
+        condition: service_started
+
+volumes:
+  pgdata:

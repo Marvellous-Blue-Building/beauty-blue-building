@@ -481,6 +481,43 @@ idempotent script in **Section 0** instead.
 
 ---
 
+## 7a. Running via Docker Compose
+
+An alternative to Sections 1–7 above: a `docker-compose.yml` at the repo
+root containerizes all 5 services plus Postgres/Redis, for prod-parity
+local testing and as prep for deploying to Cloud Run later. This is
+**additive** — the manual venv/`npm run dev` workflow above still works
+unchanged; use whichever fits what you're doing (manual flow for
+day-to-day development with hot-reload, Compose for a closer-to-production
+smoke test).
+
+1. Copy the root env template and fill in real values: `cp .env.example .env`
+2. Build and start the database/cache first: `docker compose up -d postgres redis`
+3. Restore the schema (same one-time step as Section 2.1, just run
+   against the compose-managed container):
+   ```bash
+   docker compose exec -T postgres psql -U bluebuilding -d bluebuilding < data/bluebuilding_full_dump.sql
+   ```
+4. Build and start everything else: `docker compose up -d --build`
+5. Visit **http://localhost:3002/login** — same URL/ports as the manual
+   setup.
+
+Notes:
+- `kb_holiday.md`/`kb_weather.md` (Section 6c) aren't git-tracked, so the
+  `geotagging-weather` service's bind mounts are commented out in
+  `docker-compose.yml` by default — uncomment them if you have those
+  files locally, otherwise weather-dependent endpoints 500, same as the
+  non-Docker setup.
+- Inter-service URLs inside Compose use service DNS names (e.g.
+  `http://matching-service:8000`), not `localhost:<port>` — that
+  substitution is already wired into `docker-compose.yml`, nothing to
+  configure.
+- Postgres data now persists across `docker compose down`/`up` via a
+  named volume (`pgdata`) — the plain `docker run` setup in Section 2
+  does not persist data, so this is an improvement, not just parity.
+
+---
+
 ## 8. Troubleshooting
 
 *   **Web app can't reach the database** — confirm the Postgres container is running (`docker ps`) and `DATABASE_URL` in `.env.local` matches the credentials in this doc.
