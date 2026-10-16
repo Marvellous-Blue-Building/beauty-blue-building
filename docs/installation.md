@@ -515,8 +515,23 @@ smoke test).
    ```bash
    docker compose exec -T postgres psql -U bluebuilding -d bluebuilding < data/bluebuilding_full_dump.sql
    ```
-4. Build and start everything else: `docker compose up -d --build`
-5. Visit **http://localhost:3002/login** — same URL/ports as the manual
+4. Apply the newer migrations on top (same as Section 2.3 — the dump has no
+   widget, forecasting or beauty-scan tables; without them the widget can't
+   start a session or save a scan, and the forecasting pages fail). Each is
+   safe to re-run:
+   ```bash
+   for f in data/14_widget_sessions.sql \
+            data/15_tenant_boosts.sql \
+            data/16_event_calendar.sql \
+            data/17_alert_log.sql \
+            data/18_forecast_overrides.sql \
+            data/19_event_milestones.sql \
+            data/20_widget_beauty_scans.sql; do
+     docker compose exec -T postgres psql -U bluebuilding -d bluebuilding < "$f"
+   done
+   ```
+5. Build and start everything else: `docker compose up -d --build`
+6. Visit **http://localhost:3002/login** — same URL/ports as the manual
    setup.
 
 Notes:
