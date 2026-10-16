@@ -30,9 +30,9 @@ class SkinAnalysisIntentDetector:
                 "cek muka", "foto untuk analisis kulit", "analisis dari foto", "analisis pakai selfie", 
                 "scan pakai kamera", "mulai scan", "mulai pemindaian", "mulai analisis", 
                 "mulai analisa kulit", "buka scan wajah", "buka analisis kulit", "coba skin scanner", 
-                "fitur scan kulit", "fitur analisis wajah", "ai analisis kulit", "pemindai kulit", 
-                "pemindai wajah", "kondisi muka", "kondisi wajah sekarang", "lihat kondisi kulit", 
-                "cek kesehatan kulit wajah"
+                "fitur scan kulit", "fitur analisis wajah", "ai analisis kulit", "pemindai kulit",
+                "pemindai wajah", "kondisi muka", "kondisi wajah sekarang", "lihat kondisi kulit",
+                "cek kesehatan kulit wajah", "scanning", "test kulit", "tes kulit"
             ]
         },
         "SKIN_PROGRESS_VIEW": {
@@ -47,9 +47,10 @@ class SkinAnalysisIntentDetector:
                 "pantau kondisi kulit", "tracking kulit", "perkembangan kulit wajah", "progres kulit", 
                 "perjalanan kulit", "jurnal kulit", "catatan kulit", "hasil scan sebelumnya", 
                 "hasil scan terdahulu", "perubahan kondisi kulit", "tren kondisi kulit", 
-                "perkembangan dari waktu ke waktu", "apakah kulit saya membaik", 
-                "apakah kulit saya memburuk", "laporan perkembangan kulit", "timeline kulit", 
-                "riwayat berdasarkan tanggal", "pantau progres skincare"
+                "perkembangan dari waktu ke waktu", "apakah kulit saya membaik",
+                "apakah kulit saya memburuk", "laporan perkembangan kulit", "timeline kulit",
+                "riwayat berdasarkan tanggal", "pantau progres skincare", "track progress",
+                "progress", "progres"
             ]
         },
         "SKIN_PROGRESS_COMPARE": {
@@ -81,12 +82,24 @@ class SkinAnalysisIntentDetector:
 
     def detect(self, text: str) -> Tuple[Optional[str], float]:
         """
-        Detects the intent of the given text.
+        Detects the single best-matching intent of the given text.
         Returns a tuple of (intent_id, confidence_score).
         """
+        all_matches = self.detect_all(text)
+        if not all_matches:
+            return None, 0.0
+        return all_matches[0]
+
+    def detect_all(self, text: str) -> List[Tuple[str, float]]:
+        """
+        Detects every intent the text matches — a message can genuinely call
+        for more than one (e.g. "scan kulit saya terus lihat progress" names
+        both FACE_SCAN_START and SKIN_PROGRESS_VIEW), so this doesn't pick a
+        single "best" intent and discard the rest. Returns (intent_id,
+        confidence_score) pairs sorted by descending confidence.
+        """
         text = text.lower()
-        best_intent = None
-        max_score = 0.0
+        scores: Dict[str, float] = {}
 
         for intent_id, data in self.INTENTS.items():
             score = 0.0
@@ -94,15 +107,15 @@ class SkinAnalysisIntentDetector:
                 if keyword in text:
                     # Simple scoring: longer keywords give more weight
                     score += len(keyword) / 10.0
-            
-            if score > max_score:
-                max_score = score
-                best_intent = intent_id
+            if score > 0.0:
+                scores[intent_id] = score
 
         # Normalize score to 0.0 - 1.0 range (approximate)
-        confidence = min(max_score / 5.0, 1.0) if max_score > 0 else 0.0
-        
-        return best_intent, confidence
+        return sorted(
+            ((intent_id, min(score / 5.0, 1.0)) for intent_id, score in scores.items()),
+            key=lambda pair: pair[1],
+            reverse=True,
+        )
 
     def analyze_user_request(self, text: str) -> Dict:
         """
