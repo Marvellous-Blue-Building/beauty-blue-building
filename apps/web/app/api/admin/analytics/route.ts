@@ -4,6 +4,8 @@ import { isAdminRequest } from "@/lib/auth/admin-session";
 import { holtLinearForecast } from "@/lib/analytics/holt-forecast";
 import { robustZScore } from "@/lib/analytics/robust-zscore";
 import { runCusum, type CusumPoint } from "@/lib/analytics/cusum";
+import { getLatestAlertActions } from "@/lib/alert-log";
+import { getLatestOverride } from "@/lib/forecast-overrides";
 
 /**
  * Demand-signal forecast + alert (Phase 5), combining two real algorithms
@@ -55,7 +57,7 @@ export async function GET() {
        ) x
        GROUP BY product_id
      )
-     SELECT p.id, p.name, p.brand, p.price, p.stock_quantity,
+     SELECT p.id, p.name, p.brand, p.price, p.stock_quantity, p.category,
             COALESCE(cc.cart_adds, 0) AS cart_adds,
             COALESCE(cm.mentions, 0) AS chat_mentions,
             COALESCE(cc.cart_adds, 0) * 2 + COALESCE(cm.mentions, 0) AS signal_score
@@ -106,16 +108,23 @@ export async function GET() {
     [productIds]
   );
 
-  const byProduct = new Map<string, { cart: number[]; chat: number[] }>();
+  const byProduct = new Map<string, { bucket: Date[]; cart: number[]; chat: number[] }>();
   for (const row of series) {
-    const entry = byProduct.get(row.product_id) ?? { cart: [], chat: [] };
+    const entry = byProduct.get(row.product_id) ?? { bucket: [], cart: [], chat: [] };
+    entry.bucket.push(new Date(row.bucket));
     entry.cart.push(Number(row.cart_n));
     entry.chat.push(Number(row.chat_n));
     byProduct.set(row.product_id, entry);
   }
 
+  const [alertActions, overrides] = await Promise.all([
+    getLatestAlertActions(productIds),
+    Promise.all(productIds.map((id) => getLatestOverride(id))),
+  ]);
+  const overrideByProduct = new Map(productIds.map((id, i) => [id, overrides[i]]));
+
   const result = products.map((p) => {
-    const { cart, chat } = byProduct.get(p.id) ?? { cart: [Number(p.cart_adds)], chat: [Number(p.chat_mentions)] };
+    const { bucket, cart, chat } = byProduct.get(p.id) ?? { bucket: [new Date()], cart: [Number(p.cart_adds)], chat: [Number(p.chat_mentions)] };
     const combinedSignal = cart.map((c, i) => c * 2 + chat[i]);
 
     // 1. Holt's linear trend forecast (unchanged from before).
@@ -128,9 +137,13 @@ export async function GET() {
     const cartHasVariance = cart.length >= 2;
     const chatHasVariance = chat.length >= 2;
 
+    const cartZs: number[] = [];
+    const chatZs: number[] = [];
     const points: CusumPoint[] = combinedSignal.map((_, i) => {
       const cartZ = cartHasVariance ? robustZScore(cart[i], cart) : 0;
       const chatZ = chatHasVariance ? robustZScore(chatLog[i], chatLog) : 0;
+      cartZs.push(cartZ);
+      chatZs.push(chatZ);
       const wCart = cartHasVariance ? 0.6 : 0;
       const wChat = chatHasVariance ? 0.4 : 0;
       const wSum = wCart + wChat || 1;
@@ -138,6 +151,31 @@ export async function GET() {
       return { dss, zConfirm: cartZ };
     });
     const alarm = runCusum(points);
+
+    // Demand Signal breakdown (Detail SKU tab) — this project's real 2
+    // signals (not the KB's 8), with each one's current z-score and weight.
+    const lastIdx = cart.length - 1;
+    const signalBreakdown = [
+      { signal: "Add-to-cart", value: cart[lastIdx], z: Math.round(cartZs[lastIdx] * 100) / 100, weight: cartHasVariance ? 0.6 : 0 },
+      { signal: "Mention chat", value: chat[lastIdx], z: Math.round(chatZs[lastIdx] * 100) / 100, weight: chatHasVariance ? 0.4 : 0 },
+    ];
+
+    // Phase 3 "deteksi anomali dan viral" stockout read: hours of stock
+    // left at the current forecasted pace — same metric the KB's own
+    // example alert shows ("Stok gudang 1.450 unit ≈ 5 hari pada laju
+    // saat ini"), here in hours since this signal is hourly, not daily.
+    const hoursOfStockLeft = forecast.forecastNextPeriod > 0 ? Math.round((p.stock_quantity / forecast.forecastNextPeriod) * 10) / 10 : null;
+
+    // Real hourly series for the Overview/Detail SKU charts — actual vs
+    // Holt's own fitted baseline, capped to the most recent 100 points so
+    // the payload stays reasonable for a product with months of history.
+    const chartSeries = bucket.slice(-100).map((b, i) => {
+      const offset = bucket.length - Math.min(100, bucket.length);
+      return { bucket: b.toISOString(), actual: combinedSignal[offset + i], baseline: Math.round(Math.max(0, forecast.fittedLevels[offset + i]) * 10) / 10 };
+    });
+
+    const override = overrideByProduct.get(p.id) ?? null;
+    const lastAlertAction = alertActions.get(p.id) ?? null;
 
     return {
       ...p,
@@ -148,6 +186,11 @@ export async function GET() {
       alarmLevel: alarm.level,
       alarmLabel: alarm.levelLabel,
       cusum: alarm.cusum,
+      hoursOfStockLeft,
+      series: chartSeries,
+      signalBreakdown,
+      override,
+      lastAlertAction,
     };
   });
 

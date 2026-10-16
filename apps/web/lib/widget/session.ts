@@ -4,9 +4,13 @@ import { pool } from "@/lib/db";
  * from the authenticated app's `chat_conversations`/`chat_messages` (no
  * `users` row, no OAuth), see data/14_widget_sessions.sql. */
 
-export async function createWidgetSession(): Promise<string> {
+/** `promoCode` is Phase 2 Modul 4 (Attribution, Lapis 1) — a code the
+ * widget loader read from the retailer page's own `?promo=` URL param,
+ * matched later against `event_calendar.promo_code`. */
+export async function createWidgetSession(promoCode?: string | null): Promise<string> {
   const result = await pool.query<{ id: string }>(
-    `INSERT INTO widget_sessions DEFAULT VALUES RETURNING id`
+    `INSERT INTO widget_sessions (promo_code) VALUES ($1) RETURNING id`,
+    [promoCode || null]
   );
   return result.rows[0].id;
 }

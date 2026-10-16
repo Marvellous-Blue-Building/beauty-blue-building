@@ -22,6 +22,10 @@ export interface HoltResult {
   trendValue: number;
   forecastNextPeriod: number;
   dataPoints: number;
+  /** The fitted level at each input step, same length as `series` — the
+   * "baseline" line a Forecast vs Aktual chart plots alongside the raw
+   * actual series (added for the wireframe-matching redesign's charts). */
+  fittedLevels: number[];
 }
 
 /**
@@ -33,21 +37,23 @@ export interface HoltResult {
  */
 export function holtLinearForecast(series: number[], alpha = 0.3, beta = 0.2): HoltResult {
   if (series.length === 0) {
-    return { level: 0, trend: "flat", trendValue: 0, forecastNextPeriod: 0, dataPoints: 0 };
+    return { level: 0, trend: "flat", trendValue: 0, forecastNextPeriod: 0, dataPoints: 0, fittedLevels: [] };
   }
   if (series.length === 1) {
     // Not enough points to estimate a trend — level-only forecast.
-    return { level: series[0], trend: "flat", trendValue: 0, forecastNextPeriod: series[0], dataPoints: 1 };
+    return { level: series[0], trend: "flat", trendValue: 0, forecastNextPeriod: series[0], dataPoints: 1, fittedLevels: [series[0]] };
   }
 
   let level = series[0];
   let trend = series[1] - series[0];
+  const fittedLevels = [level];
 
   for (let t = 1; t < series.length; t++) {
     const value = series[t];
     const prevLevel = level;
     level = alpha * value + (1 - alpha) * (prevLevel + trend);
     trend = beta * (level - prevLevel) + (1 - beta) * trend;
+    fittedLevels.push(level);
   }
 
   const forecastNextPeriod = Math.max(0, level + trend);
@@ -59,5 +65,6 @@ export function holtLinearForecast(series: number[], alpha = 0.3, beta = 0.2): H
     trendValue: trend,
     forecastNextPeriod,
     dataPoints: series.length,
+    fittedLevels,
   };
 }
