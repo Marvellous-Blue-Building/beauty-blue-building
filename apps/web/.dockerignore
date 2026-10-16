@@ -1,0 +1,20 @@
+node_modules
+.next
+.git
+npm-debug.log*
+
+.env
+.env.*
+!.env.example
+
+# Only the stray reference docs/screenshots sitting directly in this
+# directory's root (leading slash anchors it — public/ assets like
+# demo-retailer.html and public/assets/avatars/*.jpg stay included).
+/*.md
+/*.html
+/*.png
+/*.jpg
+/*.jpeg
+
+tsconfig.tsbuildinfo
+scripts/.demo-seed-manifest.json
