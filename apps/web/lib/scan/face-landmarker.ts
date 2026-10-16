@@ -51,6 +51,8 @@ async function create(): Promise<LiveFaceTracker | null> {
           runningMode: "VIDEO",
           numFaces: 1,
           outputFacialTransformationMatrixes: true,
+          // Expression scores, so the front photo waits for a neutral face.
+          outputFaceBlendshapes: true,
         });
         return { landmarker, faceOval: FaceLandmarker.FACE_LANDMARKS_FACE_OVAL };
       } catch {

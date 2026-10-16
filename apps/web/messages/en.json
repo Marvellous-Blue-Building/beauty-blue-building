@@ -59,11 +59,11 @@
     "startScan": "Start Skin Scan"
   },
   "scan": {
-    "stepLabel": "AI skin check",
-    "title": "Center your face in the frame",
-    "subtitle": "Good lighting, no makeup, neutral expression. Your photo is processed securely and never shared.",
+    "stepLabel": "AI skin & beauty check",
+    "title": "Scan your face in 3 quick poses",
+    "subtitle": "Face the camera, then turn to each side — good light, no makeup, neutral expression. Your photos are processed securely and never shared.",
     "centerPrompt": "Align your face inside the oval guide",
-    "progressLabel": "Analyzing your skin",
+    "progressLabel": "Analyzing your colour, face shape & skin",
     "statusMapping": "Finding your face & skin zones…",
     "statusCalibrating": "Checking lighting & shine…",
     "statusTzone": "Looking at pores & oil on your T-zone…",
@@ -118,12 +118,44 @@
     "guideMoveRight": "Move a little to the right",
     "guideMoveUp": "Move up a little",
     "guideMoveDown": "Move down a little",
-    "stepPosition": "Position",
-    "stepHold": "Hold still",
     "stepAnalyze": "Analyze",
-    "handsFreeHint": "Hands-free — the photo is taken automatically when everything looks good.",
+    "handsFreeHint": "Hands-free — 3 quick photos: facing the camera, then each side. Each one is taken automatically when the pose looks right.",
     "takePhotoNow": "Take photo now",
-    "uploadPhoto": "Upload photo"
+    "uploadPhoto": "Upload photo",
+    "poseFront": "Front",
+    "poseRight": "Right",
+    "poseLeft": "Left",
+    "angleOk": "Angle: Good",
+    "angleTurned": "Angle: Turned",
+    "angleTilted": "Angle: Tilted",
+    "angleTurnMore": "Angle: Turn more",
+    "angleTooFar": "Angle: Too far",
+    "guideTurnRight": "Slowly turn your head to your right",
+    "guideTurnLeft": "Slowly turn your head to your left",
+    "guideTurnLess": "A little less — turn back slightly",
+    "guideLevelHead": "Keep your head level",
+    "guideHoldAngle": "Perfect — hold this angle…",
+    "guideManualRight": "Turn your head to your right, then tap the shutter",
+    "guideManualLeft": "Turn your head to your left, then tap the shutter",
+    "capturedFront": "Front photo saved",
+    "capturedRight": "Right side saved",
+    "capturedLeft": "Left side saved",
+    "nextRight": "Next: slowly turn your head to your right",
+    "nextLeft": "Next: slowly turn your head to your left",
+    "nextAnalyze": "All 3 photos taken — analyzing…",
+    "meterLabel": "Head turn",
+    "meterHintRight": "Turn to your right until the dot sits in the shaded band",
+    "meterHintLeft": "Turn to your left until the dot sits in the shaded band",
+    "takeSidePhotoNow": "Take this side now",
+    "restartPoses": "Start over",
+    "statusColour": "Reading your colouring & undertone…",
+    "statusShape": "Measuring your face proportions…",
+    "statusCheeksSides": "Reading each cheek from its side photo…",
+    "guideChinDown": "Lower your chin a little",
+    "guideChinUp": "Lift your chin a little",
+    "guideCloseMouth": "Close your mouth for a moment",
+    "guideRelaxFace": "Relax your face — hold the smile for a second",
+    "angleExpression": "Face: Relax"
   },
   "scanning": {
     "title": "Mapping facial landmarks…",
@@ -235,7 +267,119 @@
     "nextTitle": "Next: your matched routine",
     "nextBody": "Answer 5 quick questions and we'll match products to these results.",
     "checkinNextTitle": "Save this check-in",
-    "checkinNextBody": "Add this scan to your progress so you can compare it over time."
+    "checkinNextBody": "Add this scan to your progress so you can compare it over time.",
+    "beauty": {
+      "kicker": "Your beauty profile",
+      "title": "Colour, face shape & skin type",
+      "notRead": "This one couldn't be read this time. Try another scan in brighter, even light.",
+      "notReadShort": "Not read yet",
+      "seasonKicker": "Your colour season",
+      "confidence": "{value}% match",
+      "closeTo": "close to {season}",
+      "undertone": "Undertone: {value}",
+      "undertones": {
+        "warm": "Warm",
+        "cool": "Cool",
+        "neutral": "Neutral"
+      },
+      "skinToneCaption": "Your skin tone, corrected for the room's light",
+      "hair": "Hair",
+      "axesTitle": "What sets your season",
+      "paletteTitle": "Your makeup palette",
+      "paletteDraft": "This palette is an early version and will keep improving.",
+      "shadesTitle": "Closest shades in our catalog",
+      "shadeVeryClose": "Very close",
+      "shadeClose": "Close",
+      "closestTo": "Closest to {swatch}",
+      "category": {
+        "lip": "Lipstick",
+        "blush": "Blush",
+        "eyeshadow": "Eyeshadow",
+        "eyeliner": "Eyeliner",
+        "brow": "Brows",
+        "highlighter": "Highlighter",
+        "base": "Foundation & cushion"
+      },
+      "shapeKicker": "Your face shape",
+      "proportionsTitle": "Your face proportions",
+      "skinKicker": "A suggestion",
+      "skinFrom3": "from 3 photos, each cheek from the side facing it",
+      "skinFrom1": "from one front photo",
+      "posesTitle": "Your 3 photos",
+      "poseFrontCaption": "Front · forehead, nose, chin",
+      "poseRightCaption": "Turned right · left cheek",
+      "poseLeftCaption": "Turned left · right cheek",
+      "poseRejected": "{pose}: not used — {reason}. That cheek was read from the front photo instead.",
+      "poseReason": {
+        "not_turned": "the head wasn't turned enough",
+        "wrong_way": "the head was turned the other way",
+        "turned_too_far": "the head was turned too far",
+        "no_face": "no face was found"
+      },
+      "regionsTitle": "What we saw in each area",
+      "fromSide": "side photo",
+      "regionNotRead": "Not read",
+      "nothingStandsOut": "Nothing stands out",
+      "findingHigh": "{finding} — clear",
+      "findingSome": "{finding} — some",
+      "finding": {
+        "shine": "Shine",
+        "pores": "Visible pores",
+        "spots": "Dark spots",
+        "acne": "Breakouts",
+        "lines": "Fine lines",
+        "uneven": "Uneven tone"
+      },
+      "approximate": "Estimate",
+      "retryButton": "Scan again",
+      "retryTipsTitle": "Try this",
+      "retry": {
+        "shapeTitle": "Face shape not read yet",
+        "colourTitle": "Colour season not read yet",
+        "tips": {
+          "face_straight": [
+            "Face the camera straight on, chin level",
+            "Put the camera at about eye height"
+          ],
+          "neutral_face": [
+            "Keep a relaxed face with your mouth closed",
+            "Hold the smile until the ring fills"
+          ],
+          "hold_still": [
+            "Stay still until the green ring is full",
+            "Rest your elbows or prop the phone up"
+          ],
+          "cannot_measure": [
+            "Find bright light in front of you",
+            "Keep your whole face inside the oval"
+          ],
+          "more_light": [
+            "Face a window or a lamp",
+            "Avoid bright light behind you"
+          ],
+          "less_light": [
+            "Step back from very bright, direct light",
+            "Soft daylight works best"
+          ],
+          "show_hair": [
+            "Let some of your hair show in the frame",
+            "A hijab is fine too"
+          ]
+        }
+      },
+      "skinSwatch": "Skin",
+      "whySeason": "Why {season}",
+      "legend": {
+        "fine": "Fine",
+        "some": "Some",
+        "clear": "Clear"
+      },
+      "spec": {
+        "colour": "Colour",
+        "shape": "Shape",
+        "skin": "Skin"
+      }
+    }
   },
   "quiz": {
     "stepOf": "Step {step} of 5 — {section}",

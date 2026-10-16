@@ -173,3 +173,63 @@ input[type="range"] {
     scale: 1;
   }
 }
+
+/* Three-pose scan: "turn this way" chevrons, the photo-saved card, and the
+   photo dropping into its stepper circle */
+@keyframes turn-nudge {
+  0%,
+  100% {
+    translate: 0 0;
+    opacity: 0.35;
+  }
+  50% {
+    translate: var(--nudge, 10px) 0;
+    opacity: 1;
+  }
+}
+
+@keyframes pose-pop {
+  0% {
+    opacity: 0;
+    scale: 0.85;
+  }
+  60% {
+    opacity: 1;
+    scale: 1.04;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+@keyframes thumb-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(1.5);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Beauty profile (components/scan/BeautyProfile.tsx): palette chips rising,
+   a scale's dot sliding to its place, the face-shape outline drawing itself */
+@keyframes beauty-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scaleY(0.5);
+  }
+}
+
+@keyframes beauty-slide {
+  from {
+    left: 50%;
+  }
+}
+
+@keyframes beauty-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}

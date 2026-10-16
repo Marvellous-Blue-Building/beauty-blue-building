@@ -59,11 +59,11 @@
     "startScan": "Mulai Pindai Kulit"
   },
   "scan": {
-    "stepLabel": "Cek kulit AI",
-    "title": "Posisikan wajah Anda di dalam bingkai",
-    "subtitle": "Pencahayaan baik, tanpa riasan, ekspresi netral. Foto Anda diproses secara aman dan tidak pernah dibagikan.",
+    "stepLabel": "Cek kulit & kecantikan AI",
+    "title": "Pindai wajah dalam 3 pose singkat",
+    "subtitle": "Hadap ke kamera, lalu toleh ke tiap sisi — cahaya baik, tanpa riasan, ekspresi netral. Foto Anda diproses secara aman dan tidak pernah dibagikan.",
     "centerPrompt": "Posisikan wajah Anda di dalam panduan oval",
-    "progressLabel": "Menganalisis kulit Anda",
+    "progressLabel": "Menganalisis warna, bentuk wajah & kulit",
     "statusMapping": "Menemukan wajah & zona kulit Anda…",
     "statusCalibrating": "Memeriksa pencahayaan & kilap…",
     "statusTzone": "Melihat pori-pori & minyak di zona-T…",
@@ -118,12 +118,44 @@
     "guideMoveRight": "Geser sedikit ke kanan",
     "guideMoveUp": "Naikkan sedikit",
     "guideMoveDown": "Turunkan sedikit",
-    "stepPosition": "Posisi",
-    "stepHold": "Tahan",
     "stepAnalyze": "Analisis",
-    "handsFreeHint": "Tanpa sentuh — foto diambil otomatis saat semuanya sudah pas.",
+    "handsFreeHint": "Tanpa sentuh — 3 foto singkat: menghadap kamera, lalu tiap sisi. Setiap foto diambil otomatis saat posenya pas.",
     "takePhotoNow": "Ambil foto sekarang",
-    "uploadPhoto": "Unggah foto"
+    "uploadPhoto": "Unggah foto",
+    "poseFront": "Depan",
+    "poseRight": "Kanan",
+    "poseLeft": "Kiri",
+    "angleOk": "Sudut: Pas",
+    "angleTurned": "Sudut: Menoleh",
+    "angleTilted": "Sudut: Miring",
+    "angleTurnMore": "Sudut: Toleh lagi",
+    "angleTooFar": "Sudut: Terlalu jauh",
+    "guideTurnRight": "Perlahan tolehkan kepala ke kanan",
+    "guideTurnLeft": "Perlahan tolehkan kepala ke kiri",
+    "guideTurnLess": "Sedikit saja — kembalikan sedikit",
+    "guideLevelHead": "Jaga kepala tetap tegak",
+    "guideHoldAngle": "Sempurna — tahan sudut ini…",
+    "guideManualRight": "Tolehkan kepala ke kanan, lalu ketuk tombol rana",
+    "guideManualLeft": "Tolehkan kepala ke kiri, lalu ketuk tombol rana",
+    "capturedFront": "Foto depan tersimpan",
+    "capturedRight": "Sisi kanan tersimpan",
+    "capturedLeft": "Sisi kiri tersimpan",
+    "nextRight": "Berikutnya: perlahan tolehkan kepala ke kanan",
+    "nextLeft": "Berikutnya: perlahan tolehkan kepala ke kiri",
+    "nextAnalyze": "Ketiga foto sudah diambil — menganalisis…",
+    "meterLabel": "Sudut toleh",
+    "meterHintRight": "Toleh ke kanan sampai titik berada di area yang diarsir",
+    "meterHintLeft": "Toleh ke kiri sampai titik berada di area yang diarsir",
+    "takeSidePhotoNow": "Ambil sisi ini sekarang",
+    "restartPoses": "Ulangi dari awal",
+    "statusColour": "Membaca warna kulit & undertone…",
+    "statusShape": "Mengukur proporsi wajah…",
+    "statusCheeksSides": "Membaca tiap pipi dari foto sampingnya…",
+    "guideChinDown": "Turunkan dagu sedikit",
+    "guideChinUp": "Angkat dagu sedikit",
+    "guideCloseMouth": "Tutup mulut sebentar",
+    "guideRelaxFace": "Rileks — tahan senyum sebentar",
+    "angleExpression": "Wajah: Rileks"
   },
   "scanning": {
     "title": "Memetakan titik wajah…",
@@ -235,7 +267,119 @@
     "nextTitle": "Berikutnya: rutinitas yang cocok untuk Anda",
     "nextBody": "Jawab 5 pertanyaan singkat dan kami akan mencocokkan produk dengan hasil ini.",
     "checkinNextTitle": "Simpan check-in ini",
-    "checkinNextBody": "Tambahkan pindaian ini ke progres Anda agar bisa dibandingkan dari waktu ke waktu."
+    "checkinNextBody": "Tambahkan pindaian ini ke progres Anda agar bisa dibandingkan dari waktu ke waktu.",
+    "beauty": {
+      "kicker": "Profil kecantikan Anda",
+      "title": "Warna, bentuk wajah & tipe kulit",
+      "notRead": "Bagian ini belum terbaca kali ini. Coba pindai lagi di cahaya yang lebih terang dan merata.",
+      "notReadShort": "Belum terbaca",
+      "seasonKicker": "Musim warna Anda",
+      "confidence": "{value}% cocok",
+      "closeTo": "dekat dengan {season}",
+      "undertone": "Undertone: {value}",
+      "undertones": {
+        "warm": "Hangat",
+        "cool": "Dingin",
+        "neutral": "Netral"
+      },
+      "skinToneCaption": "Warna kulit Anda, setelah koreksi cahaya ruangan",
+      "hair": "Rambut",
+      "axesTitle": "Yang menentukan musim Anda",
+      "paletteTitle": "Palet makeup Anda",
+      "paletteDraft": "Palet ini masih versi awal dan akan terus disempurnakan.",
+      "shadesTitle": "Shade terdekat di katalog kami",
+      "shadeVeryClose": "Sangat dekat",
+      "shadeClose": "Dekat",
+      "closestTo": "Paling dekat dengan {swatch}",
+      "category": {
+        "lip": "Lipstik",
+        "blush": "Blush",
+        "eyeshadow": "Eyeshadow",
+        "eyeliner": "Eyeliner",
+        "brow": "Alis",
+        "highlighter": "Highlighter",
+        "base": "Foundation & cushion"
+      },
+      "shapeKicker": "Bentuk wajah Anda",
+      "proportionsTitle": "Proporsi wajah Anda",
+      "skinKicker": "Perkiraan",
+      "skinFrom3": "dari 3 foto, tiap pipi dari sisi yang menghadapnya",
+      "skinFrom1": "dari satu foto depan",
+      "posesTitle": "3 foto Anda",
+      "poseFrontCaption": "Depan · dahi, hidung, dagu",
+      "poseRightCaption": "Toleh kanan · pipi kiri",
+      "poseLeftCaption": "Toleh kiri · pipi kanan",
+      "poseRejected": "{pose}: tidak dipakai — {reason}. Pipi itu dibaca dari foto depan.",
+      "poseReason": {
+        "not_turned": "kepala kurang menoleh",
+        "wrong_way": "kepala menoleh ke arah sebaliknya",
+        "turned_too_far": "kepala menoleh terlalu jauh",
+        "no_face": "wajah tidak terdeteksi"
+      },
+      "regionsTitle": "Yang terbaca di tiap area",
+      "fromSide": "foto samping",
+      "regionNotRead": "Belum terbaca",
+      "nothingStandsOut": "Tidak ada yang menonjol",
+      "findingHigh": "{finding} — jelas",
+      "findingSome": "{finding} — sedikit",
+      "finding": {
+        "shine": "Kilap",
+        "pores": "Pori terlihat",
+        "spots": "Noda gelap",
+        "acne": "Jerawat",
+        "lines": "Garis halus",
+        "uneven": "Warna kurang merata"
+      },
+      "approximate": "Perkiraan",
+      "retryButton": "Scan ulang",
+      "retryTipsTitle": "Coba ini",
+      "retry": {
+        "shapeTitle": "Bentuk wajah belum terbaca",
+        "colourTitle": "Musim warna belum terbaca",
+        "tips": {
+          "face_straight": [
+            "Hadap lurus ke kamera, dagu sejajar",
+            "Letakkan kamera kira-kira setinggi mata"
+          ],
+          "neutral_face": [
+            "Wajah rileks dengan mulut tertutup",
+            "Tahan senyum sampai lingkaran penuh"
+          ],
+          "hold_still": [
+            "Diam sampai lingkaran hijau penuh",
+            "Sandarkan siku atau taruh ponsel di meja"
+          ],
+          "cannot_measure": [
+            "Cari cahaya terang dari depan",
+            "Pastikan seluruh wajah ada di dalam oval"
+          ],
+          "more_light": [
+            "Menghadap jendela atau lampu",
+            "Hindari cahaya terang dari belakang"
+          ],
+          "less_light": [
+            "Menjauh dari cahaya yang terlalu terang",
+            "Cahaya siang yang lembut paling baik"
+          ],
+          "show_hair": [
+            "Biarkan sedikit rambut terlihat",
+            "Hijab juga tidak apa-apa"
+          ]
+        }
+      },
+      "skinSwatch": "Kulit",
+      "whySeason": "Kenapa {season}",
+      "legend": {
+        "fine": "Baik",
+        "some": "Sedikit",
+        "clear": "Jelas"
+      },
+      "spec": {
+        "colour": "Warna",
+        "shape": "Bentuk",
+        "skin": "Kulit"
+      }
+    }
   },
   "quiz": {
     "stepOf": "Langkah {step} dari 5 — {section}",
