@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { AdminSidebar, type AdminSection } from "@/components/admin/AdminSidebar";
 
 /**
- * Tenant dashboard — sidebar shell + 6 sections. Deliberately escapes the
+ * Tenant dashboard — sidebar shell + 6 sections, plus a standalone
+ * "Conversation history" page (see app/[locale]/admin/conversations). Deliberately escapes the
  * shopper app's global `max-w-[480px]` mobile shell (app/[locale]/layout.tsx)
  * via `fixed inset-0`: this is an internal merchandising tool, not part of
  * the mobile-first shopper flow, and should use the full viewport.
@@ -19,8 +21,6 @@ import { useEffect, useRef, useState } from "react";
  * adds + chat mentions, already-accumulating real data) and marks Phase
  * 2/3 as an honest roadmap, not a fake/mocked implementation of them.
  */
-
-type Section = "overview" | "catalog" | "marketing" | "forecasting" | "simulator" | "integration";
 
 interface ProductRow {
   id: string;
@@ -81,48 +81,6 @@ function Card({ title, subtitle, children }: { title: string; subtitle?: string;
       <h2 className="text-base font-bold text-neutral-900">{title}</h2>
       {subtitle && <p className="mt-1 text-xs leading-relaxed text-neutral-500">{subtitle}</p>}
       <div className="mt-4 flex-1">{children}</div>
-    </div>
-  );
-}
-
-const NAV: { id: Section; label: string; hint: string }[] = [
-  { id: "overview", label: "Overview", hint: "Ringkasan aktivitas" },
-  { id: "catalog", label: "Katalog", hint: "Produk, harga, stok" },
-  { id: "marketing", label: "Marketing & Trend", hint: "Boost keyword" },
-  { id: "forecasting", label: "Forecasting", hint: "Demand signal" },
-  { id: "simulator", label: "Chat Simulator", hint: "Uji widget" },
-  { id: "integration", label: "Integrasi", hint: "Embed widget" },
-];
-
-function Sidebar({ active, onSelect }: { active: Section; onSelect: (s: Section) => void }) {
-  return (
-    <div className="flex h-full w-60 shrink-0 flex-col border-r border-neutral-200 bg-white">
-      <div className="px-5 py-5">
-        <div className="text-sm font-bold text-neutral-900">Beauty Advisor</div>
-        <div className="text-xs text-neutral-400">Tenant Dashboard</div>
-      </div>
-      <nav className="flex flex-col gap-0.5 px-3">
-        {NAV.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onSelect(item.id)}
-            className={`rounded-lg px-3 py-2.5 text-left text-sm transition ${
-              active === item.id ? "bg-primary-dim font-semibold text-primary" : "text-neutral-600 hover:bg-neutral-50"
-            }`}
-          >
-            <div>{item.label}</div>
-            <div className="text-[11px] font-normal text-neutral-400">{item.hint}</div>
-          </button>
-        ))}
-      </nav>
-      <div className="mt-auto p-3">
-        <button
-          onClick={() => fetch("/api/admin/login", { method: "DELETE" }).then(() => location.reload())}
-          className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs text-neutral-500 hover:bg-neutral-50"
-        >
-          Keluar
-        </button>
-      </div>
     </div>
   );
 }
@@ -595,10 +553,10 @@ function IntegrationSection() {
 }
 
 function AdminShell() {
-  const [section, setSection] = useState<Section>("overview");
+  const [section, setSection] = useState<AdminSection>("overview");
   return (
     <div className="flex h-full w-full">
-      <Sidebar active={section} onSelect={setSection} />
+      <AdminSidebar active={section} onSelect={setSection} />
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-5xl px-6 py-8 sm:px-10">
           {section === "overview" && <OverviewSection />}
