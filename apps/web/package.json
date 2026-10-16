@@ -21,6 +21,7 @@
     "react": "latest",
     "react-dom": "latest",
     "react-image-crop": "latest",
+    "recharts": "^3.10.1",
     "zustand": "latest"
   },
   "devDependencies": {
