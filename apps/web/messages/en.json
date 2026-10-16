@@ -441,7 +441,8 @@
         "marketing": { "label": "Marketing & Trend", "hint": "Boost keywords" },
         "forecasting": { "label": "Forecasting", "hint": "Demand signal" },
         "simulator": { "label": "Chat Simulator", "hint": "Test widget" },
-        "integration": { "label": "Integration", "hint": "Embed widget" }
+        "integration": { "label": "Integration", "hint": "Embed widget" },
+        "conversations": { "label": "Conversation history", "hint": "Chat history" }
       }
     },
     "overview": {
