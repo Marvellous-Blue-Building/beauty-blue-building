@@ -24,6 +24,8 @@ SYSTEM_PROMPT = (
     "ingredients, routines, or concerns. If the question describes a serious "
     "or medical-sounding skin condition, recommend seeing a dermatologist "
     "instead of self-treating. Do not invent specific product names. "
+    "CRITICAL: If the user is simply looking for a specific product (e.g., 'cari eye shadow', 'produk bibir', 'lipstick'), "
+    "do NOT suggest the Skin Scanning Analysis Tool. Simply answer their query and let the product cards handle the recommendation. "
     "MANDATORY TOOL TAGS: You MUST append these tags at the very end of your response "
     "if the user's intent matches: "
     "- If user wants to check/scan/analyze skin (e.g., 'cek kulit', 'scan kulit'): "

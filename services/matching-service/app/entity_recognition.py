@@ -99,7 +99,43 @@ def _beauty_product_ontology_normalized() -> dict[str, str]:
 _BEAUTY_PRODUCT_ONTOLOGY_NORMALIZED = _beauty_product_ontology_normalized()
 
 
+# Beauty Tool Trigger Tokens
+_SKIN_ANALYSIST_TOKENS = (
+    "skincare", "skin care", "skin condition", "skin type", "acne", "acne care",
+    "moisturizer", "moisturizer routine", "skin health", "freckles",
+    "skin-prone", "skin prone", "product suggestion",
+    "analisis kulit", "analisa kulit", "tes kulit", "test kulit", "cek kulit",
+    "jenis kulit", "kondisi kulit", "kulit wajah",
+)
+
+_COLOR_ANALYSIST_TOKENS = (
+    "personal color", "personal colour", "color analysis", "colour analysis",
+    "color palette", "colour palette", "pastel", "bold shade", "seasonal color",
+    "seasonal colour", "wardrobe matching", "skin tone",
+    "foundation match", "shade checker", "shade matching", "concealer",
+    "cushion shade", "undertone",
+    "warna shade make up", "warna shade makeup", "shade make up", "shade makeup",
+    "tes warna", "test warna", "analisis warna", "analisa warna", "warna kulit",
+    "warna cocok", "cek warna", "cek shade", "tes shade", "test shade",
+    "warna wajah",
+)
+
+_FACE_SHAPE_TOKENS = (
+    "face shape", "faceshape", "face shape analysis", "face shape analysist",
+    "bentuk wajah", "bentuk muka", "tes bentuk wajah", "test bentuk wajah",
+    "tes bentuk muka", "test bentuk muka", "analisis bentuk wajah",
+    "analisa bentuk wajah", "cek bentuk wajah", "cek bentuk muka",
+    "jenis wajah", "jenis bentuk wajah",
+)
+
+BEAUTY_TOOL_MAP = {
+    "skin-analysist": _SKIN_ANALYSIST_TOKENS,
+    "color-analysist": _COLOR_ANALYSIST_TOKENS,
+    "face-shape-analysis": _FACE_SHAPE_TOKENS,
+}
+
 def recognize_entities(normalized_text: str) -> list[str]:
+
     """Steps 2/4/6: exact dictionary hits (both direct ingredient-keyword
     mentions and concern/goal category-name phrases like "large pores") +
     fuzzy near-misses, canonicalized to the same vocabulary
