@@ -423,5 +423,330 @@
   "email": {
     "pdfTitle": "Your Skin Scan Report",
     "pdfScannedOn": "Scanned on {date}"
+  },
+  "admin": {
+    "login": {
+      "title": "Admin Dashboard",
+      "passwordPlaceholder": "Admin password",
+      "submit": "Sign in",
+      "wrongPassword": "Incorrect password."
+    },
+    "sidebar": {
+      "appName": "Beauty Advisor",
+      "tenantDashboard": "Tenant Dashboard",
+      "logout": "Log out",
+      "nav": {
+        "overview": { "label": "Overview", "hint": "Activity summary" },
+        "catalog": { "label": "Catalog", "hint": "Products, price, stock" },
+        "marketing": { "label": "Marketing & Trend", "hint": "Boost keywords" },
+        "forecasting": { "label": "Forecasting", "hint": "Demand signal" },
+        "simulator": { "label": "Chat Simulator", "hint": "Test widget" },
+        "integration": { "label": "Integration", "hint": "Embed widget" }
+      }
+    },
+    "overview": {
+      "title": "Overview",
+      "subtitle": "All numbers below are read directly from the database, not sample data.",
+      "stats": {
+        "products": "Catalog products",
+        "inStock": "In stock",
+        "activeBoosts": "Active boosts",
+        "widgetSessions": "Widget sessions",
+        "conversations": "Conversations",
+        "messages": "Chat messages"
+      }
+    },
+    "catalog": {
+      "title": "Product Catalog",
+      "cardTitle": "Search & edit products",
+      "searchPlaceholder": "Search name / brand / SKU…",
+      "searchButton": "Search",
+      "columns": { "product": "Product", "price": "Price", "stock": "Stock", "category": "Category" }
+    },
+    "marketing": {
+      "title": "Marketing & Trend Boost",
+      "cardTitle": "Trend / Merchandising Boost",
+      "cardSubtitle": "Keywords here help boost product ranking in chat recommendations (ranking-only, never an absolute requirement) — active immediately, no code changes needed.",
+      "keywordPlaceholder": "e.g. glass skin, bold red lip",
+      "weightOption": "Weight {w}",
+      "addButton": "Add",
+      "columns": { "keyword": "Keyword", "weight": "Weight", "status": "Status" },
+      "active": "Active",
+      "inactive": "Inactive",
+      "delete": "Delete",
+      "empty": "No active boosts yet."
+    },
+    "simulator": {
+      "title": "Chat Simulator",
+      "subtitle": "Calls the exact same widget endpoint (<code>/api/widget/chat</code>) real visitors use — not a separate simulation, so what you see here is what customers see.",
+      "placeholder": "Type a question like a customer…",
+      "send": "Send",
+      "typing": "Typing…",
+      "emptyState": "Try sending a message like a store visitor.",
+      "serverError": "Sorry, something went wrong on the server.",
+      "connectionError": "Couldn't connect to the server."
+    },
+    "integration": {
+      "title": "Integration",
+      "embedCardTitle": "Embed widget on store website",
+      "embedCardSubtitle": "One script line — paste before '</body>' on any store website.",
+      "copyButton": "Copy snippet",
+      "previewCardTitle": "Preview",
+      "previewCardSubtitle": "The real widget, running on a sample store page."
+    },
+    "forecasting": {
+      "title": "Forecasting",
+      "intro": "Follows the internal 3-phase roadmap (Knowledge Base Sistem Analitik Forecasting & Marketing Beauty) and the layout from \"Wireframe Forecasting & Marketing Strategy\". Every number below comes from this project's real data (cart/chat, event calendar, chat text) — not placeholders. Parts that need a data warehouse, per-channel ad integrations, and 12–24 months of sales history (ML forecasting, Marketing Mix Modeling) are honestly flagged in the Marketing Strategy tab, not faked with made-up data.",
+      "tabs": {
+        "overview": "Forecast Overview",
+        "sku": "SKU Detail",
+        "events": "Event & Promo Planner",
+        "marketing": "Marketing Strategy"
+      },
+      "shared": {
+        "eventTypes": {
+          "event_offline": "Offline Event",
+          "promo_marketplace": "Marketplace Promo",
+          "promo_brand": "Brand Promo",
+          "campaign": "Marketing Campaign",
+          "seasonal": "Seasonal"
+        },
+        "eventStatus": {
+          "rencana": "planned",
+          "disetujui": "approved",
+          "berjalan": "running",
+          "selesai": "done",
+          "batal": "cancelled"
+        },
+        "trend": { "up": "up", "down": "down", "flat": "flat" },
+        "alarmLabels": {
+          "normal": "Normal",
+          "watch": "Watch",
+          "rising": "Rising",
+          "surge": "Surge",
+          "fading": "Fading"
+        },
+        "alertActions": {
+          "tindak_lanjut": "Followed up",
+          "diabaikan": "Ignored",
+          "salah_alarm": "Marked false alarm"
+        },
+        "milestones": {
+          "H-56": "Enters calendar, uplift & stock need calculated",
+          "H-42": "PO to supplier (lead time > 4 weeks)",
+          "H-21": "Confirm warehouse stock vs need",
+          "H-7": "Ship to location / allocate stock online",
+          "H-3": "Recalculate with latest signal",
+          "H+5": "Enter actual event data",
+          "H+21": "Final net uplift"
+        },
+        "overdueSuffix": " (overdue)",
+        "chart": { "actual": "Actual", "baseline": "Baseline", "emptySeries": "No series data for this product yet." },
+        "uplift": {
+          "tingkatC": "Tier C",
+          "signifikan": "significant",
+          "tidakSignifikan": "not significant",
+          "lookupSubtipe": "Sub-type lookup",
+          "estimasiKasar": "Rough estimate"
+        }
+      },
+      "overview": {
+        "kpi": {
+          "alertActiveLabel": "Active alerts",
+          "alertActiveHint": "alarmLevel ≥ 1 (Watch/Rising/Surge/Fading)",
+          "stockoutRiskLabel": "SKU stockout risk",
+          "stockoutRiskHint": "stock < 24h at forecast pace",
+          "forecastSignalLabel": "Next-hour forecast signal",
+          "forecastSignalHint": "total across all tracked SKUs",
+          "eventsNearLabel": "Events ±30 days",
+          "eventsNearHint": "from the real calendar",
+          "avgUpliftLabel": "Avg uplift, finished events",
+          "avgUpliftHint": "from {count} Tier C events"
+        },
+        "forecastChart": {
+          "title": "Forecast vs Actual",
+          "topProductSubtitle": "Most-flagged SKU right now: {name} ({label}). Dashed line = Holt's linear trend baseline — not Prophet/LightGBM (no sales history to train one).",
+          "emptySubtitle": "No SKU with cart/chat activity yet.",
+          "emptyBody": "No recorded cart/chat activity yet.",
+          "viewDetail": "View SKU detail →",
+          "emptySeries": "No series data for this product yet."
+        },
+        "skuTable": {
+          "title": "Priority SKUs — forecast, stock, signal",
+          "subtitle": "Forecast: Holt's linear trend per hour. Cover (hours): warehouse stock ÷ current forecast pace. Signal: robust z-score CUSUM alarm.",
+          "columns": {
+            "sku": "SKU",
+            "category": "Category",
+            "forecastNextHour": "Next-hour forecast",
+            "trend": "Trend",
+            "stock": "Stock",
+            "cover": "Cover (hours)",
+            "signal": "Signal",
+            "action": "Action"
+          },
+          "viewDetail": "View detail",
+          "sendAlert": "Send alert email",
+          "sending": "Sending...",
+          "sent": "Email sent ✓",
+          "empty": "No recorded cart/chat activity yet."
+        },
+        "upcomingEvents": {
+          "title": "Upcoming events & promos",
+          "subtitle": "Next 8 weeks, planned/approved status — from the real calendar.",
+          "upliftSuffix": " · estimated uplift {pct}",
+          "empty": "No events scheduled for the next 8 weeks."
+        },
+        "alertFeed": {
+          "title": "Today's Demand Signal alerts",
+          "subtitle": "Rising/Surge level — reply buttons feed into alert_log for evaluation (Demand Signal System.md principle).",
+          "lastMarked": "Last marked: {action} · {date}",
+          "followUp": "Follow up",
+          "ignore": "Ignore",
+          "falseAlarm": "False alarm",
+          "empty": "No Rising/Surge alerts right now."
+        },
+        "sentiment": {
+          "title": "Chat Sentiment (heuristic) — Phase 3",
+          "subtitle": "ID+EN keyword lexicon over real visitor chat text (not marketplace reviews — no review table; not a trained NLP model).",
+          "columns": { "product": "Product", "positive": "Positive", "negative": "Negative", "neutral": "Neutral" },
+          "empty": "No conversations with product recommendations to analyze yet."
+        }
+      },
+      "sku": {
+        "noProduct": "No product with recorded cart/chat activity yet.",
+        "pickSku": {
+          "title": "Pick SKU",
+          "searchPlaceholder": "Search product name...",
+          "noMatch": "No matching products."
+        },
+        "detail": {
+          "forecastNextHour": "Next-hour forecast",
+          "trend": "Trend",
+          "dataPoints": "{count} hours",
+          "dataPointsLabel": "Data points",
+          "stock": "Stock",
+          "trendUp": "Up",
+          "trendDown": "Down",
+          "trendFlat": "Flat"
+        },
+        "signalBreakdown": {
+          "title": "Demand Signal breakdown",
+          "subtitle": "This project's 2 real signals — not the KB's 8 signals (Google Trends/social/review/competitor need API integrations that don't exist).",
+          "columns": { "signal": "Signal", "valueNow": "Value this hour", "zScore": "z-score", "weight": "Weight" },
+          "cartAdd": "Add-to-cart",
+          "chatMention": "Chat mention"
+        },
+        "relatedEvents": {
+          "title": "Events affecting this SKU",
+          "subtitle": "Events with the same category focus as this product.",
+          "empty": "No events for this category."
+        },
+        "override": {
+          "title": "Override & planner notes",
+          "subtitle": "The model's forecast is never overwritten — an override is logged side by side with its reason (KB: compare model vs manual accuracy 3 months later).",
+          "currentForecast": "Current model forecast",
+          "valuePlaceholder": "Override (next hour)",
+          "reasonPlaceholder": "Reason (required)",
+          "save": "Save override",
+          "saving": "Saving...",
+          "historyColumns": { "date": "Date", "value": "Override value", "reason": "Reason" }
+        }
+      },
+      "events": {
+        "subTabs": { "timeline": "Timeline", "table": "Table & Manage", "eval": "Evaluation & Attribution" },
+        "timeline": {
+          "cardTitle": "Event & Promo Timeline",
+          "cardSubtitle": "Grouped by type — click a bar for detail.",
+          "empty": "No events to show on the timeline yet.",
+          "legend": "Dashed line = today. Click a bar to see uplift, attribution, and deadline detail."
+        },
+        "detail": {
+          "upliftTitle": "Uplift",
+          "notComputable": "Can't be calculated yet (needs a category focus).",
+          "attributionTitle": "Attribution",
+          "noPromoCode": "No promo code set for this event yet.",
+          "attributionLine": "Code {code}: {sessions} sessions, {mentions} mentions{cost}.",
+          "attributionCostSuffix": ", Rp {amount}/session",
+          "milestonesTitle": "Deadlines"
+        },
+        "table": {
+          "cardTitle": "Event & Promo Calendar — Phase 2",
+          "cardSubtitle": "One source of truth for events/promos — fully real (CRUD), managed here, not a placeholder.",
+          "namePlaceholder": "Event/promo name",
+          "subTypePlaceholder": "Sub-type (e.g. double-date promo)",
+          "categoryPlaceholder": "Category focus (e.g. skincare)",
+          "discountPlaceholder": "Discount %",
+          "budgetPlaceholder": "Ad budget (Rp)",
+          "promoCodePlaceholder": "Promo code (unique)",
+          "addButton": "Add Event",
+          "columns": {
+            "event": "Event",
+            "date": "Date",
+            "category": "Category",
+            "discount": "Discount",
+            "promoCode": "Promo Code",
+            "status": "Status"
+          },
+          "deleteButton": "Delete",
+          "empty": "No events in the calendar yet."
+        },
+        "eval": {
+          "upliftCard": {
+            "title": "Uplift & Event Stock Needs",
+            "subtitle": "Finished events: Tier C historical uplift (ratio to 8-week clean-window median). Upcoming events: lookup-table estimate from the same sub-type (Tier 1), flagged 'rough estimate' if there's no similar precedent yet.",
+            "columns": { "event": "Event", "status": "Status", "uplift": "Uplift", "method": "Method" },
+            "empty": "No finished or planned event with a category focus to calculate yet."
+          },
+          "attributionCard": {
+            "title": "Attribution (Promo Code) — Phase 2",
+            "subtitleTemplate": "Layer 1 (unique promo code) + Layer 3 (organic). {organik} of {total} total widget sessions are organic (no promo code). No multi-touch attribution yet (Layer 2).",
+            "columns": {
+              "promoCode": "Promo Code",
+              "event": "Event",
+              "sessions": "Attributed Sessions",
+              "mentions": "Attributed Mentions",
+              "costPerSession": "Cost / Session"
+            },
+            "empty": "No event has a promo code set yet."
+          },
+          "simulatorCard": {
+            "title": "What-If Scenario Simulator — Phase 3",
+            "subtitle": "Uses the same uplift engine above (sub-type lookup table), run interactively for a hypothetical category/discount. 'Projected activity value' is a scale proxy (signal × average category price), not a sales forecast.",
+            "categoryPlaceholder": "Category (e.g. skincare)",
+            "subTypePlaceholder": "Sub-type (optional)",
+            "discountPlaceholder": "Discount %",
+            "calculate": "Calculate",
+            "calculating": "Calculating...",
+            "fromEvents": "from {count} significant historical events",
+            "projectedValue": "Projected activity value: {amount}",
+            "note": "Projected activity value = activity signal (not units sold) × average category price — a scale indicator, not a sales forecast (no orders table)."
+          }
+        }
+      },
+      "marketing": {
+        "title": "Marketing Strategy — status per channel",
+        "intro": "The original wireframe shows an iROAS/CAC diagnosis per ad channel (TikTok Ads, Meta Ads, Influencer, etc.) and MMM budget allocation. This project only has one channel that's genuinely measurable: the promo code attached to an event (Phase 2). The rest needs ad-API integrations and per-transaction sales data that don't exist — flagged honestly below, not filled in with sample numbers.",
+        "statusLive": "Measurable",
+        "statusPlanned": "Not available yet",
+        "measurableCard": {
+          "title": "What's measurable vs. what isn't",
+          "promoCodeTitle": "Promo code per event (Layer 1 attribution)",
+          "promoCodeDesc": "Widget sessions carrying a promo code are tracked back to the owning event — real, see Event & Promo Planner > Evaluation & Attribution.",
+          "channelRoasTitle": "ROAS/iROAS/CAC per ad channel (TikTok Ads, Meta Ads, Influencer, etc.)",
+          "channelRoasDesc": "Needs an API integration with each ad platform for spend data, and per-transaction sales data for attributed revenue — neither exists in this project.",
+          "mmmTitle": "Marketing Mix Modeling & automatic budget allocation",
+          "mmmDesc": "Needs ≥24 months of weekly per-channel spend data for an adstock/saturation regression — that data doesn't exist at all.",
+          "incrementalityTitle": "Incrementality testing (geo/audience holdout)",
+          "incrementalityDesc": "Needs the ability to hold back a campaign in some cities/audiences and compare — no experimentation infrastructure like that exists in this project."
+        },
+        "promoChannelCard": {
+          "title": "The only measurable channel right now: promo codes",
+          "subtitleTemplate": "{organik} of {total} total widget sessions are organic (no code) — {attributed} sessions via {eventCount} event promo codes.",
+          "empty": "No event has a promo code set yet.",
+          "sessionsSuffix": " sessions",
+          "viewDetail": "View attribution detail →"
+        }
+      }
+    }
   }
 }

@@ -15,3 +15,7 @@
 .DS_Store
 *.pem
 npm-debug.log*
+
+# local state for scripts/seed-demo-forecasting.ts (tracks what's currently
+# seeded on this machine, for --clean) — not something to commit
+scripts/.demo-seed-manifest.json

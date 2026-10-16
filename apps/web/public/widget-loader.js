@@ -32,10 +32,25 @@
     });
   }
 
+  // Phase 2 attribution (Lapis 1): read the retailer page's own `?promo=`
+  // param, same idea as a UTM campaign tag, and send it once when the
+  // session is first created.
+  function getPromoCodeFromUrl() {
+    try {
+      return new URLSearchParams(window.location.search).get("promo") || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   function ensureSession() {
     var existing = storageGet(SESSION_KEY);
     if (existing) return Promise.resolve(existing);
-    return api("/api/widget/session", { method: "POST" })
+    return api("/api/widget/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ promoCode: getPromoCodeFromUrl() }),
+    })
       .then(function (res) { return res.json(); })
       .then(function (data) { storageSet(SESSION_KEY, data.sessionId); return data.sessionId; });
   }

@@ -1,6 +1,8 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
+import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
 
 export type AdminSection =
   | "overview"
@@ -14,14 +16,7 @@ export type AdminSection =
  * "Conversation history" page (which is a real route, not an in-page tab). */
 export type AdminNavKey = AdminSection | "conversations";
 
-const NAV: { id: AdminSection; label: string; hint: string }[] = [
-  { id: "overview", label: "Overview", hint: "Ringkasan aktivitas" },
-  { id: "catalog", label: "Katalog", hint: "Produk, harga, stok" },
-  { id: "marketing", label: "Marketing & Trend", hint: "Boost keyword" },
-  { id: "forecasting", label: "Forecasting", hint: "Demand signal" },
-  { id: "simulator", label: "Chat Simulator", hint: "Uji widget" },
-  { id: "integration", label: "Integrasi", hint: "Embed widget" },
-];
+const NAV: AdminSection[] = ["overview", "catalog", "marketing", "forecasting", "simulator", "integration"];
 
 export function AdminSidebar({
   active,
@@ -33,6 +28,7 @@ export function AdminSidebar({
   onSelect?: (s: AdminSection) => void;
 }) {
   const router = useRouter();
+  const t = useTranslations("admin.sidebar");
 
   const itemCls = (isActive: boolean) =>
     `rounded-lg px-3 py-2.5 text-left text-sm transition ${
@@ -42,18 +38,18 @@ export function AdminSidebar({
   return (
     <div className="flex h-full w-60 shrink-0 flex-col border-r border-neutral-200 bg-white">
       <div className="px-5 py-5">
-        <div className="text-sm font-bold text-neutral-900">Beauty Advisor</div>
-        <div className="text-xs text-neutral-400">Tenant Dashboard</div>
+        <div className="text-sm font-bold text-neutral-900">{t("appName")}</div>
+        <div className="text-xs text-neutral-400">{t("tenantDashboard")}</div>
       </div>
       <nav className="flex flex-col gap-0.5 px-3">
-        {NAV.map((item) => (
+        {NAV.map((id) => (
           <button
-            key={item.id}
-            onClick={() => (onSelect ? onSelect(item.id) : router.push("/admin"))}
-            className={itemCls(active === item.id)}
+            key={id}
+            onClick={() => (onSelect ? onSelect(id) : router.push("/admin"))}
+            className={itemCls(active === id)}
           >
-            <div>{item.label}</div>
-            <div className="text-[11px] font-normal text-neutral-400">{item.hint}</div>
+            <div>{t(`nav.${id}.label`)}</div>
+            <div className="text-[11px] font-normal text-neutral-400">{t(`nav.${id}.hint`)}</div>
           </button>
         ))}
         <Link href="/admin/conversations" className={itemCls(active === "conversations")}>
@@ -61,12 +57,13 @@ export function AdminSidebar({
           <div className="text-[11px] font-normal text-neutral-400">Riwayat percakapan</div>
         </Link>
       </nav>
-      <div className="mt-auto p-3">
+      <div className="mt-auto flex flex-col gap-2 p-3">
+        <LocaleSwitcher />
         <button
           onClick={() => fetch("/api/admin/login", { method: "DELETE" }).then(() => location.reload())}
           className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs text-neutral-500 hover:bg-neutral-50"
         >
-          Keluar
+          {t("logout")}
         </button>
       </div>
     </div>
