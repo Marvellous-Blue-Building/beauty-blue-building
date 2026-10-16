@@ -441,7 +441,8 @@
         "marketing": { "label": "Marketing & Trend", "hint": "Boost keyword" },
         "forecasting": { "label": "Forecasting", "hint": "Demand signal" },
         "simulator": { "label": "Chat Simulator", "hint": "Uji widget" },
-        "integration": { "label": "Integrasi", "hint": "Embed widget" }
+        "integration": { "label": "Integrasi", "hint": "Embed widget" },
+        "conversations": { "label": "Conversation history", "hint": "Riwayat percakapan" }
       }
     },
     "overview": {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
 
 export type AdminSection =
@@ -10,21 +10,16 @@ export type AdminSection =
   | "marketing"
   | "forecasting"
   | "simulator"
-  | "integration";
+  | "integration"
+  | "conversations";
 
-/** A selectable sidebar entry — dashboard sections plus the standalone
- * "Conversation history" page (which is a real route, not an in-page tab). */
-export type AdminNavKey = AdminSection | "conversations";
-
-const NAV: AdminSection[] = ["overview", "catalog", "marketing", "forecasting", "simulator", "integration"];
+const NAV: AdminSection[] = ["overview", "catalog", "marketing", "forecasting", "simulator", "integration", "conversations"];
 
 export function AdminSidebar({
   active,
   onSelect,
 }: {
-  active: AdminNavKey;
-  /** Dashboard sections switch in-page. Omit on standalone pages — section
-   * clicks then navigate back to the dashboard. */
+  active: AdminSection;
   onSelect?: (s: AdminSection) => void;
 }) {
   const router = useRouter();
@@ -52,10 +47,6 @@ export function AdminSidebar({
             <div className="text-[11px] font-normal text-neutral-400">{t(`nav.${id}.hint`)}</div>
           </button>
         ))}
-        <Link href="/admin/conversations" className={itemCls(active === "conversations")}>
-          <div>Conversation history</div>
-          <div className="text-[11px] font-normal text-neutral-400">Riwayat percakapan</div>
-        </Link>
       </nav>
       <div className="mt-auto flex flex-col gap-2 p-3">
         <LocaleSwitcher />

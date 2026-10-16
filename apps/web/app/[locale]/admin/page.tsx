@@ -7,8 +7,8 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Ca
 import { formatDate as formatDateNumeric } from "@/lib/format";
 
 /**
- * Tenant dashboard — sidebar shell + 6 sections, plus a standalone
- * "Conversation history" page (see app/[locale]/admin/conversations). Deliberately escapes the
+ * Tenant dashboard — sidebar shell + 7 sections (the last being the
+ * Conversation history section). Deliberately escapes the
  * shopper app's global `max-w-[480px]` mobile shell (app/[locale]/layout.tsx)
  * via `fixed inset-0`: this is an internal merchandising tool, not part of
  * the mobile-first shopper flow, and should use the full viewport.
@@ -1696,6 +1696,159 @@ function IntegrationSection() {
   );
 }
 
+interface ConversationSessionRow {
+  id: string;
+  created_at: string;
+  last_seen_at: string;
+  conversation_count: number;
+  message_count: number;
+  first_user_message: string | null;
+}
+
+interface ConversationMessageRow {
+  id: string;
+  role: "user" | "bot";
+  text: string | null;
+  created_at: string;
+  conversation_id: string;
+  products: { name: string; brand: string | null; price: number | null }[];
+}
+
+function formatDateTime(value: string) {
+  return new Date(value).toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function ConversationsSection() {
+  const [sessions, setSessions] = useState<ConversationSessionRow[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<ConversationMessageRow[]>([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/admin/sessions")
+      .then((r) => r.json())
+      .then((d) => setSessions(d.sessions ?? []))
+      .catch(() => setSessions([]));
+  }, []);
+
+  function selectSession(id: string) {
+    setSelectedId(id);
+    setLoadingMessages(true);
+    setMessages([]);
+    fetch(`/api/admin/sessions/${id}`)
+      .then((r) => r.json())
+      .then((d) => setMessages(d.messages ?? []))
+      .catch(() => setMessages([]))
+      .finally(() => setLoadingMessages(false));
+  }
+
+  const selected = sessions.find((s) => s.id === selectedId) ?? null;
+
+  return (
+    <div className="flex flex-col gap-5">
+      <div>
+        <h1 className="text-2xl font-bold text-neutral-900">Conversation history</h1>
+        <p className="mt-1 text-sm text-neutral-500">Riwayat percakapan pengunjung widget.</p>
+      </div>
+      <div className="flex h-[640px] overflow-hidden rounded-xl border border-neutral-200 bg-white">
+        <div className="flex w-64 shrink-0 flex-col overflow-y-auto border-r border-neutral-200">
+          {sessions.length === 0 && <p className="p-4 text-sm text-neutral-400">Belum ada percakapan.</p>}
+          {sessions.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => selectSession(s.id)}
+              className={`border-b border-neutral-100 px-4 py-3 text-left transition ${
+                selectedId === s.id ? "bg-primary-dim" : "hover:bg-neutral-50"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-neutral-400">Sesi {s.id.slice(0, 8)}</span>
+                <span className="text-[11px] text-neutral-400">{formatDateTime(s.last_seen_at)}</span>
+              </div>
+              <div className="mt-1 line-clamp-2 text-[13px] font-medium text-neutral-800">
+                {s.first_user_message?.trim() || <span className="font-normal text-neutral-400">(belum ada pesan)</span>}
+              </div>
+              <div className="mt-1 text-[11px] text-neutral-400">
+                {s.message_count} pesan · {s.conversation_count} percakapan
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div className="flex min-h-0 flex-1 flex-col bg-neutral-50">
+          {!selected ? (
+            <div className="flex flex-1 items-center justify-center">
+              <p className="text-sm text-neutral-400">Pilih sesi untuk melihat isi chat.</p>
+            </div>
+          ) : (
+            <>
+              <div className="border-b border-neutral-200 bg-white px-6 py-3">
+                <div className="text-sm font-semibold text-neutral-800">Sesi {selected.id.slice(0, 8)}</div>
+                <div className="text-[11px] text-neutral-400">
+                  Mulai {formatDateTime(selected.created_at)} · {selected.message_count} pesan ·{" "}
+                  {selected.conversation_count} percakapan
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="mx-auto flex max-w-2xl flex-col gap-3">
+                  {loadingMessages && <p className="text-center text-sm text-neutral-400">Memuat…</p>}
+                  {!loadingMessages && messages.length === 0 && (
+                    <p className="text-center text-sm text-neutral-400">Tidak ada pesan.</p>
+                  )}
+                  {messages.map((m, i) => {
+                    const newConversation = i > 0 && messages[i - 1].conversation_id !== m.conversation_id;
+                    return (
+                      <div key={m.id} className="flex flex-col gap-3">
+                        {newConversation && (
+                          <div className="my-1 flex items-center gap-3">
+                            <div className="h-px flex-1 bg-neutral-200" />
+                            <span className="text-[10px] font-semibold tracking-wide text-neutral-400 uppercase">
+                              Percakapan baru
+                            </span>
+                            <div className="h-px flex-1 bg-neutral-200" />
+                          </div>
+                        )}
+                        <div className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                          <div
+                            className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
+                              m.role === "user" ? "bg-primary text-white" : "bg-white text-neutral-800 shadow-sm"
+                            }`}
+                          >
+                            <div className="whitespace-pre-wrap">{m.text}</div>
+                            {m.products.length > 0 && (
+                              <div className="mt-2 flex flex-col gap-1 border-t border-black/10 pt-2">
+                                {m.products.map((p, j) => (
+                                  <div key={i + "-" + j} className="text-[11px] opacity-80">
+                                    {p.name}
+                                    {p.brand ? ` · ${p.brand}` : ""}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            <div className={`mt-1 text-[10px] ${m.role === "user" ? "text-white/70" : "text-neutral-400"}`}>
+                              {formatDateTime(m.created_at)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AdminShell() {
   const [section, setSection] = useState<AdminSection>("overview");
   return (
@@ -1709,6 +1862,7 @@ function AdminShell() {
           {section === "forecasting" && <ForecastingSection />}
           {section === "simulator" && <SimulatorSection />}
           {section === "integration" && <IntegrationSection />}
+          {section === "conversations" && <ConversationsSection />}
         </div>
       </div>
     </div>
