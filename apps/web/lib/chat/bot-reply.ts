@@ -47,7 +47,10 @@ export interface BotReply {
 }
 
 const AI_ADVISOR_SERVICE_URL = process.env.AI_ADVISOR_SERVICE_URL;
-const AI_ADVISOR_TIMEOUT_MS = 20_000;
+// CPU-only Gemma generation (see services/ai-advisor/app/gemma.py) can take
+// well over 20s for a 160-token reply — 60s gives it room without hanging
+// the chat indefinitely.
+const AI_ADVISOR_TIMEOUT_MS = 60_000;
 
 async function generateAiAdvisorReply(
   userText: string,

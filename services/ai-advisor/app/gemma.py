@@ -40,7 +40,12 @@ _lock = threading.Lock()
 def _load_generator():
     model_path = kagglehub.model_download(GEMMA_KAGGLE_HANDLE)
     tokenizer = AutoTokenizer.from_pretrained(model_path)
-    model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto")
+    # Forced CPU, not "auto": on Apple Silicon, "auto" picks the MPS (Metal)
+    # backend and, when the model doesn't fully fit in unified memory, disk-
+    # offloads the rest — that combination crashes natively (MPSGraph
+    # over-release) on first real generation. CPU is slower per token but
+    # reliable, and the 2B variant is documented as CPU-practical anyway.
+    model = AutoModelForCausalLM.from_pretrained(model_path, device_map="cpu")
     return pipeline("text-generation", model=model, tokenizer=tokenizer)
 
 
