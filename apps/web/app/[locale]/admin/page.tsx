@@ -505,7 +505,8 @@ function SimulatorSection() {
           const frame = JSON.parse(line.slice(5).trim());
           if (frame.type === "start") conversationRef.current = frame.payload.conversationId;
           if (frame.type === "done") {
-            setMessages((m) => [...m, { role: "bot", text: frame.payload.answer, products: frame.payload.products }]);
+            const answer = String(frame.payload.answer ?? "").replace(/\[Track Your Progress\]/g, "").trim();
+            setMessages((m) => [...m, { role: "bot", text: answer, products: frame.payload.products }]);
           }
           if (frame.type === "error") {
             setMessages((m) => [...m, { role: "bot", text: "Maaf, ada gangguan di server." }]);
