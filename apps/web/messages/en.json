@@ -427,14 +427,39 @@
   "admin": {
     "login": {
       "title": "Admin Dashboard",
-      "passwordPlaceholder": "Admin password",
+      "passwordPlaceholder": "Enter password",
       "submit": "Sign in",
-      "wrongPassword": "Incorrect password."
+      "wrongPassword": "Incorrect password. Try again.",
+      "welcome": "Welcome back",
+      "subtitle": "Sign in to manage your store's catalog, boosts and forecasting.",
+      "passwordLabel": "Admin password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "checking": "Checking…",
+      "httpError": "Sign-in failed (HTTP {status}). Try again.",
+      "networkError": "Can't reach the server.",
+      "footnote": "Internal team & tenant access only."
+    },
+    "header": {
+      "greeting": "Hi, Admin",
+      "welcome": "Welcome back to AI Beauty Adviser 👋",
+      "searchProducts": "Search products",
+      "alerts": "{count} demand-signal alerts",
+      "noAlerts": "No demand-signal alerts",
+      "simulator": "Simulator",
+      "addBoost": "Add Boost",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu"
     },
     "sidebar": {
-      "appName": "Beauty Advisor",
+      "appName": "AI Beauty Adviser",
       "tenantDashboard": "Tenant Dashboard",
       "logout": "Log out",
+      "searchPlaceholder": "Search products...",
+      "searchButton": "Search",
+      "apps": "Apps",
+      "adminName": "Admin",
+      "adminRole": "Tenant access",
       "nav": {
         "overview": { "label": "Overview", "hint": "Activity summary" },
         "catalog": { "label": "Catalog", "hint": "Products, price, stock" },
@@ -455,6 +480,50 @@
         "widgetSessions": "Widget sessions",
         "conversations": "Conversations",
         "messages": "Chat messages"
+      },
+      "loadError": "Couldn't load overview data.",
+      "kpi": {
+        "chats": "AI Conversations",
+        "scans": "Skin Scans",
+        "users": "Registered Users",
+        "vsLastWeek": "vs previous 7 days",
+        "new": "new"
+      },
+      "menu": {
+        "cardMenu": "Card menu",
+        "openSimulator": "Open Chat Simulator",
+        "viewDemandSignal": "View demand signal",
+        "viewForecasting": "View forecasting",
+        "viewIntegration": "View widget integration",
+        "manageStock": "Manage stock in Catalog"
+      },
+      "activity": {
+        "title": "User Activity",
+        "range": "{days} days",
+        "exportCsv": "Export CSV",
+        "chatSeries": "Chat messages",
+        "scanSeries": "Skin scans"
+      },
+      "categories": { "title": "Product Categories", "top5": "Top 5", "empty": "No products yet." },
+      "stock": {
+        "title": "Stock Status",
+        "inStock": "In stock (> 5)",
+        "lowStock": "Low stock (1–5)",
+        "outOfStock": "Out of stock"
+      },
+      "recent": {
+        "title": "Latest Products",
+        "viewAll": "View All",
+        "product": "Product",
+        "name": "Name",
+        "updated": "Updated",
+        "price": "Price",
+        "status": "Status",
+        "showing": "Showing",
+        "of": "of {total}",
+        "prevPage": "Previous page",
+        "nextPage": "Next page",
+        "stockStatus": { "available": "In stock", "low": "Low", "out": "Out" }
       }
     },
     "catalog": {
@@ -478,6 +547,7 @@
       "empty": "No active boosts yet."
     },
     "simulator": {
+      "skinTool": "Skin Scanning Analysis Tool",
       "title": "Chat Simulator",
       "subtitle": "Calls the exact same widget endpoint (<code>/api/widget/chat</code>) real visitors use — not a separate simulation, so what you see here is what customers see.",
       "placeholder": "Type a question like a customer…",
@@ -494,6 +564,19 @@
       "copyButton": "Copy snippet",
       "previewCardTitle": "Preview",
       "previewCardSubtitle": "The real widget, running on a sample store page."
+    },
+    "conversations": {
+      "title": "Conversation history",
+      "subtitle": "Chat history of widget visitors.",
+      "empty": "No conversations yet.",
+      "session": "Session {id}",
+      "noMessageYet": "(no messages yet)",
+      "counts": "{messages, plural, one {# message} other {# messages}} · {conversations, plural, one {# conversation} other {# conversations}}",
+      "selectPrompt": "Select a session to read the chat.",
+      "startedAt": "Started {date}",
+      "loading": "Loading…",
+      "noMessages": "No messages.",
+      "newConversation": "New conversation"
     },
     "forecasting": {
       "title": "Forecasting",
