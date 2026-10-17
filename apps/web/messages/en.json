@@ -976,5 +976,109 @@
         }
       }
     }
+  },
+  "landing": {
+    "nav": {
+      "features": "Features",
+      "how": "How it works",
+      "retailers": "For retailers",
+      "faq": "FAQ",
+      "pricing": "Pricing",
+      "about": "About Us",
+      "contact": "Contact Us",
+      "login": "Log In",
+      "tryScan": "Try Skin Scan"
+    },
+    "hero": {
+      "eyebrow": "AI skin & beauty advisor",
+      "title": "Your skin, decoded in three poses",
+      "subtitle": "One camera scan reads your skin, colour season and face shape — then an AI advisor matches you with products from a real catalog and builds your routine.",
+      "ctaPrimary": "Try Skin Scan",
+      "ctaSecondary": "For retailers",
+      "chipSeason": "Colour season",
+      "chipFace": "Face shape",
+      "chipSkin": "Skin type",
+      "shotAlt": "AI Beauty Adviser tenant dashboard",
+      "phoneAlt": "Three-pose skin scan screen"
+    },
+    "facts": {
+      "products": "products in the catalog",
+      "poses": "poses per scan",
+      "languages": "languages: English & Indonesian",
+      "script": "script tag to add it to any store"
+    },
+    "features": {
+      "title": "Everything from scan to checkout",
+      "subtitle": "Built on real computer vision and a real product catalog — no mocked answers.",
+      "scan": {
+        "title": "Skin & beauty scan",
+        "body": "Front, right and left poses. Reads hydration, acne and pigmentation, plus colour season, face shape and skin type.",
+        "alt": "Skin scan intro with the three-pose stepper"
+      },
+      "chat": {
+        "title": "AI advisor chat",
+        "body": "Ask in plain language — the advisor recommends products from the catalog with prices, grounded in your scan.",
+        "alt": "AI advisor chat recommending serums inside a store website"
+      },
+      "routine": {
+        "title": "Routine & product matching",
+        "body": "Scan and quiz results are matched against the catalog into a morning and evening routine you can shop."
+      },
+      "progress": {
+        "title": "Progress tracker",
+        "body": "Re-scan over time and compare results, with a downloadable PDF report for each scan."
+      }
+    },
+    "how": {
+      "title": "How it works",
+      "s1": {
+        "title": "Scan",
+        "body": "Follow the on-screen guide for three quick poses in good light."
+      },
+      "s2": {
+        "title": "Analyse",
+        "body": "Face landmarks and colour analysis turn the photos into a skin and beauty profile."
+      },
+      "s3": {
+        "title": "Get matched",
+        "body": "Receive product picks, shades for your season and a routine — then keep chatting with the advisor."
+      }
+    },
+    "retailers": {
+      "eyebrow": "For retailers",
+      "title": "Add a beauty advisor to your store with one line",
+      "subtitle": "The widget runs inside your own website and talks to the same AI pipeline as the main app.",
+      "b1": "Floating chat + hands-free 3-pose scan for every visitor",
+      "b2": "Tenant dashboard: overview, catalog, trend boosts and demand forecasting",
+      "b3": "Full conversation history of widget visitors",
+      "snippetLabel": "Paste before '</body>'",
+      "cta": "Open the dashboard",
+      "widgetAlt": "The AI advisor widget open on a sample store",
+      "forecastAlt": "Forecasting dashboard with demand signal chart",
+      "convAlt": "Conversation history of widget visitors",
+      "demoNote": "Dashboard screenshots use demo data."
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "q1": "What does the scan measure?",
+      "a1": "Hydration, acne and pigmentation scores, plus your colour season (with undertone), face shape and skin type — all from one three-pose scan.",
+      "q2": "Are my photos stored?",
+      "a2": "If you're signed in, your scan photo is saved to your account with its result so the Progress Tracker and PDF report can show it. Scans done through a store widget keep only the analysis result for that session, not the photos.",
+      "q3": "Do I need an account?",
+      "a3": "You can start a scan right away. Saving your routine, cart, saved products and progress history requires signing in with Google.",
+      "q4": "Which languages are supported?",
+      "a4": "English and Indonesian, for both the app and the advisor's answers.",
+      "q5": "How do I add the widget to my store?",
+      "a5": "Paste one '<script>' tag before '</body>' on your website. The widget appears as a floating button; nothing else on your site changes."
+    },
+    "cta": {
+      "title": "See what your skin is telling you",
+      "subtitle": "It takes three poses and about a minute.",
+      "primary": "Start Skin Scan",
+      "secondary": "Log in to dashboard"
+    },
+    "footer": {
+      "rights": "AI Beauty Adviser"
+    }
   }
 }
