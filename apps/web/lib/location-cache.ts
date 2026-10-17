@@ -1,16 +1,12 @@
-import { redis } from "@/lib/redis";
+import { pool } from "@/lib/db";
 
 /**
- * Redis-backed cache for "Get Realtime Location" pings
- * (components/layout/LocationTracker.tsx polls every 5 minutes). Every
- * ping is cheap and goes straight to Redis; only one ping per hour ever
- * reaches Postgres (see shouldFlushToDb below) — see
- * app/api/profile/location/route.ts, the only caller.
+ * Latest known location, read/written straight from the `users` table
+ * (columns added by data/10_realtime_location.sql). Replaces a Redis-backed
+ * recent-ping list + hourly DB flush: every 5-minute ping from
+ * components/layout/LocationTracker.tsx now writes directly here, which is
+ * cheap enough at this app's scale and keeps a single source of truth.
  */
-
-const RECENT_LIST_MAX = 5;
-const RECENT_LIST_TTL_SECONDS = 60 * 60 * 24; // housekeeping only — LTRIM is what enforces "last 5"
-const DB_SYNC_INTERVAL_SECONDS = 60 * 60; // 1 hour
 
 export interface LocationEntry {
   latitude: number;
@@ -19,41 +15,32 @@ export interface LocationEntry {
   capturedAt: string;
 }
 
-function recentListKey(userId: string): string {
-  return `location:recent:${userId}`;
-}
-
-function dbSyncKey(userId: string): string {
-  return `location:db-sync:${userId}`;
-}
-
-/** Pushes a new ping onto the user's recent-location list, keeping only the latest 5 — older entries fall off (are erased) automatically. */
 export async function pushRecentLocation(userId: string, entry: LocationEntry): Promise<void> {
-  const key = recentListKey(userId);
-  await redis.lpush(key, JSON.stringify(entry));
-  await redis.ltrim(key, 0, RECENT_LIST_MAX - 1);
-  await redis.expire(key, RECENT_LIST_TTL_SECONDS);
+  await pool.query(
+    `UPDATE users
+        SET last_latitude = $2, last_longitude = $3, last_address = $4, location_updated_at = $5
+      WHERE id = $1`,
+    [userId, entry.latitude, entry.longitude, entry.address, entry.capturedAt]
+  );
 }
 
-/** The single most recent ping Redis still has for this user, or null if none/expired. */
 export async function getMostRecentLocation(userId: string): Promise<LocationEntry | null> {
-  const raw = await redis.lindex(recentListKey(userId), 0);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as LocationEntry;
-  } catch {
-    return null;
-  }
-}
+  const result = await pool.query<{
+    last_latitude: number | null;
+    last_longitude: number | null;
+    last_address: string | null;
+    location_updated_at: string | null;
+  }>(
+    "SELECT last_latitude, last_longitude, last_address, location_updated_at FROM users WHERE id = $1",
+    [userId]
+  );
+  const row = result.rows[0];
+  if (!row || row.last_latitude == null || row.last_longitude == null) return null;
 
-/**
- * Atomically claims the right to flush to Postgres right now — returns
- * true at most once per rolling hour per user (`SET ... NX` makes the
- * claim race-safe across concurrent requests), false otherwise. Callers
- * should flush the *latest* Redis entry (getMostRecentLocation), not
- * whatever payload happened to trigger this particular request.
- */
-export async function claimDbFlush(userId: string): Promise<boolean> {
-  const result = await redis.set(dbSyncKey(userId), "1", "EX", DB_SYNC_INTERVAL_SECONDS, "NX");
-  return result === "OK";
+  return {
+    latitude: row.last_latitude,
+    longitude: row.last_longitude,
+    address: row.last_address,
+    capturedAt: row.location_updated_at ?? new Date().toISOString(),
+  };
 }

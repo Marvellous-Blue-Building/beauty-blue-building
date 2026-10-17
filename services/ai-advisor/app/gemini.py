@@ -1,21 +1,30 @@
 """
-Loads Google's Gemma model from Kaggle Models (https://www.kaggle.com/models/google/gemma-2)
-on first use and generates a skincare-advisor reply. This is the real fallback
-path for chat messages the deterministic rule set and keyword/dictionary
-matching (lib/chat/bot-reply.ts, lib/rag/) can't resolve — same honesty tier
-as the rest of this project: a real local LLM call with real (if modest,
-given the 2B CPU-friendly variant) generation quality, not a scripted reply.
+Calls Google's Gemini (via the google-genai SDK) to generate a skincare-
+advisor reply. This is the real fallback path for chat messages the
+deterministic rule set and keyword/dictionary matching
+(lib/chat/bot-reply.ts, lib/rag/) can't resolve — a real LLM call, not a
+scripted reply.
+
+Replaces the earlier local Gemma setup (kagglehub + transformers + torch):
+no model weights to download or load, so there's no CPU/memory sizing
+concern and no first-request warm-up cost beyond the API round trip.
+
+Two auth modes, picked automatically from what's set:
+  - GOOGLE_CLOUD_PROJECT set -> Vertex AI. Authenticates via Application
+    Default Credentials — on Cloud Run that's the service account's own
+    identity (needs the roles/aiplatform.user IAM role), no secret to
+    manage. This is the production/Cloud Run path.
+  - otherwise GEMINI_API_KEY -> the Gemini Developer API (API-key auth,
+    free tier via https://aistudio.google.com/apikey). Simpler for local
+    dev when a GCP project isn't set up yet.
 """
 
 import os
-import threading
 
-import kagglehub
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from google import genai
+from google.genai import types
 
-GEMMA_KAGGLE_HANDLE = os.environ.get(
-    "GEMMA_KAGGLE_HANDLE", "google/gemma-2/transformers/gemma-2-2b-it"
-)
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
 
 SYSTEM_PROMPT = (
     "You are the AI Advisor inside a skincare app. Always respond in Bahasa "
@@ -36,35 +45,39 @@ SYSTEM_PROMPT = (
 )
 
 
-_generator = None
-_lock = threading.Lock()
+_client: genai.Client | None = None
 
 
-def _load_generator():
-    model_path = kagglehub.model_download(GEMMA_KAGGLE_HANDLE)
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
-    # Forced CPU, not "auto": on Apple Silicon, "auto" picks the MPS (Metal)
-    # backend and, when the model doesn't fully fit in unified memory, disk-
-    # offloads the rest — that combination crashes natively (MPSGraph
-    # over-release) on first real generation. CPU is slower per token but
-    # reliable, and the 2B variant is documented as CPU-practical anyway.
-    model = AutoModelForCausalLM.from_pretrained(model_path, device_map="cpu")
-    return pipeline("text-generation", model=model, tokenizer=tokenizer)
+def _build_client() -> genai.Client:
+    project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    if project:
+        return genai.Client(
+            vertexai=True,
+            project=project,
+            location=os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1"),
+        )
+
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "Set GOOGLE_CLOUD_PROJECT (Vertex AI — the Cloud Run deployment path) "
+            "or GEMINI_API_KEY (Gemini Developer API — the local-dev path) "
+            "before calling /advise."
+        )
+    return genai.Client(api_key=api_key)
 
 
-def get_generator():
-    """Lazy, thread-safe load — keeps service startup/health checks fast;
-    the first /advise call after boot pays the download+load cost instead."""
-    global _generator
-    if _generator is None:
-        with _lock:
-            if _generator is None:
-                _generator = _load_generator()
-    return _generator
+def get_client() -> genai.Client:
+    """Lazy init — keeps service startup/health checks fast and surfaces a
+    missing/invalid credential as a request-time 503, not a boot crash."""
+    global _client
+    if _client is None:
+        _client = _build_client()
+    return _client
 
 
-def is_loaded() -> bool:
-    return _generator is not None
+def is_ready() -> bool:
+    return _client is not None
 
 
 def generate_reply(
@@ -84,7 +97,7 @@ def generate_reply(
     (skin_intent_detector.py) against the raw user message instead, since
     that's a real, testable classifier rather than trusting an LLM to
     reliably self-tag its own free-text reply."""
-    generator = get_generator()
+    client = get_client()
 
     context_lines = []
     if recognized_entities:
@@ -95,22 +108,14 @@ def generate_reply(
         context_lines.append("Recent conversation:\n" + "\n".join(conversation_context))
     context_block = ("\n".join(context_lines) + "\n\n") if context_lines else ""
 
-    messages = [
-        {
-            "role": "user",
-            "content": f"{SYSTEM_PROMPT}\n\n{context_block}User question: {user_text}",
-        }
-    ]
-    prompt = generator.tokenizer.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=True
+    response = client.models.generate_content(
+        model=GEMINI_MODEL,
+        contents=f"{context_block}User question: {user_text}",
+        config=types.GenerateContentConfig(
+            system_instruction=SYSTEM_PROMPT,
+            temperature=0.7,
+            top_p=0.9,
+            max_output_tokens=200,
+        ),
     )
-    output = generator(
-        prompt,
-        max_new_tokens=160,
-        do_sample=True,
-        temperature=0.7,
-        top_p=0.9,
-        pad_token_id=generator.tokenizer.eos_token_id,
-    )
-    generated_text = output[0]["generated_text"]
-    return generated_text[len(prompt):].strip()
+    return (response.text or "").strip()

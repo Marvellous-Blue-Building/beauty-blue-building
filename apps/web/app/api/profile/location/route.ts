@@ -1,19 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { pool } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth/session";
 import { reverseGeocode } from "@/lib/geocode";
-import { claimDbFlush, getMostRecentLocation, pushRecentLocation } from "@/lib/location-cache";
+import { pushRecentLocation } from "@/lib/location-cache";
 import { fetchCurrentWeather } from "@/lib/weather-client";
 import { setLatestWeather } from "@/lib/weather-cache";
 
 /**
  * Receives one geolocation ping from components/layout/LocationTracker.tsx
  * (the browser's own navigator.geolocation, polled every 5 minutes while
- * "Get Realtime Location" is on). Every ping is cheap and always goes to
- * Redis, which only ever keeps the latest 5 (older ones are erased) — only
- * one ping per rolling hour is actually flushed to Postgres, and that
- * flush always uses whatever Redis currently considers the latest entry,
- * not necessarily this exact request's own payload.
+ * "Get Realtime Location" is on) and writes it straight to the user's row
+ * in Postgres.
  */
 export async function POST(request: NextRequest) {
   const user = await getSessionUser();
@@ -37,26 +33,12 @@ export async function POST(request: NextRequest) {
   const address = await reverseGeocode(latitude, longitude);
   await pushRecentLocation(user.id, { latitude, longitude, address, capturedAt: new Date().toISOString() });
 
-  // Weather is re-fetched every ping (every 5 minutes) and only ever cached
-  // in Redis — it's never persisted to Postgres, see lib/weather-cache.ts.
+  // Re-fetched every ping (every 5 minutes); see lib/weather-cache.ts for
+  // how long a reading stays fresh before a reader treats it as stale.
   const weather = await fetchCurrentWeather(latitude, longitude);
   if (weather) {
     await setLatestWeather(user.id, weather);
   }
 
-  let dbSynced = false;
-  if (await claimDbFlush(user.id)) {
-    const latest = await getMostRecentLocation(user.id);
-    if (latest) {
-      await pool.query(
-        `UPDATE users
-           SET last_latitude = $2, last_longitude = $3, last_address = $4, location_updated_at = CURRENT_TIMESTAMP
-         WHERE id = $1`,
-        [user.id, latest.latitude, latest.longitude, latest.address]
-      );
-      dbSynced = true;
-    }
-  }
-
-  return NextResponse.json({ address, weather, dbSynced });
+  return NextResponse.json({ address, weather, dbSynced: true });
 }
