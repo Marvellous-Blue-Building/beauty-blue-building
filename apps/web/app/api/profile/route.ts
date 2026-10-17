@@ -4,7 +4,6 @@ import { getSessionUser } from "@/lib/auth/session";
 import { containsFlaggedIngredient } from "@/lib/rag/sensitivity-flags";
 import { withCacheBust } from "@/lib/avatar-url";
 import { isSmtpConfigured } from "@/lib/email/smtp-client";
-import { getMostRecentLocation } from "@/lib/location-cache";
 import type { UserProfile } from "@/types/user";
 import type { QuizAnswers } from "@/types/quiz";
 
@@ -73,13 +72,6 @@ async function loadProfile(userId: string): Promise<UserProfile> {
     ).length;
   }
 
-  // Redis still has up to the last 5 pings (every 5 minutes); Postgres
-  // only gets flushed once an hour (see app/api/profile/location/route.ts),
-  // so prefer Redis's freshest entry for display and fall back to the DB
-  // snapshot once Redis's entries have aged out.
-  const recentLocation = await getMostRecentLocation(userId);
-  const address = recentLocation?.address ?? user.last_address;
-
   return {
     name: user.full_name ?? user.email,
     email: user.email,
@@ -94,7 +86,7 @@ async function loadProfile(userId: string): Promise<UserProfile> {
     sendReportEmail: user.send_report_email,
     smtpConfigured: isSmtpConfigured(),
     realtimeLocationEnabled: user.realtime_location_enabled,
-    address,
+    address: user.last_address,
   };
 }
 

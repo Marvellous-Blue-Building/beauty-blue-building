@@ -1,7 +1,6 @@
 import { randomBytes } from "crypto";
 import { cookies } from "next/headers";
 import { pool } from "@/lib/db";
-import { redis } from "@/lib/redis";
 import type { GoogleIdentity } from "@/lib/auth/google-oauth";
 
 export const SESSION_COOKIE = "session_token";
@@ -76,10 +75,9 @@ export async function upsertUserFromGoogle(identity: GoogleIdentity): Promise<Se
 }
 
 /**
- * Creates a session: a durable row in user_sessions (audit/record table)
- * plus a Redis flag keyed by session token with a 1-day TTL. Redis is the
- * fast-path validity check and expires the session automatically after a
- * day; the DB row is the durable record of the session even after that.
+ * Creates a session: a row in user_sessions with a 1-day expiry. This row
+ * is both the validity check (see getSessionUser) and the durable record
+ * of the session.
  */
 export async function createSession(user: SessionUser): Promise<string> {
   const token = randomBytes(32).toString("hex");
@@ -90,7 +88,6 @@ export async function createSession(user: SessionUser): Promise<string> {
      VALUES ($1, $2, $3, $4)`,
     [user.id, user.email, token, expiresAt]
   );
-  await redis.set(`session:${token}`, user.email, "EX", SESSION_TTL_SECONDS);
 
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, token, {
@@ -104,9 +101,8 @@ export async function createSession(user: SessionUser): Promise<string> {
   return token;
 }
 
-/** Removes the Redis flag and marks the DB session row logged-out — "remove it when user click logout". */
+/** Marks the DB session row logged-out — "remove it when user click logout". */
 export async function destroySession(token: string): Promise<void> {
-  await redis.del(`session:${token}`);
   await pool.query(
     "UPDATE user_sessions SET logged_out_at = CURRENT_TIMESTAMP WHERE session_token = $1 AND logged_out_at IS NULL",
     [token]
@@ -117,18 +113,15 @@ export async function destroySession(token: string): Promise<void> {
 }
 
 /**
- * Resolves the current request's session. Redis is the source of truth for
- * validity — if the key is missing (explicit logout, or its 1-day TTL
- * naturally expired), the session is treated as invalid even if the cookie
- * is still present.
+ * Resolves the current request's session. user_sessions is the source of
+ * truth for validity — if the row is missing, logged out, or past its
+ * expires_at, the session is treated as invalid even if the cookie is
+ * still present.
  */
 export async function getSessionUser(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (!token) return null;
-
-  const email = await redis.get(`session:${token}`);
-  if (!email) return null;
 
   const result = await pool.query<{
     id: string;
@@ -138,8 +131,13 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     send_report_email: boolean;
     realtime_location_enabled: boolean;
   }>(
-    "SELECT id, email, full_name, avatar_url, send_report_email, realtime_location_enabled FROM users WHERE email = $1",
-    [email]
+    `SELECT u.id, u.email, u.full_name, u.avatar_url, u.send_report_email, u.realtime_location_enabled
+       FROM user_sessions s
+       JOIN users u ON u.id = s.user_id
+      WHERE s.session_token = $1
+        AND s.logged_out_at IS NULL
+        AND s.expires_at > CURRENT_TIMESTAMP`,
+    [token]
   );
   const u = result.rows[0];
   if (!u) return null;

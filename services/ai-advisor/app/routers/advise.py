@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
-from app.gemma import generate_reply
+from app.gemini import generate_reply
 from app.schemas import AdviseRequest, AdviseResponse
 
 router = APIRouter()
@@ -21,7 +21,7 @@ def advise(payload: AdviseRequest):
             candidate_products=payload.candidateProducts,
             conversation_context=payload.conversationContext,
         )
-    except Exception as exc:  # model/download failure — surface as 503, not a 500 stack trace
-        raise HTTPException(status_code=503, detail=f"Gemma model unavailable: {exc}") from exc
+    except Exception as exc:  # missing credentials / Gemini API failure — surface as 503, not a 500 stack trace
+        raise HTTPException(status_code=503, detail=f"Gemini unavailable: {exc}") from exc
     return AdviseResponse(reply=reply)
 

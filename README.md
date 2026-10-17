@@ -15,7 +15,7 @@ each Python service are installed and run independently.
 | `apps/web/public/widget-loader.js` | The embeddable AI Beauty Advisor widget — one `<script>` tag any retail site can drop in. Shadow DOM mounted, origin-gated, talks only to `apps/web`'s own `/api/widget/*` routes (the 4 Python services stay server-side). See "Embeddable widget" below. |
 | `services/skin-scanning` | Python/FastAPI service. Real face-landmark analysis (MediaPipe + OpenCV) from a captured photo → skin metrics. |
 | `services/matching-service` | Python/FastAPI service. Quiz/scan results → routine & product matching (SQL + keyword dictionaries). |
-| `services/ai-advisor` | Python/FastAPI service. Gemma (via Kaggle Models) LLM fallback for chat messages the deterministic rules can't resolve. |
+| `services/ai-advisor` | Python/FastAPI service. Gemini (via `google-genai`) LLM fallback for chat messages the deterministic rules can't resolve. |
 
 ## Stack (as currently built)
 
