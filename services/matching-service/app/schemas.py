@@ -140,6 +140,10 @@ class ChatUnderstandRequest(BaseModel):
     # not just this one) and boost keywords from their last several real
     # skin scans. See app/user_history.py.
     userId: Optional[str] = None
+    # Reply language for the deterministic reply text. Indonesian by default
+    # (the app's AI Advisor rule); the embeddable widget sends "en" when its
+    # host page is English.
+    language: Literal["id", "en"] = "id"
 
 
 class ChatUnderstanding(BaseModel):

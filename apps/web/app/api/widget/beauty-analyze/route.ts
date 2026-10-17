@@ -15,13 +15,13 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * catalog shades, and the whole result is saved against the guest session so
  * the widget chat can use it (see lib/widget/bot-reply.ts).
  *
- * Body: `{sessionId, requestId?, frames, right?, left?}` — base64 JPEG data
+ * Body: `{sessionId, requestId?, lang?, frames, right?, left?}` — base64 JPEG data
  * URLs, not mirrored; the side photos are optional. `requestId` (a UUID the
  * widget makes per scan) makes a retried upload return the saved result
  * instead of analysing and saving it again.
  */
 export async function POST(req: NextRequest) {
-  const body = (await req.json().catch(() => null)) as { sessionId?: unknown; requestId?: unknown } | null;
+  const body = (await req.json().catch(() => null)) as { sessionId?: unknown; requestId?: unknown; lang?: unknown } | null;
   const input = readBeautyScanInput(body);
   if (typeof body?.sessionId !== "string" || !UUID.test(body.sessionId) || input === null) {
     return NextResponse.json({ error: "missing_frames_or_session" }, { status: 400 });
@@ -39,8 +39,9 @@ export async function POST(req: NextRequest) {
     const prior = await findWidgetBeautyScan(sessionId, requestId);
     if (prior) return NextResponse.json({ id: prior.id, ...prior.report });
 
-    // The widget and its chat speak Indonesian.
-    const report = await callBeautyScanService({ ...input, language: "id" }, req.nextUrl.origin);
+    // The report is written in the widget's page language (Indonesian unless it asks for English).
+    const language = body.lang === "en" ? "en" : "id";
+    const report = await callBeautyScanService({ ...input, language }, req.nextUrl.origin);
     // Shades are a bonus on top of the scan — the scan still saves without them.
     report.catalogShades = await matchCatalogShades(report).catch(() => []);
     const saved = await saveWidgetBeautyScan(sessionId, requestId, report);

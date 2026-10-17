@@ -17,9 +17,14 @@ GEMMA_KAGGLE_HANDLE = os.environ.get(
     "GEMMA_KAGGLE_HANDLE", "google/gemma-2/transformers/gemma-2-2b-it"
 )
 
-SYSTEM_PROMPT = (
-    "You are the AI Advisor inside a skincare app. Always respond in Bahasa "
-    "Indonesia, regardless of what language the question is asked in. Give a "
+LANGUAGE_RULE = {
+    "id": "Always respond in Bahasa Indonesia, regardless of what language the question is asked in.",
+    # Only the embeddable widget on an English host page asks for this.
+    "en": "Always respond in English.",
+}
+
+SYSTEM_PROMPT_BODY = (
+    "Give a "
     "short, friendly, practical answer (2-3 sentences) about skincare "
     "ingredients, routines, or concerns. If the question describes a serious "
     "or medical-sounding skin condition, recommend seeing a dermatologist "
@@ -34,6 +39,14 @@ SYSTEM_PROMPT = (
     "Append ' [Track Your Progress]' "
     "You MUST add the tag even if you provide a conversational answer. No exceptions."
 )
+
+
+def system_prompt(language: str = "id") -> str:
+    rule = LANGUAGE_RULE.get(language, LANGUAGE_RULE["id"])
+    return f"You are the AI Advisor inside a skincare app. {rule} {SYSTEM_PROMPT_BODY}"
+
+
+SYSTEM_PROMPT = system_prompt("id")
 
 _generator = None
 _lock = threading.Lock()
@@ -71,12 +84,14 @@ def generate_reply(
     recognized_entities: list[str] | None = None,
     candidate_products: list[str] | None = None,
     conversation_context: list[str] | None = None,
+    language: str = "id",
 ) -> tuple[str, list[dict[str, str]]]:
     """Grounded when services/matching-service's /chat/understand pipeline
     (docs/plan.md SS4 steps 1-13) couldn't resolve a message deterministically
     but still recognized partial signal — step 14 synthesizes from that
-    instead of the bare user question. Always replies in Bahasa Indonesia
-    (see SYSTEM_PROMPT) regardless of the app's UI locale."""
+    instead of the bare user question. Replies in Bahasa Indonesia (see
+    LANGUAGE_RULE) regardless of the app's UI locale, unless the widget asks
+    for English."""
     generator = get_generator()
 
     context_lines = []
@@ -91,7 +106,7 @@ def generate_reply(
     messages = [
         {
             "role": "user",
-            "content": f"{SYSTEM_PROMPT}\n\n{context_block}User question: {user_text}",
+            "content": f"{system_prompt(language)}\n\n{context_block}User question: {user_text}",
         }
     ]
     prompt = generator.tokenizer.apply_chat_template(

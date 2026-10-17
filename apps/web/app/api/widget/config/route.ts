@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 /** GET /api/widget/config — unauthenticated, read-only, hard-whitelisted.
  * Single-tenant: one static config per deployment (no organization_id
@@ -6,10 +6,14 @@ import { NextResponse } from "next/server";
  * of app code, just their own env file. Mirrors Ganes' PublicWidgetConfig
  * contract: only display/branding fields ever serialize here, nothing
  * internal (no prompt tuning, no admin settings). */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  // `?lang=en` (the widget's page language) picks the English greeting.
+  const en = req.nextUrl.searchParams.get("lang") === "en";
   return NextResponse.json({
     botName: process.env.WIDGET_BOT_NAME ?? "Vera",
-    greeting: process.env.WIDGET_GREETING ?? "Hai! Aku Vera, AI Beauty Advisor. Ceritain kondisi kulitmu atau produk apa yang kamu cari ya.",
+    greeting: en
+      ? process.env.WIDGET_GREETING_EN ?? "Hi! I'm Vera, your AI Beauty Advisor. Tell me about your skin or what you're looking for."
+      : process.env.WIDGET_GREETING ?? "Hai! Aku Vera, AI Beauty Advisor. Ceritain kondisi kulitmu atau produk apa yang kamu cari ya.",
     color: process.env.WIDGET_COLOR ?? "#d26287",
     position: process.env.WIDGET_POSITION ?? "br",
     termsUrl: process.env.WIDGET_TERMS_URL ?? null,

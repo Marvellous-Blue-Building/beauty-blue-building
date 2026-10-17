@@ -19,6 +19,7 @@ import {
   beautyScanBoostKeywords,
   beautyScanGuidance,
   getLatestWidgetBeautyScan,
+  type WidgetLanguage,
 } from "@/lib/widget/beauty-scan";
 
 export interface WidgetBotReply {
@@ -37,7 +38,7 @@ async function generateAiAdvisorReply(userText: string, grounding: {
   recognizedEntities: string[];
   candidateProducts: string[];
   conversationContext: string[];
-}): Promise<string> {
+}, language: WidgetLanguage): Promise<string> {
   if (!AI_ADVISOR_SERVICE_URL) throw new Error("AI_ADVISOR_SERVICE_URL is not configured");
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), AI_ADVISOR_TIMEOUT_MS);
@@ -50,6 +51,7 @@ async function generateAiAdvisorReply(userText: string, grounding: {
         recognizedEntities: grounding.recognizedEntities,
         candidateProducts: grounding.candidateProducts,
         conversationContext: grounding.conversationContext,
+        language,
       }),
       signal: controller.signal,
     });
@@ -80,7 +82,9 @@ async function productsByIds(ids: string[]): Promise<Product[]> {
 export async function generateWidgetBotReply(
   conversationId: string,
   userText: string,
-  sessionId?: string
+  sessionId?: string,
+  /** The widget's page language — every reply source answers in it (default Indonesian). */
+  language: WidgetLanguage = "id"
 ): Promise<WidgetBotReply> {
   const [tenantBoosts, scan] = await Promise.all([
     getActiveTenantBoostKeywords().catch(() => [] as string[]),
@@ -88,7 +92,7 @@ export async function generateWidgetBotReply(
   ]);
 
   if (scan) {
-    const direct = answerFromBeautyScan(userText, scan);
+    const direct = answerFromBeautyScan(userText, scan, language);
     if (direct) {
       const products = await productsByIds(direct.productIds).catch(() => []);
       return {
@@ -102,7 +106,7 @@ export async function generateWidgetBotReply(
   const boostKeywords = [...tenantBoosts, ...(scan ? beautyScanBoostKeywords(scan) : [])];
   const guidanceText = scan ? beautyScanGuidance(scan) : "";
   const context = boostKeywords.length > 0 || guidanceText ? { guidanceText, boostKeywords } : null;
-  const understanding = await callChatUnderstand(conversationId, userText, context, null).catch(() => null);
+  const understanding = await callChatUnderstand(conversationId, userText, context, null, language).catch(() => null);
 
   const products = understanding && understanding.candidates.length > 0 ? understanding.candidates.slice(0, 6) : undefined;
   const rawJsonText = understanding ? JSON.stringify(understanding) : undefined;
@@ -116,7 +120,7 @@ export async function generateWidgetBotReply(
     recognizedEntities: understanding?.recognizedEntities ?? [],
     candidateProducts,
     conversationContext: understanding?.conversationContext ?? [],
-  });
+  }, language);
 
   return { text, products, rawJsonText };
 }

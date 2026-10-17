@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -9,6 +11,9 @@ class AdviseRequest(BaseModel):
     recognizedEntities: list[str] = []
     candidateProducts: list[str] = []
     conversationContext: list[str] = []
+    # Reply language — Indonesian by default (the app's AI Advisor rule); the
+    # embeddable widget sends "en" when its host page is English.
+    language: Literal["id", "en"] = "id"
 
 
 class AdviseResponse(BaseModel):
