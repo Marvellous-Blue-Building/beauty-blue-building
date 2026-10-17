@@ -408,13 +408,30 @@
       ".bw-bubble{max-width:84%;padding:9px 12px;border-radius:13px;line-height:1.48;}" +
       ".bw-row.bot .bw-bubble{background:var(--bw-soft);border-bottom-left-radius:4px;}" +
       ".bw-row.user .bw-bubble{background:var(--bw-primary);color:#fff;border-bottom-right-radius:4px;}" +
-      ".bw-card{display:flex;gap:9px;border:1px solid var(--bw-line);border-radius:11px;padding:8px;background:#fff;margin-top:6px;}" +
-      ".bw-card .bw-ic{width:36px;height:36px;border-radius:8px;flex:none;background:var(--bw-soft);" +
-      "display:flex;align-items:center;justify-content:center;font-size:16px;}" +
-      ".bw-card .bw-meta{min-width:0;}" +
-      ".bw-card .bw-brand{font-size:10px;text-transform:uppercase;letter-spacing:.05em;opacity:.6;}" +
-      ".bw-card .bw-pname{font-size:12px;font-weight:600;line-height:1.3;margin:1px 0 3px;}" +
-      ".bw-card .bw-price{font-size:11px;font-weight:600;}" +
+      // Recommended products: a swipeable row of product cards that bleeds to the panel edges.
+      ".bw-prow{margin:0 -14px;}" +
+      ".bw-prods{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 14px 8px;scrollbar-width:none;}" +
+      ".bw-prods::-webkit-scrollbar{display:none;}" +
+      ".bw-pcard{flex:0 0 138px;scroll-snap-align:start;scroll-margin-left:14px;display:flex;flex-direction:column;overflow:hidden;" +
+      "border:1px solid var(--bw-line);border-radius:14px;background:#fff;box-shadow:0 8px 18px -14px rgba(0,0,0,.35);" +
+      "animation:bwcard .35s cubic-bezier(.2,.9,.3,1.15) both;}" +
+      "@keyframes bwcard{from{opacity:0;transform:translateY(6px) scale(.97);}to{opacity:1;transform:none;}}" +
+      ".bw-pimg{position:relative;aspect-ratio:1/1;background:var(--bw-soft);display:flex;align-items:center;justify-content:center;}" +
+      ".bw-pimg img{width:100%;height:100%;object-fit:cover;display:block;}" +
+      ".bw-pimg .bw-ph{font-size:22px;color:var(--bw-primary);opacity:.7;}" +
+      ".bw-pbadge{position:absolute;top:6px;left:6px;background:var(--bw-primary);color:#fff;font-size:9.5px;font-weight:700;" +
+      "border-radius:999px;padding:2px 7px;}" +
+      ".bw-pinfo{flex:1;display:flex;flex-direction:column;gap:3px;padding:8px 9px 10px;}" +
+      ".bw-pbrand{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--bw-muted);" +
+      "white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
+      ".bw-pname{font-size:12px;font-weight:600;line-height:1.3;min-height:31px;display:-webkit-box;-webkit-line-clamp:2;" +
+      "-webkit-box-orient:vertical;overflow:hidden;}" +
+      ".bw-prate{font-size:10.5px;color:var(--bw-muted);}.bw-prate b{color:var(--bw-warn);font-weight:600;}" +
+      ".bw-pswatch{display:flex;align-items:center;gap:3px;}" +
+      ".bw-pswatch i{width:10px;height:10px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);}" +
+      ".bw-pswatch span{font-size:9.5px;color:var(--bw-faint);margin-left:1px;}" +
+      ".bw-pprice{margin-top:auto;padding-top:3px;display:flex;align-items:baseline;flex-wrap:wrap;gap:0 5px;}" +
+      ".bw-pprice b{font-size:12.5px;}.bw-pprice s{font-size:10px;color:var(--bw-faint);}" +
       ".bw-chips{display:flex;flex-wrap:wrap;gap:6px;}" +
       ".bw-chips button{border:1px solid var(--bw-primary);color:var(--bw-primary);background:#fff;border-radius:999px;" +
       "padding:6px 11px;font-size:11.5px;font-family:inherit;cursor:pointer;}" +
@@ -1976,28 +1993,67 @@
       }
       function addProducts(products) {
         if (!products || !products.length) return;
-        var row = el('<div class="bw-row bot" style="flex-direction:column;align-items:stretch;max-width:92%;"></div>');
-        products.slice(0, 4).forEach(function (p) {
+        var row = el('<div class="bw-row bot bw-prow"><div class="bw-prods"></div></div>');
+        var track = row.firstChild;
+        products.slice(0, 6).forEach(function (p) {
           var card = el(
-            '<div class="bw-card">' +
-              '<div class="bw-ic">&#10022;</div>' +
-              '<div class="bw-meta">' +
-                '<div class="bw-brand"></div>' +
+            '<div class="bw-pcard">' +
+              '<div class="bw-pimg"></div>' +
+              '<div class="bw-pinfo">' +
+                '<div class="bw-pbrand"></div>' +
                 '<div class="bw-pname"></div>' +
-                '<div class="bw-price"></div>' +
               "</div>" +
             "</div>"
           );
-          // A shade product shows its own colour instead of the generic icon.
-          if (safeHex(p.colorHex)) {
-            var ic = card.querySelector(".bw-ic");
-            ic.innerHTML = "";
-            ic.style.background = p.colorHex;
+          var media = card.querySelector(".bw-pimg");
+          var info = card.querySelector(".bw-pinfo");
+          var hex = safeHex(p.colorHex);
+          function placeholder() {
+            media.innerHTML = "";
+            // A shade product without a photo shows its own colour instead of the generic icon.
+            if (hex) media.style.background = hex;
+            else media.appendChild(el('<span class="bw-ph">&#10022;</span>'));
           }
-          card.querySelector(".bw-brand").textContent = p.brand || "";
+          if (typeof p.imageUrl === "string" && /^https?:\/\//.test(p.imageUrl)) {
+            var img = document.createElement("img");
+            img.alt = p.name || "";
+            img.loading = "lazy";
+            img.onerror = placeholder;
+            img.src = p.imageUrl;
+            media.appendChild(img);
+          } else {
+            placeholder();
+          }
+          var price = Number(p.price);
+          var listed = Number(p.listedPrice);
+          if (listed > price && price > 0) {
+            media.appendChild(text("span", "bw-pbadge", "-" + Math.round((1 - price / listed) * 100) + "%"));
+          }
+
+          card.querySelector(".bw-pbrand").textContent = p.brand || "";
           card.querySelector(".bw-pname").textContent = (p.colorName ? p.colorName + " · " : "") + (p.name || "");
-          card.querySelector(".bw-price").textContent = rupiah(p.price);
-          row.appendChild(card);
+          if (typeof p.rating === "number" && p.rating > 0) {
+            var rate = text("div", "bw-prate", "");
+            rate.appendChild(text("b", "", "\u2605 " + p.rating.toFixed(1)));
+            if (p.totalReview) rate.appendChild(document.createTextNode(" (" + Number(p.totalReview).toLocaleString("id-ID") + ")"));
+            info.appendChild(rate);
+          }
+          var palette = (Array.isArray(p.colorPalette) ? p.colorPalette : []).map(safeHex).filter(Boolean);
+          if (palette.length > 1) {
+            var sw = text("div", "bw-pswatch", "");
+            palette.slice(0, 5).forEach(function (c) {
+              var dot = document.createElement("i");
+              dot.style.background = c;
+              sw.appendChild(dot);
+            });
+            if (palette.length > 5) sw.appendChild(text("span", "", "+" + (palette.length - 5)));
+            info.appendChild(sw);
+          }
+          var priceRow = text("div", "bw-pprice", "");
+          priceRow.appendChild(text("b", "", rupiah(p.price)));
+          if (listed > price && price > 0) priceRow.appendChild(text("s", "", rupiah(listed)));
+          info.appendChild(priceRow);
+          track.appendChild(card);
         });
         body.appendChild(row);
         body.scrollTop = body.scrollHeight;
