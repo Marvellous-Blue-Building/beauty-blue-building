@@ -1,48 +1,259 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>RUPA Beauty — Toko Uji Coba</title>
+<title>RUPA Beauty — Skincare & Makeup</title>
+<!--
+  Demo third-party store for previewing the embeddable AI Beauty Adviser
+  widget. A plain static page: the ONLY integration is the <script> tag at the
+  bottom. Products are a snapshot of real items from the demo catalog
+  (name, brand, price, rating, photo) — cart and checkout are disabled.
+-->
 <style>
-  body { font-family: -apple-system, sans-serif; margin: 0; background: #FAF6F3; color: #241F26; }
-  header { padding: 20px 28px; border-bottom: 1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
-  header .logo { font-weight: 700; font-size: 20px; }
-  main { padding: 40px 28px; max-width: 760px; }
-  h1 { font-size: 26px; }
-  p { line-height: 1.6; color: #555; }
-  .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 14px; margin-top: 24px; }
-  .tile { border:1px solid #eee; border-radius:10px; padding:10px; }
-  .tile .ph { aspect-ratio:1; background: linear-gradient(145deg,#F1D7DC,#eee); border-radius:8px; margin-bottom:8px; }
-  .note { margin-top:40px; padding:14px 18px; background:#fff; border:1px solid #eee; border-radius:10px; font-size:13px; color:#777; }
+  :root {
+    --ink: #3d3436; --muted: #7a6d70; --faint: #a89a9d; --line: rgba(61, 52, 54, .1);
+    --rose: #d26287; --rose-dark: #b0476d; --blush: #f6e4e2; --cream: #fbf6f2; --card: #ffffff;
+    --serif: "Canela Text", "GT Sectra", "Iowan Old Style", Georgia, serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif; color: var(--ink); background: var(--cream); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+  .demo-bar { background: var(--ink); color: #f3e9ea; font-size: 12px; text-align: center; padding: 7px 16px; }
+  .demo-bar b { color: #fff; }
+  .promo-bar { background: var(--blush); color: var(--rose-dark); font-size: 12.5px; font-weight: 600; text-align: center; padding: 8px 16px; letter-spacing: .02em; }
+
+  header { position: sticky; top: 0; z-index: 20; background: rgba(251, 246, 242, .88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  .head { display: flex; align-items: center; gap: 28px; height: 68px; }
+  .logo { font-family: var(--serif); font-size: 26px; letter-spacing: .14em; font-weight: 500; }
+  .logo span { color: var(--rose); }
+  nav.cats { display: flex; gap: 22px; font-size: 14px; color: var(--muted); }
+  nav.cats a:hover { color: var(--ink); }
+  .search { margin-left: auto; display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 0 14px; height: 40px; width: 260px; color: var(--faint); font-size: 13px; }
+  .search input { border: 0; outline: 0; background: none; font: inherit; color: var(--ink); width: 100%; }
+  .icons { display: flex; gap: 6px; }
+  .icon-btn { position: relative; width: 40px; height: 40px; border-radius: 50%; border: 0; background: none; color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .icon-btn:hover { background: rgba(255, 255, 255, .8); }
+  .badge { position: absolute; top: 4px; right: 3px; min-width: 17px; height: 17px; border-radius: 999px; background: var(--rose); color: #fff; font-size: 10px; font-weight: 700; display: none; align-items: center; justify-content: center; padding: 0 4px; }
+
+  .hero { position: relative; margin-top: 22px; border-radius: 28px; overflow: hidden; min-height: 420px; display: flex; align-items: center; background: url(/admin/dashboard-bg.jpg) center/cover; }
+  .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(251, 246, 242, .92) 0%, rgba(251, 246, 242, .55) 45%, rgba(251, 246, 242, 0) 75%); }
+  .hero .copy { position: relative; padding: 48px; max-width: 560px; }
+  .kicker { font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--rose-dark); }
+  .hero h1 { font-family: var(--serif); font-weight: 400; font-size: 52px; line-height: 1.05; margin: 12px 0 14px; letter-spacing: -.01em; }
+  .hero p { font-size: 16px; line-height: 1.6; color: var(--muted); margin: 0 0 26px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 22px; border-radius: 999px; font-size: 14px; font-weight: 600; cursor: pointer; border: 0; transition: transform .15s ease, background .15s ease; }
+  .btn:active { transform: scale(.98); }
+  .btn-rose { background: var(--rose); color: #fff; box-shadow: 0 12px 24px -12px var(--rose); }
+  .btn-rose:hover { background: var(--rose-dark); }
+  .btn-line { background: rgba(255, 255, 255, .85); color: var(--ink); border: 1px solid var(--line); margin-left: 8px; }
+
+  .perks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 22px 0 0; }
+  .perk { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: flex; gap: 12px; align-items: center; font-size: 13px; color: var(--muted); }
+  .perk b { display: block; color: var(--ink); font-size: 14px; margin-bottom: 2px; }
+  .perk i { flex: none; width: 38px; height: 38px; border-radius: 12px; background: var(--blush); color: var(--rose-dark); display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 18px; }
+
+  section { margin-top: 56px; }
+  .sec-head { display: flex; align-items: end; justify-content: space-between; margin-bottom: 18px; }
+  .sec-head h2 { font-family: var(--serif); font-weight: 400; font-size: 32px; margin: 4px 0 0; }
+  .sec-head a { font-size: 14px; color: var(--rose-dark); font-weight: 600; }
+
+  .cats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .cat { position: relative; border-radius: 22px; overflow: hidden; background: #fff; border: 1px solid var(--line); aspect-ratio: 4/3.2; display: flex; align-items: end; padding: 16px; }
+  .cat img { position: absolute; right: -6%; top: 6%; width: 62%; height: 78%; object-fit: contain; mix-blend-mode: multiply; }
+  .cat::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(246, 228, 226, .7)); }
+  .cat span { position: relative; z-index: 1; font-weight: 600; font-size: 16px; }
+  .cat small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; transition: transform .2s ease, box-shadow .2s ease; }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 18px 32px -22px rgba(61, 52, 54, .45); }
+  .media { position: relative; aspect-ratio: 1/1; background: #fff; display: flex; align-items: center; justify-content: center; }
+  .media img { width: 82%; height: 82%; object-fit: contain; }
+  .tag { position: absolute; top: 12px; left: 12px; background: var(--ink); color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; border-radius: 999px; padding: 4px 9px; }
+  .tag.off { background: var(--rose); left: auto; right: 12px; }
+  .wish { position: absolute; bottom: 10px; right: 10px; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: rgba(255, 255, 255, .9); cursor: pointer; color: var(--muted); font-size: 16px; }
+  .wish.on { color: var(--rose); }
+  .info { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .brand { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+  .name { font-size: 14px; font-weight: 600; line-height: 1.35; min-height: 38px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .rate { font-size: 12px; color: var(--muted); }
+  .rate b { color: #c58a1b; }
+  .price { margin-top: auto; padding-top: 6px; display: flex; align-items: baseline; gap: 8px; }
+  .price b { font-size: 16px; }
+  .price s { font-size: 12px; color: var(--faint); }
+  .add { margin-top: 10px; height: 38px; border-radius: 999px; border: 1px solid var(--ink); background: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .add:hover { background: var(--ink); color: #fff; }
+
+  .ai { margin-top: 56px; border-radius: 28px; padding: 40px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; align-items: center; background: linear-gradient(135deg, #f6e4e2, #f3d4dc 55%, #efc5b9); }
+  .ai h2 { font-family: var(--serif); font-weight: 400; font-size: 34px; margin: 8px 0 10px; }
+  .ai p { color: var(--muted); line-height: 1.6; margin: 0 0 22px; }
+  .ai ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .ai li { background: rgba(255, 255, 255, .7); border: 1px solid rgba(255, 255, 255, .9); border-radius: 16px; padding: 14px 16px; font-size: 14px; }
+  .ai li b { color: var(--rose-dark); }
+
+  footer { margin-top: 64px; border-top: 1px solid var(--line); padding: 36px 0 120px; font-size: 13px; color: var(--muted); }
+  .foot { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 24px; }
+  .foot h4 { margin: 0 0 10px; color: var(--ink); font-size: 13px; }
+  .foot p { margin: 6px 0; }
+
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; font-size: 13px; padding: 11px 18px; border-radius: 999px; opacity: 0; transition: .25s ease; pointer-events: none; z-index: 30; }
+  .toast.show { opacity: 1; transform: translateX(-50%); }
+
+  @media (max-width: 960px) {
+    nav.cats, .search { display: none; }
+    .head { justify-content: space-between; }
+    .grid, .cats-grid, .perks { grid-template-columns: repeat(2, 1fr); }
+    .ai, .foot { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 38px; }
+    .hero .copy { padding: 28px; }
+    .hero::before { background: linear-gradient(180deg, rgba(251, 246, 242, .55), rgba(251, 246, 242, .92)); }
+  }
+  @media (max-width: 520px) { .btn-line { margin: 10px 0 0; } .ai { padding: 26px; } .sec-head h2 { font-size: 26px; } }
 </style>
 </head>
 <body>
+<div class="demo-bar"><b>Demo store.</b> RUPA Beauty is a fictional shop used to preview the AI Beauty Adviser widget — products come from the demo catalog, checkout is disabled.</div>
+<div class="promo-bar">Free shipping on orders over Rp 150.000 · Try our AI beauty advisor in the corner ✦</div>
+
 <header>
-  <div class="logo">RUPA</div>
-  <div>Skincare · Makeup · Promo</div>
+  <div class="wrap head">
+    <a class="logo" href="#">RUPA<span>.</span></a>
+    <nav class="cats">
+      <a href="#best">Bestsellers</a><a href="#skincare">Skincare</a><a href="#makeup">Makeup</a><a href="#advisor">AI Advisor</a>
+    </nav>
+    <label class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input placeholder="Search serum, lip tint…" data-ask />
+    </label>
+    <div class="icons">
+      <button class="icon-btn" aria-label="Wishlist" data-demo>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+        <span class="badge" id="wish-count"></span>
+      </button>
+      <button class="icon-btn" aria-label="Cart" data-demo>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7h14l-1.2 10.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+        <span class="badge" id="cart-count"></span>
+      </button>
+    </div>
+  </div>
 </header>
-<main>
-  <h1>Ini website retailer pihak ketiga (simulasi).</h1>
-  <p>
-    Halaman statis biasa, tidak tahu apa-apa soal Blue Building. Satu-satunya
-    perubahan yang dilakukan "pemilik toko" untuk mengaktifkan AI Beauty
-    Advisor adalah baris &lt;script&gt; di bagian bawah file ini.
-  </p>
-  <div class="grid">
-    <div class="tile"><div class="ph"></div>Gentle Cleanser</div>
-    <div class="tile"><div class="ph"></div>Hydra Toner</div>
-    <div class="tile"><div class="ph"></div>UV Shield SPF50</div>
-    <div class="tile"><div class="ph"></div>Clay Mask</div>
+
+<main class="wrap">
+  <div class="hero">
+    <div class="copy">
+      <div class="kicker">New season edit</div>
+      <h1>Skin first.<br />Then the glow.</h1>
+      <p>Bestselling skincare and makeup, chosen for Indonesian skin and weather. Not sure what suits you? Ask our AI beauty advisor — or scan your face for your colour season.</p>
+      <a class="btn btn-rose" href="#best">Shop bestsellers</a>
+      <button class="btn btn-line" data-open-widget>✦ Ask the AI advisor</button>
+    </div>
   </div>
-  <div class="note">
-    Widget pojok kanan bawah terhubung ke backend AI Beauty Advisor yang
-    sama dengan app utama (matching-service + ai-advisor asli, bukan mock).
-    Coba tanya: "rekomendasi serum untuk kulit kusam" atau
-    "produk murah di bawah 100 ribu".
+
+  <div class="perks">
+    <div class="perk"><i>✦</i><div><b>AI beauty advisor</b>Product picks in seconds</div></div>
+    <div class="perk"><i>◎</i><div><b>3-pose face scan</b>Find your colour season</div></div>
+    <div class="perk"><i>✓</i><div><b>100% authentic</b>Sourced from brands</div></div>
+    <div class="perk"><i>↺</i><div><b>Easy returns</b>Within 7 days</div></div>
   </div>
+
+  <section>
+    <div class="sec-head"><div><div class="kicker">Shop by category</div><h2>Find your ritual</h2></div></div>
+    <div class="cats-grid" id="cats"></div>
+  </section>
+
+  <section id="best">
+    <div class="sec-head"><div><div class="kicker">Loved by thousands</div><h2>Bestsellers</h2></div><a href="#best">View all →</a></div>
+    <div class="grid" data-list="best"></div>
+  </section>
+
+  <section class="ai" id="advisor">
+    <div>
+      <div class="kicker">Meet Vera</div>
+      <h2>Your personal beauty advisor, right here.</h2>
+      <p>Tell Vera about your skin or what you're looking for. She recommends products from this store — with prices — and can scan your face in three poses to find your colour season, face shape and skin type.</p>
+      <button class="btn btn-rose" data-open-widget>✦ Chat with Vera</button>
+    </div>
+    <ul>
+      <li>“<b>Serum for dry skin</b> under Rp 250.000?”</li>
+      <li>“Which <b>lip tint</b> lasts all day?”</li>
+      <li>“What's my <b>colour season</b>?” — tap Scan in the chat</li>
+    </ul>
+  </section>
+
+  <section id="skincare">
+    <div class="sec-head"><div><div class="kicker">Clear & calm</div><h2>Skincare essentials</h2></div><a href="#skincare">View all →</a></div>
+    <div class="grid" data-list="skin"></div>
+  </section>
+
+  <section id="makeup">
+    <div class="sec-head"><div><div class="kicker">Define & play</div><h2>Makeup must-haves</h2></div><a href="#makeup">View all →</a></div>
+    <div class="grid" data-list="make"></div>
+  </section>
 </main>
 
+<footer>
+  <div class="wrap foot">
+    <div><div class="logo" style="font-size:22px">RUPA<span>.</span></div><p>A fictional demo store for the AI Beauty Adviser widget.</p></div>
+    <div><h4>Shop</h4><p>Skincare</p><p>Makeup</p><p>Body care</p></div>
+    <div><h4>Help</h4><p>Shipping</p><p>Returns</p><p>Contact</p></div>
+    <div><h4>Advisor</h4><p>Chat with Vera</p><p>Face scan</p></div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // Snapshot of real products from the demo catalog (brand, name, price, list price, rating, reviews, photo).
+  var CATALOG = {"best": [{"b": "COSRX", "n": "Advanced Snail 96 Mucin Power Essence", "p": 202300, "l": 216461, "r": 4.6, "c": 15369, "i": "https://images.soco.id/ce4b890c-acfe-452d-8028-21aca2dba3ae-image-0-1763480000489", "t": "Bestseller"}, {"b": "Pure Paw Paw", "n": "Ointment", "p": 56880, "l": 62568, "r": 5, "c": 15022, "i": "https://images.soco.id/93911516-41ee-47a2-8a7d-00cb783905b6-.jpg", "t": "Bestseller"}, {"b": "Dear Me Beauty", "n": "Serum Lip Tint", "p": 36750, "l": 39322, "r": 4.6, "c": 5849, "i": "https://images.soco.id/1d22c34c-02ea-4ca2-897c-ba62e153eb28-.jpg", "t": "New"}, {"b": "ESQA", "n": "Powder Blush", "p": 85000, "l": 93500, "r": 4.7, "c": 4734, "i": "https://images.soco.id/62337d40-8c6c-4bd1-bf50-cc4c6c7b0da9-image-0-1721363254526", "t": null}, {"b": "COSRX", "n": "Centella Water Alcohol-Free Toner", "p": 139750, "l": 153725, "r": 4.6, "c": 4458, "i": "https://s3-ap-southeast-1.amazonaws.com/img-sociolla/img/p/2/1/0/0/1/21001-large_default.jpg", "t": null}, {"b": "Loreal Paris", "n": "Volume Lash Paradise", "p": 204500, "l": 224950, "r": 4.8, "c": 3621, "i": "https://s3-ap-southeast-1.amazonaws.com/img-sociolla/img/p/2/3/7/3/8/23738-large_default.jpg", "t": null}, {"b": "Mother of Pearl", "n": "G.W.S. (Gleaming, Wonderful, Shiny) Plump Gloss", "p": 79200, "l": 95040, "r": 4.8, "c": 2286, "i": "https://images.soco.id/32f08f97-570d-46b6-91ea-1878028b1211-image-2-1738311312765", "t": null}, {"b": "COSRX", "n": "Advanced Snail 92 All in One Cream", "p": 230300, "l": 276360, "r": 4.7, "c": 5630, "i": "https://s3-ap-southeast-1.amazonaws.com/img-sociolla/img/p/2/1/0/0/5/21005-large_default.jpg", "t": null}], "skin": [{"b": "COSRX", "n": "Acne Pimple Master Patch", "p": 47200, "l": 50504, "r": 5, "c": 6214, "i": "https://images.soco.id/50560a15-b396-4034-a502-4b92d795f55b-image-0-1763478904783"}, {"b": "NPure", "n": "Cica Acne Clear Pad", "p": 20000, "l": 24000, "r": 4.8, "c": 5854, "i": "https://images.soco.id/0bb89af6-d67c-42a5-b415-d5e99ae083c1-image-0-1763481460547"}, {"b": "Derma Angel", "n": "Acne Patch Night", "p": 18000, "l": 19260, "r": 4.8, "c": 10209, "i": "https://images.soco.id/fc8dcc7d-4500-4296-ad1e-7c38245ff78d-.jpg"}, {"b": "Vaseline", "n": "Healthy Bright Vitamin Body Serum Soft Glow", "p": 16100, "l": 17710, "r": 4.9, "c": 2630, "i": "https://images.soco.id/e9f4298b-448b-44d0-bd77-2d2ddadf52ae-.jpg"}], "make": [{"b": "Maybelline", "n": "Volum Express Hyper Curl Mascara", "p": 71960, "l": 79156, "r": 4.7, "c": 8283, "i": "https://images.soco.id/cc3ff1ef-f6e1-4893-88e7-d4f7ff682590-image-0-1607662892956"}, {"b": "Wardah", "n": "Eyebrow Pencil 1.14 g", "p": 45000, "l": 49500, "r": 4.7, "c": 2829, "i": "https://s3-ap-southeast-1.amazonaws.com/img-sociolla/img/p/2/8/6/2/7/28627-large_default.jpg"}, {"b": "Wardah", "n": "Optimum Hi-Black Liner", "p": 86000, "l": 103200, "r": 4.9, "c": 2236, "i": "https://s3-ap-southeast-1.amazonaws.com/img-sociolla/img/p/7/0/6/2/7062-large_default.jpg"}, {"b": "Rose All Day", "n": "Thunder Lash Lengthening Mascara", "p": 87720, "l": 105264, "r": 4.5, "c": 2040, "i": "https://images.soco.id/9c1a2d5c-aaf3-4888-a407-5ae57de70e52-.jpg"}]};
+
+  function rp(n) { return "Rp " + Number(n).toLocaleString("id-ID"); }
+  function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+  function card(p) {
+    var off = p.l > p.p ? Math.round((1 - p.p / p.l) * 100) : 0;
+    return '<article class="card">' +
+      '<div class="media"><img loading="lazy" src="' + esc(p.i) + '" alt="' + esc(p.b + " " + p.n) + '">' +
+        (p.t ? '<span class="tag">' + esc(p.t) + "</span>" : "") +
+        (off ? '<span class="tag off">-' + off + "%</span>" : "") +
+        '<button class="wish" aria-label="Add to wishlist">♡</button></div>' +
+      '<div class="info"><div class="brand">' + esc(p.b) + '</div><div class="name">' + esc(p.n) + "</div>" +
+        '<div class="rate"><b>★ ' + p.r.toFixed(1) + "</b> (" + Number(p.c).toLocaleString("en-US") + ")</div>" +
+        '<div class="price"><b>' + rp(p.p) + "</b>" + (off ? "<s>" + rp(p.l) + "</s>" : "") + "</div>" +
+        '<button class="add">Add to bag</button></div></article>';
+  }
+  document.querySelectorAll("[data-list]").forEach(function (el) { el.innerHTML = CATALOG[el.dataset.list].map(card).join(""); });
+  document.getElementById("cats").innerHTML = [
+    ["Skincare", "Serums, toners, moisturisers", CATALOG.best[0].i],
+    ["Makeup", "Lips, cheeks, eyes", CATALOG.best[3].i],
+    ["Acne care", "Patches & pads", CATALOG.skin[0].i],
+    ["Body care", "Lotions & serums", CATALOG.skin[3].i],
+  ].map(function (c) { return '<a class="cat" href="#best"><img loading="lazy" src="' + esc(c[2]) + '" alt=""><span>' + esc(c[0]) + "<small>" + esc(c[1]) + "</small></span></a>"; }).join("");
+
+  var toastTimer, cart = 0, wish = 0;
+  function toast(msg) { var t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2200); }
+  function bump(id, n) { var b = document.getElementById(id); b.textContent = n; b.style.display = n ? "flex" : "none"; }
+  document.addEventListener("click", function (e) {
+    var add = e.target.closest(".add"), w = e.target.closest(".wish");
+    if (add) { bump("cart-count", ++cart); toast("Added to bag — demo store, checkout is disabled"); }
+    if (w) { w.classList.toggle("on"); w.textContent = w.classList.contains("on") ? "♥" : "♡"; bump("wish-count", wish += w.classList.contains("on") ? 1 : -1); }
+    if (e.target.closest("[data-demo]")) toast("Demo store — cart and wishlist are not saved");
+    // "Ask the advisor" buttons just open the embedded widget (its shadow root is open).
+    if (e.target.closest("[data-open-widget]")) {
+      var host = document.getElementById("bw-widget-host");
+      var launcher = host && host.shadowRoot && host.shadowRoot.querySelector(".bw-launcher");
+      var panel = host && host.shadowRoot && host.shadowRoot.querySelector(".bw-panel");
+      if (launcher && (!panel || panel.hidden)) launcher.click();
+    }
+  });
+  document.querySelector("[data-ask]").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") toast("Tip: ask Vera in the chat — she searches this store for you");
+  });
+</script>
+
+<!-- The only change a store owner makes to enable the AI Beauty Adviser: -->
 <script src="/widget-loader.js" async></script>
 </body>
 </html>
