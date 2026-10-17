@@ -51,7 +51,11 @@ export function AdminSidebar({
       <div className="mt-auto flex flex-col gap-2 p-3">
         <LocaleSwitcher />
         <button
-          onClick={() => fetch("/api/admin/login", { method: "DELETE" }).then(() => location.reload())}
+          onClick={async () => {
+            await fetch("/api/admin/login", { method: "DELETE" });
+            router.replace("/login");
+            router.refresh();
+          }}
           className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs text-neutral-500 hover:bg-neutral-50"
         >
           {t("logout")}

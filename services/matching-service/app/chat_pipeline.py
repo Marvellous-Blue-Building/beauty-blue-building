@@ -185,7 +185,27 @@ async def understand_chat_message(
         # step 14 (services/ai-advisor's Gemma call) consumes this list.
         conversation_context = [*conversation_context, f"context: {environmental_context}"]
 
+    # Grounding Rule from COPY_KB.py:
+    # weigh ALL of these signals that are actually present, together:
+    # 1) shopper's own words, 2) Color/Face Shape Analysis result, 3) questionnaire answers.
+    grounding_note = (
+        "GROUNDING RULE: weigh ALL of these signals that are actually present, together: "
+        "1) shopper's own words, 2) Color/Face Shape Analysis result, 3) questionnaire answers."
+    )
+    conversation_context = [*conversation_context, grounding_note]
+
+    # Response Format Rule from COPY_KB.py:
+    # your entire reply is ONE short opening sentence acknowledging what the shopper is looking for — nothing else.
+    # NEVER name a specific product in the text; they are shown in cards below.
+    format_note = (
+        "RESPONSE FORMAT RULE: your entire reply is ONE short opening sentence acknowledging "
+        "what the shopper is looking for — nothing else. NEVER name a specific "
+        "product in the text; they are shown in cards below."
+    )
+    conversation_context = [*conversation_context, format_note]
+
     # Learns from this user's OWN history, not just the single message/scan
+
     # in front of it right now — recognized entities from every chat
     # message they've ever sent (across all their conversations, not just
     # this one) plus boost keywords from their last several real skin

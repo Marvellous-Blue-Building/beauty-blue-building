@@ -1635,18 +1635,59 @@ function SimulatorSection() {
           {messages.length === 0 && <p className="text-center text-sm text-neutral-400">{t("emptyState")}</p>}
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${m.role === "user" ? "bg-primary text-white" : "bg-neutral-100 text-neutral-800"}`}>
-                {m.text}
-                {m.products && m.products.length > 0 && (
-                  <div className="mt-2 flex flex-col gap-1 border-t border-black/10 pt-2">
-                    {m.products.slice(0, 3).map((p, j) => (
-                      <div key={j} className="text-xs opacity-80">
-                        {p.brand} — {p.name} {p.price != null ? `· Rp ${Number(p.price).toLocaleString("id-ID")}` : ""}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${m.role === "user" ? "bg-primary text-white" : "bg-neutral-100 text-neutral-800"}`}>
+                  {m.text?.includes("[Skin Scanning Analysis Tool]") ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <img 
+                        src="/assets/skin_analysis_tool.png" 
+                        alt="Skin Analysis Tool" 
+                        className="w-[100px] h-auto rounded-[10px] object-cover shadow-sm" 
+                      />
+                      <span className="text-[11px] font-medium text-neutral-500">Skin Scanning Analysis Tool</span>
+                    </div>
+                  ) : (
+                    <>
+                      {m.text}
+                      {m.products && m.products.length > 0 && (
+                        <div className="mt-2 flex gap-2 overflow-x-auto pb-2">
+                          {m.products.slice(0, 3).map((p, j) => (
+                            <div key={j} className="flex-shrink-0 w-32 rounded-lg border border-neutral-200 bg-white p-2 shadow-sm">
+                              <img 
+                                src={p.imageUrl || "/product.png"} 
+                                alt={p.name} 
+                                className="w-full h-20 object-cover rounded-md mb-2" 
+                              />
+                              <div className="text-[10px] font-bold truncate">{p.name}</div>
+                              <div className="text-[9px] text-neutral-500 truncate">{p.brand}</div>
+                              <div className="flex flex-col gap-1 mt-1">
+                                {p.colorPalette && p.colorPalette.length > 0 && (
+                                  <div className="flex flex-wrap gap-1">
+                                    {p.colorPalette.map((hex, idx) => (
+                                      <div 
+                                        key={idx} 
+                                        className="h-2 w-2 rounded-full border border-neutral-300" 
+                                        style={{ backgroundColor: hex }} 
+                                        title={hex}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                                {p.sizeLabel && (
+                                  <div className="text-[8px] font-medium text-neutral-600 italic truncate">
+                                    {p.sizeLabel}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-[10px] font-semibold text-primary mt-1">
+                                {p.price != null ? `Rp ${Number(p.price).toLocaleString("id-ID")}` : ""}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
             </div>
           ))}
           {sending && <div className="text-xs text-neutral-400">{t("typing")}</div>}
@@ -1869,56 +1910,13 @@ function AdminShell() {
   );
 }
 
-function LoginGate({ onSuccess }: { onSuccess: () => void }) {
-  const t = useTranslations("admin.login");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-
-  async function submit() {
-    setError(null);
-    const res = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
-    if (res.ok) onSuccess();
-    else setError(t("wrongPassword"));
-  }
-
-  return (
-    <div className="flex h-full w-full items-center justify-center px-5">
-      <div className="w-full max-w-sm rounded-xl border border-neutral-200 bg-white p-8 text-center shadow-sm">
-        <h1 className="mb-5 text-xl font-bold text-neutral-900">{t("title")}</h1>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder={t("passwordPlaceholder")}
-          className="mb-3 w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-        />
-        <button onClick={submit} className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">
-          {t("submit")}
-        </button>
-        {error && <p className="mt-3 text-xs text-red-600">{error}</p>}
-      </div>
-    </div>
-  );
-}
-
 export default function AdminPage() {
-  const [authed, setAuthed] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    fetch("/api/admin/products").then((res) => setAuthed(res.status !== 401));
-  }, []);
-
   return (
     <div
       className="fixed inset-0 z-[999999] overflow-hidden bg-neutral-50 text-neutral-900"
       style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
     >
-      {authed === null ? null : authed ? <AdminShell /> : <LoginGate onSuccess={() => setAuthed(true)} />}
+      <AdminShell />
     </div>
   );
 }
