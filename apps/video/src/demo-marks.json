@@ -1,0 +1,26 @@
+{
+  "duration": 92.488,
+  "frames": 3099,
+  "marks": {
+    "store": 0,
+    "openWidget": 10.338,
+    "scanGuide": 13.653,
+    "scanStart": 23.221,
+    "poseFrontCue": 23.275,
+    "poseFrontSaved": 26.893,
+    "poseRightCue": 26.893,
+    "poseRightSaved": 29.346,
+    "poseLeftCue": 29.346,
+    "poseLeftSaved": 36.762,
+    "analysing": 36.914,
+    "report": 41.215,
+    "tabShape": 52.252,
+    "tabSkin": 60.617,
+    "askChat": 68.971,
+    "chipLipstick": 71.595,
+    "lipCards": 71.797,
+    "typeQuestion": 79.222,
+    "serumCards": 83.469,
+    "end": 92.488
+  }
+}
