@@ -25,6 +25,17 @@ export interface FlaggedZone {
 /** Diagnostic report returned by the real Python skin-scanning service
  * (services/skin-scanning) via the /api/scan-analyze proxy. Extends the
  * metric wire contract so it can still be fed to the RAG matching pipeline. */
+/** The headline beauty-scan readings, carried on the scan report so they are
+ * saved with it (scan_results.raw_json_data, via /api/match-routine). The
+ * full result lives in the scan store (lib/store/scan-store.ts). */
+export interface BeautySummary {
+  captureMode: string;
+  seasonKey: string | null;
+  undertone: string | null;
+  faceShapeKey: string | null;
+  skinTypeKey: string | null;
+}
+
 export interface ScanReport extends ScanMetrics {
   /** Scoring model version; scores from different versions aren't on the
    * same scale. Absent means version 1. */
@@ -34,4 +45,5 @@ export interface ScanReport extends ScanMetrics {
   createdAt: string;
   ragTriggerStatus: string;
   flaggedZones: FlaggedZone[];
+  beauty?: BeautySummary;
 }

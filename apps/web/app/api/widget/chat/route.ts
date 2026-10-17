@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       await saveWidgetMessage({ conversationId, role: "user", text: message });
 
       try {
-        const reply = await generateWidgetBotReply(conversationId, message);
+        const reply = await generateWidgetBotReply(conversationId, message, sessionId);
         await saveWidgetMessage({
           conversationId,
           role: "bot",

@@ -1,0 +1,1633 @@
+{
+  "schemaVersion": 1,
+  "source": "PLACEHOLDER PALETTES \u2014 NOT FINAL. The twelve-season framework is a long-established, publicly documented colour-analysis system. These hex values were set quickly from published seasonal colour direction so results can be shown; they have not been set by a colourist or checked on real faces across a range of skin tones. Replace them once a colourist has tuned each swatch.",
+  "categories": [
+    {
+      "id": "lip",
+      "label": "Lipstick",
+      "defaultOpacity": 0.62,
+      "blend": "Multiply"
+    },
+    {
+      "id": "blush",
+      "label": "Blush",
+      "defaultOpacity": 0.28,
+      "blend": "SoftLight"
+    },
+    {
+      "id": "eyeshadow",
+      "label": "Eyeshadow",
+      "defaultOpacity": 0.42,
+      "blend": "Multiply"
+    },
+    {
+      "id": "eyeliner",
+      "label": "Eyeliner",
+      "defaultOpacity": 0.85,
+      "blend": "Normal"
+    },
+    {
+      "id": "brow",
+      "label": "Brow",
+      "defaultOpacity": 0.45,
+      "blend": "Multiply"
+    },
+    {
+      "id": "highlighter",
+      "label": "Highlighter",
+      "defaultOpacity": 0.3,
+      "blend": "Screen"
+    }
+  ],
+  "seasons": [
+    {
+      "key": "bright_spring",
+      "displayName": "Bright Spring",
+      "family": "Spring",
+      "undertone": "Neutral-warm",
+      "value": "Medium",
+      "chroma": "High",
+      "contrast": "High",
+      "bestMetals": [
+        "Shiny yellow gold",
+        "Brass"
+      ],
+      "avoid": [
+        "Cloudy grey",
+        "Chalk blue",
+        "Smokey grey/silver makeup"
+      ],
+      "categories": [
+        {
+          "id": "lip",
+          "swatches": [
+            {
+              "name": "Clear Coral",
+              "hex": "#FF6F4F"
+            },
+            {
+              "name": "Poppy Red",
+              "hex": "#F03B24"
+            },
+            {
+              "name": "Watermelon",
+              "hex": "#F0466B"
+            },
+            {
+              "name": "Warm Fuchsia",
+              "hex": "#E23E8C"
+            },
+            {
+              "name": "Bright Papaya",
+              "hex": "#FF7A45"
+            },
+            {
+              "name": "Tulip Pink",
+              "hex": "#F4547E"
+            }
+          ]
+        },
+        {
+          "id": "blush",
+          "swatches": [
+            {
+              "name": "Warm Peach",
+              "hex": "#FF9273"
+            },
+            {
+              "name": "Coral Glow",
+              "hex": "#FA7A63"
+            },
+            {
+              "name": "Bright Apricot",
+              "hex": "#FFA277"
+            }
+          ]
+        },
+        {
+          "id": "eyeshadow",
+          "swatches": [
+            {
+              "name": "Champagne Warm",
+              "hex": "#EBCBA4"
+            },
+            {
+              "name": "Apricot Cream",
+              "hex": "#F3B183"
+            },
+            {
+              "name": "Golden Bronze",
+              "hex": "#B87333"
+            },
+            {
+              "name": "Turquoise Accent",
+              "hex": "#1FBFB8"
+            },
+            {
+              "name": "Milk Chocolate",
+              "hex": "#6B4429"
+            }
+          ]
+        },
+        {
+          "id": "eyeliner",
+          "swatches": [
+            {
+              "name": "Warm Espresso",
+              "hex": "#3A2418"
+            },
+            {
+              "name": "Ink Blue",
+              "hex": "#1F3A6E"
+            },
+            {
+              "name": "Bronze Liner",
+              "hex": "#8C5A2B"
+            }
+          ]
+        },
+        {
+          "id": "brow",
+          "swatches": [
+            {
+              "name": "Warm Medium Brown",
+              "hex": "#7A5233"
+            },
+            {
+              "name": "Golden Chestnut",
+              "hex": "#8E5A2E"
+            }
+          ]
+        },
+        {
+          "id": "highlighter",
+          "swatches": [
+            {
+              "name": "Golden Champagne",
+              "hex": "#F6DCA8"
+            },
+            {
+              "name": "Warm Topaz",
+              "hex": "#EFC178"
+            }
+          ]
+        }
+      ],
+      "productUrl": ""
+    },
+    {
+      "key": "true_spring",
+      "displayName": "True Spring",
+      "family": "Spring",
+      "undertone": "Warm",
+      "value": "Light-medium",
+      "chroma": "Medium-high",
+      "contrast": "Medium",
+      "bestMetals": [
+        "Yellow gold",
+        "Warm brass"
+      ],
+      "avoid": [
+        "Cool pinks",
+        "Ash tones",
+        "Black"
+      ],
+      "categories": [
+        {
+          "id": "lip",
+          "swatches": [
+            {
+              "name": "True Coral",
+              "hex": "#FF7357"
+            },
+            {
+              "name": "Tomato Red",
+              "hex": "#E64A2E"
+            },
+            {
+              "name": "Warm Peach Rose",
+              "hex": "#F58A6D"
+            },
+            {
+              "name": "Golden Salmon",
+              "hex": "#F97B57"
+            },
+            {
+              "name": "Sunlit Red",
+              "hex": "#EF5B3C"
+            }
+          ]
+        },
+        {
+          "id": "blush",
+          "swatches": [
+            {
+              "name": "Apricot",
+              "hex": "#FBA079"
+            },
+            {
+              "name": "Fresh Peach",
+              "hex": "#FFAE8A"
+            },
+            {
+              "name": "Warm Salmon",
+              "hex": "#F58B6E"
+            }
+          ]
+        },
+        {
+          "id": "eyeshadow",
+          "swatches": [
+            {
+              "name": "Golden Beige",
+              "hex": "#E4C49A"
+            },
+            {
+              "name": "Warm Caramel",
+              "hex": "#C08B54"
+            },
+            {
+              "name": "Moss Green",
+              "hex": "#7E8B4A"
+            },
+            {
+              "name": "Copper Glow",
+              "hex": "#C0713F"
+            },
+            {
+              "name": "Camel",
+              "hex": "#C29A6B"
+            }
+          ]
+        },
+        {
+          "id": "eyeliner",
+          "swatches": [
+            {
+              "name": "Warm Brown",
+              "hex": "#5B3A22"
+            },
+            {
+              "name": "Camel Brown",
+              "hex": "#8A5C36"
+            },
+            {
+              "name": "Deep Olive",
+              "hex": "#4A4A2A"
+            }
+          ]
+        },
+        {
+          "id": "brow",
+          "swatches": [
+            {
+              "name": "Golden Brown",
+              "hex": "#8A5F36"
+            },
+            {
+              "name": "Honey Brown",
+              "hex": "#9B6C3F"
+            }
+          ]
+        },
+        {
+          "id": "highlighter",
+          "swatches": [
+            {
+              "name": "Honey Gold",
+              "hex": "#F2CE8F"
+            },
+            {
+              "name": "Warm Vanilla",
+              "hex": "#F7E3BE"
+            }
+          ]
+        }
+      ],
+      "productUrl": ""
+    },
+    {
+      "key": "light_spring",
+      "displayName": "Light Spring",
+      "family": "Spring",
+      "undertone": "Warm",
+      "value": "Light",
+      "chroma": "Medium",
+      "contrast": "Low-medium",
+      "bestMetals": [
+        "Light yellow gold",
+        "Rose-tinted gold"
+      ],
+      "avoid": [
+        "Black",
+        "Heavy dark shades",
+        "Icy cool tones"
+      ],
+      "categories": [
+        {
+          "id": "lip",
+          "swatches": [
+            {
+              "name": "Peach Pink",
+              "hex": "#FCA88E"
+            },
+            {
+              "name": "Soft Coral",
+              "hex": "#FA8E74"
+            },
+            {
+              "name": "Light Warm Rose",
+              "hex": "#F09A93"
+            },
+            {
+              "name": "Sherbet",
+              "hex": "#FFB09A"
+            },
+            {
+              "name": "Petal Peach",
+              "hex": "#F7A88C"
+            }
+          ]
+        },
+        {
+          "id": "blush",
+          "swatches": [
+            {
+              "name": "Light Peach",
+              "hex": "#FFBDA1"
+            },
+            {
+              "name": "Soft Blush Pink",
+              "hex": "#F7AFA4"
+            },
+            {
+              "name": "Warm Rosewater",
+              "hex": "#F5A392"
+            }
+          ]
+        },
+        {
+          "id": "eyeshadow",
+          "swatches": [
+            {
+              "name": "Vanilla Cream",
+              "hex": "#F6E5CB"
+            },
+            {
+              "name": "Light Apricot",
+              "hex": "#F5C7A6"
+            },
+            {
+              "name": "Warm Taupe Light",
+              "hex": "#C4A387"
+            },
+            {
+              "name": "Soft Aqua",
+              "hex": "#8FCFC8"
+            },
+            {
+              "name": "Light Toffee",
+              "hex": "#B98F65"
+            }
+          ]
+        },
+        {
+          "id": "eyeliner",
+          "swatches": [
+            {
+              "name": "Soft Brown",
+              "hex": "#7A5540"
+            },
+            {
+              "name": "Warm Grey-Brown",
+              "hex": "#7C6A5C"
+            },
+            {
+              "name": "Light Bronze",
+              "hex": "#A4763F"
+            }
+          ]
+        },
+        {
+          "id": "brow",
+          "swatches": [
+            {
+              "name": "Light Warm Brown",
+              "hex": "#9A7350"
+            },
+            {
+              "name": "Soft Honey",
+              "hex": "#AC8358"
+            }
+          ]
+        },
+        {
+          "id": "highlighter",
+          "swatches": [
+            {
+              "name": "Light Gold",
+              "hex": "#F7E0B4"
+            },
+            {
+              "name": "Peach Pearl",
+              "hex": "#FBDCC7"
+            }
+          ]
+        }
+      ],
+      "productUrl": ""
+    },
+    {
+      "key": "light_summer",
+      "displayName": "Light Summer",
+      "family": "Summer",
+      "undertone": "Cool",
+      "value": "Light",
+      "chroma": "Soft-medium",
+      "contrast": "Low",
+      "bestMetals": [
+        "Silver",
+        "White gold",
+        "Light rose gold"
+      ],
+      "avoid": [
+        "Black",
+        "Orange/warm gold",
+        "High-chroma brights"
+      ],
+      "categories": [
+        {
+          "id": "lip",
+          "swatches": [
+            {
+              "name": "Soft Rose",
+              "hex": "#E497A2"
+            },
+            {
+              "name": "Cool Petal Pink",
+              "hex": "#EFA3B4"
+            },
+            {
+              "name": "Mauve Pink",
+              "hex": "#D9909F"
+            },
+            {
+              "name": "Rosewater",
+              "hex": "#EBAAB2"
+            },
+            {
+              "name": "Light Berry",
+              "hex": "#CE7E95"
+            }
+          ]
+        },
+        {
+          "id": "blush",
+          "swatches": [
+            {
+              "name": "Cool Rose",
+              "hex": "#EDA3B0"
+            },
+            {
+              "name": "Soft Pink",
+              "hex": "#F2B3BC"
+            },
+            {
+              "name": "Light Mauve",
+              "hex": "#DDA1AE"
+            }
+          ]
+        },
+        {
+          "id": "eyeshadow",
+          "swatches": [
+            {
+              "name": "Pearl Grey",
+              "hex": "#CFCBD3"
+            },
+            {
+              "name": "Soft Lilac",
+              "hex": "#C3B2D1"
+            },
+            {
+              "name": "Cool Taupe Light",
+              "hex": "#B7ACA8"
+            },
+            {
+              "name": "Powder Blue",
+              "hex": "#A9C2D9"
+            },
+            {
+              "name": "Soft Cocoa",
+              "hex": "#8E7A76"
+            }
+          ]
+        },
+        {
+          "id": "eyeliner",
+          "swatches": [
+            {
+              "name": "Soft Grey-Brown",
+              "hex": "#6B6068"
+            },
+            {
+              "name": "Slate",
+              "hex": "#5C6875"
+            },
+            {
+              "name": "Cool Plum",
+              "hex": "#6E4F63"
+            }
+          ]
+        },
+        {
+          "id": "brow",
+          "swatches": [
+            {
+              "name": "Ash Light Brown",
+              "hex": "#8B7A6E"
+            },
+            {
+              "name": "Cool Taupe Brow",
+              "hex": "#7E7168"
+            }
+          ]
+        },
+        {
+          "id": "highlighter",
+          "swatches": [
+            {
+              "name": "Pearl",
+              "hex": "#F1E9EC"
+            },
+            {
+              "name": "Silver Pink",
+              "hex": "#EFD8DD"
+            }
+          ]
+        }
+      ],
+      "productUrl": ""
+    },
+    {
+      "key": "true_summer",
+      "displayName": "True Summer",
+      "family": "Summer",
+      "undertone": "Cool",
+      "value": "Medium",
+      "chroma": "Muted",
+      "contrast": "Low-medium",
+      "bestMetals": [
+        "Silver",
+        "White gold"
+      ],
+      "avoid": [
+        "Warm orange tones",
+        "Yellow gold",
+        "Black"
+      ],
+      "categories": [
+        {
+          "id": "lip",
+          "swatches": [
+            {
+              "name": "Rose",
+              "hex": "#D4788C"
+            },
+            {
+              "name": "Cool Berry",
+              "hex": "#B85477"
+            },
+            {
+              "name": "Soft Plum Rose",
+              "hex": "#A85D77"
+            },
+            {
+              "name": "Dusty Raspberry",
+              "hex": "#C0607F"
+            },
+            {
+              "name": "Cool Watermelon",
+              "hex": "#D96B87"
+            }
+          ]
+        },
+        {
+          "id": "blush",
+          "swatches": [
+            {
+              "name": "Rose Pink",
+              "hex": "#E093A4"
+            },
+            {
+              "name": "Cool Mauve",
+              "hex": "#C98CA0"
+            },
+            {
+              "name": "Soft Raspberry",
+              "hex": "#D0798F"
+            }
+          ]
+        },
+        {
+          "id": "eyeshadow",
+          "swatches": [
+            {
+              "name": "Cool Grey",
+              "hex": "#9A9BA3"
+            },
+            {
+              "name": "Dusty Blue",
+              "hex": "#7E96B4"
+            },
+            {
+              "name": "Mauve",
+              "hex": "#A98BA0"
+            },
+            {
+              "name": "Soft Navy",
+              "hex": "#3F4E6B"
+            },
+            {
+              "name": "Cocoa Cool",
+              "hex": "#7A6663"
+            }
+          ]
+        },
+        {
+          "id": "eyeliner",
+          "swatches": [
+            {
+              "name": "Cool Grey",
+              "hex": "#5B5F68"
+            },
+            {
+              "name": "Navy",
+              "hex": "#2F3F5E"
+            },
+            {
+              "name": "Deep Mauve",
+              "hex": "#5A415A"
+            }
+          ]
+        },
+        {
+          "id": "brow",
+          "swatches": [
+            {
+              "name": "Cool Medium Brown",
+              "hex": "#6F6259"
+            },
+            {
+              "name": "Ash Brown",
+              "hex": "#736A63"
+            }
+          ]
+        },
+        {
+          "id": "highlighter",
+          "swatches": [
+            {
+              "name": "Pearl Rose",
+              "hex": "#F0DDE2"
+            },
+            {
+              "name": "Cool Champagne",
+              "hex": "#EDE3DC"
+            }
+          ]
+        }
+      ],
+      "productUrl": ""
+    },
+    {
+      "key": "soft_summer",
+      "displayName": "Soft Summer",
+      "family": "Summer",
+      "undertone": "Cool-neutral",
+      "value": "Medium",
+      "chroma": "Most muted",
+      "contrast": "Low",
+      "bestMetals": [
+        "Brushed silver",
+        "Matte white gold"
+      ],
+      "avoid": [
+        "Bright/clear colours",
+        "Black",
+        "Warm orange"
+      ],
+      "categories": [
+        {
+          "id": "lip",
+          "swatches": [
+            {
+              "name": "Dusty Rose",
+              "hex": "#C58A93"
+            },
+            {
+              "name": "Soft Mauve",
+              "hex": "#B08094"
+            },
+            {
+              "name": "Muted Berry",
+              "hex": "#A0637A"
+            },
+            {
+              "name": "Rosewood Muted",
+              "hex": "#AD7885"
+            },
+            {
+              "name": "Smoked Plum",
+              "hex": "#8E6376"
+            }
+          ]
+        },
+        {
+          "id": "blush",
+          "swatches": [
+            {
+              "name": "Muted Rose",
+              "hex": "#D3959D"
+            },
+            {
+              "name": "Dusty Pink",
+              "hex": "#DBA1A6"
+            },
+            {
+              "name": "Soft Cool Peach",
+              "hex": "#D5989B"
+            }
+          ]
+        },
+        {
+          "id": "eyeshadow",
+          "swatches": [
+            {
+              "name": "Cloud Grey",
+              "hex": "#B0AEB0"
+            },
+            {
+              "name": "Dusty Mauve",
+              "hex": "#A08C99"
+            },
+            {
+              "name": "Soft Slate",
+              "hex": "#7C8791"
+            },
+            {
+              "name": "Muted Sage",
+              "hex": "#8E9A8E"
+            },
+            {
+              "name": "Soft Cocoa Grey",
+              "hex": "#7E7370"
+            }
+          ]
+        },
+        {
+          "id": "eyeliner",
+          "swatches": [
+            {
+              "name": "Soft Charcoal",
+              "hex": "#4E4E52"
+            },
+            {
+              "name": "Muted Plum",
+              "hex": "#5F4756"
+            },
+            {
+              "name": "Grey Taupe",
+              "hex": "#6A625F"
+            }
+          ]
+        },
+        {
+          "id": "brow",
+          "swatches": [
+            {
+              "name": "Soft Ash Brown",
+              "hex": "#7A7069"
+            },
+            {
+              "name": "Muted Taupe",
+              "hex": "#847A73"
+            }
+          ]
+        },
+        {
+          "id": "highlighter",
+          "swatches": [
+            {
+              "name": "Soft Pearl",
+              "hex": "#EDE6E6"
+            },
+            {
+              "name": "Muted Rose Glow",
+              "hex": "#E9D5D6"
+            }
+          ]
+        }
+      ],
+      "productUrl": ""
+    },
+    {
+      "key": "soft_autumn",
+      "displayName": "Soft Autumn",
+      "family": "Autumn",
+      "undertone": "Neutral-warm",
+      "value": "Medium",
+      "chroma": "Muted",
+      "contrast": "Low",
+      "bestMetals": [
+        "Brushed/hammered white gold",
+        "Rose gold",
+        "Soft yellow gold",
+        "Champagne gold"
+      ],
+      "avoid": [
+        "Black",
+        "Ruby red",
+        "Cool blue-toned cosmetics",
+        "Highly yellow/orange makeup"
+      ],
+      "categories": [
+        {
+          "id": "lip",
+          "swatches": [
+            {
+              "name": "Warm Apricot Rose",
+              "hex": "#C98A72"
+            },
+            {
+              "name": "Muted Terracotta",
+              "hex": "#B5705A"
+            },
+            {
+              "name": "Soft Brick",
+              "hex": "#A9604F"
+            },
+            {
+              "name": "Old Rose",
+              "hex": "#B57F7C"
+            },
+            {
+              "name": "Latte Nude",
+              "hex": "#B98977"
+            },
+            {
+              "name": "Muted Rosewood",
+              "hex": "#A9706A"
+            }
+          ]
+        },
+        {
+          "id": "blush",
+          "swatches": [
+            {
+              "name": "Warm Apricot",
+              "hex": "#D89A80"
+            },
+            {
+              "name": "Soft Peach Brown",
+              "hex": "#C99280"
+            },
+            {
+              "name": "Muted Coral",
+              "hex": "#CE8C77"
+            }
+          ]
+        },
+        {
+          "id": "eyeshadow",
+          "swatches": [
+            {
+              "name": "Champagne Gold",
+              "hex": "#DCC39A"
+            },
+            {
+              "name": "Soft Brown",
+              "hex": "#8F6F55"
+            },
+            {
+              "name": "Sage",
+              "hex": "#8D9478"
+            },
+            {
+              "name": "Latte",
+              "hex": "#B49A80"
+            },
+            {
+              "name": "Black Coffee",
+              "hex": "#4A3B33"
+            }
+          ]
+        },
+        {
+          "id": "eyeliner",
+          "swatches": [
+            {
+              "name": "Soft Brown",
+              "hex": "#6B5343"
+            },
+            {
+              "name": "Black Coffee",
+              "hex": "#3C2F28"
+            },
+            {
+              "name": "Muted Bronze",
+              "hex": "#8A6A43"
+            }
+          ]
+        },
+        {
+          "id": "brow",
+          "swatches": [
+            {
+              "name": "Hazelnut Brunette",
+              "hex": "#7C5F47"
+            },
+            {
+              "name": "Medium Golden Brown",
+              "hex": "#8A6949"
+            }
+          ]
+        },
+        {
+          "id": "highlighter",
+          "swatches": [
+            {
+              "name": "Champagne Gold",
+              "hex": "#E7D3AE"
+            },
+            {
+              "name": "Warm Biscuit",
+              "hex": "#E5CFB4"
+            }
+          ]
+        }
+      ],
+      "productUrl": ""
+    },
+    {
+      "key": "true_autumn",
+      "displayName": "True Autumn",
+      "family": "Autumn",
+      "undertone": "Warm",
+      "value": "Medium-deep",
+      "chroma": "Rich, medium chroma",
+      "contrast": "Medium",
+      "bestMetals": [
+        "Yellow gold",
+        "Antique gold",
+        "Copper"
+      ],
+      "avoid": [
+        "Cool pastels",
+        "Icy tones",
+        "Pure black"
+      ],
+      "categories": [
+        {
+          "id": "lip",
+          "swatches": [
+            {
+              "name": "Terracotta",
+              "hex": "#B85C3E"
+            },
+            {
+              "name": "Brick Red",
+              "hex": "#A8402F"
+            },
+            {
+              "name": "Warm Russet",
+              "hex": "#9C4A32"
+            },
+            {
+              "name": "Pumpkin",
+              "hex": "#C86A38"
+            },
+            {
+              "name": "Spiced Rust",
+              "hex": "#AE5636"
+            }
+          ]
+        },
+        {
+          "id": "blush",
+          "swatches": [
+            {
+              "name": "Warm Terracotta",
+              "hex": "#C97C5C"
+            },
+            {
+              "name": "Bronzed Peach",
+              "hex": "#D08A64"
+            },
+            {
+              "name": "Copper Rose",
+              "hex": "#BE7358"
+            }
+          ]
+        },
+        {
+          "id": "eyeshadow",
+          "swatches": [
+            {
+              "name": "Bronze",
+              "hex": "#A9713C"
+            },
+            {
+              "name": "Copper",
+              "hex": "#B4622F"
+            },
+            {
+              "name": "Olive",
+              "hex": "#6E6B36"
+            },
+            {
+              "name": "Warm Chocolate",
+              "hex": "#5A3C29"
+            },
+            {
+              "name": "Golden Amber",
+              "hex": "#C79441"
+            }
+          ]
+        },
+        {
+          "id": "eyeliner",
+          "swatches": [
+            {
+              "name": "Chocolate Brown",
+              "hex": "#43291B"
+            },
+            {
+              "name": "Deep Olive",
+              "hex": "#3F411F"
+            },
+            {
+              "name": "Burnt Bronze",
+              "hex": "#7A4A24"
+            }
+          ]
+        },
+        {
+          "id": "brow",
+          "swatches": [
+            {
+              "name": "Warm Chestnut",
+              "hex": "#6B462B"
+            },
+            {
+              "name": "Golden Brunette",
+              "hex": "#7A5330"
+            }
+          ]
+        },
+        {
+          "id": "highlighter",
+          "swatches": [
+            {
+              "name": "Bronze Gold",
+              "hex": "#E0BB7E"
+            },
+            {
+              "name": "Amber Glow",
+              "hex": "#DDAE6C"
+            }
+          ]
+        }
+      ],
+      "productUrl": ""
+    },
+    {
+      "key": "dark_autumn",
+      "displayName": "Dark Autumn",
+      "family": "Autumn",
+      "undertone": "Warm-neutral",
+      "value": "Deep",
+      "chroma": "Deep, rich",
+      "contrast": "High",
+      "bestMetals": [
+        "Antique gold",
+        "Bronze",
+        "Dark yellow gold"
+      ],
+      "avoid": [
+        "Pastels",
+        "Icy/light cool shades"
+      ],
+      "categories": [
+        {
+          "id": "lip",
+          "swatches": [
+            {
+              "name": "Deep Brick",
+              "hex": "#8E3A2B"
+            },
+            {
+              "name": "Mahogany",
+              "hex": "#7A3327"
+            },
+            {
+              "name": "Warm Burgundy Brown",
+              "hex": "#6E2B2A"
+            },
+            {
+              "name": "Oxblood",
+              "hex": "#5F2222"
+            },
+            {
+              "name": "Spiced Plum Brown",
+              "hex": "#733442"
+            }
+          ]
+        },
+        {
+          "id": "blush",
+          "swatches": [
+            {
+              "name": "Deep Terracotta",
+              "hex": "#B4664C"
+            },
+            {
+              "name": "Warm Rosewood",
+              "hex": "#A55E52"
+            },
+            {
+              "name": "Burnished Rose",
+              "hex": "#9B5B4F"
+            }
+          ]
+        },
+        {
+          "id": "eyeshadow",
+          "swatches": [
+            {
+              "name": "Dark Chocolate",
+              "hex": "#3E2A1E"
+            },
+            {
+              "name": "Deep Bronze",
+              "hex": "#8A5A2C"
+            },
+            {
+              "name": "Forest",
+              "hex": "#2F4A32"
+            },
+            {
+              "name": "Aubergine Brown",
+              "hex": "#4A2B33"
+            },
+            {
+              "name": "Antique Gold",
+              "hex": "#B08C46"
+            }
+          ]
+        },
+        {
+          "id": "eyeliner",
+          "swatches": [
+            {
+              "name": "Espresso",
+              "hex": "#2C1D15"
+            },
+            {
+              "name": "Olive Black",
+              "hex": "#26281A"
+            },
+            {
+              "name": "Deep Bronze",
+              "hex": "#5E3D1E"
+            }
+          ]
+        },
+        {
+          "id": "brow",
+          "swatches": [
+            {
+              "name": "Deep Chestnut",
+              "hex": "#4F3524"
+            },
+            {
+              "name": "Dark Warm Brunette",
+              "hex": "#412C1E"
+            }
+          ]
+        },
+        {
+          "id": "highlighter",
+          "swatches": [
+            {
+              "name": "Deep Gold",
+              "hex": "#D4AC63"
+            },
+            {
+              "name": "Burnished Bronze",
+              "hex": "#C79657"
+            }
+          ]
+        }
+      ],
+      "productUrl": ""
+    },
+    {
+      "key": "dark_winter",
+      "displayName": "Dark Winter",
+      "family": "Winter",
+      "undertone": "Cool-neutral",
+      "value": "Deep",
+      "chroma": "Clear, deep",
+      "contrast": "High",
+      "bestMetals": [
+        "Silver",
+        "White gold",
+        "Platinum"
+      ],
+      "avoid": [
+        "Warm muted earth tones",
+        "Orange",
+        "Muted pastels"
+      ],
+      "categories": [
+        {
+          "id": "lip",
+          "swatches": [
+            {
+              "name": "True Burgundy",
+              "hex": "#6E1F35"
+            },
+            {
+              "name": "Deep Cool Red",
+              "hex": "#951F30"
+            },
+            {
+              "name": "Plum",
+              "hex": "#5E2247"
+            },
+            {
+              "name": "Blackberry",
+              "hex": "#41172E"
+            },
+            {
+              "name": "Cool Wine",
+              "hex": "#7A2340"
+            }
+          ]
+        },
+        {
+          "id": "blush",
+          "swatches": [
+            {
+              "name": "Cool Berry",
+              "hex": "#B54A6B"
+            },
+            {
+              "name": "Deep Rose",
+              "hex": "#B15571"
+            },
+            {
+              "name": "Cool Plum Flush",
+              "hex": "#9C4560"
+            }
+          ]
+        },
+        {
+          "id": "eyeshadow",
+          "swatches": [
+            {
+              "name": "Charcoal",
+              "hex": "#3A3B40"
+            },
+            {
+              "name": "Deep Plum",
+              "hex": "#4A2440"
+            },
+            {
+              "name": "Pine",
+              "hex": "#1F4038"
+            },
+            {
+              "name": "Cool Taupe",
+              "hex": "#8A8079"
+            },
+            {
+              "name": "Icy Silver",
+              "hex": "#D6DBE0"
+            }
+          ]
+        },
+        {
+          "id": "eyeliner",
+          "swatches": [
+            {
+              "name": "True Black",
+              "hex": "#141416"
+            },
+            {
+              "name": "Deep Navy",
+              "hex": "#1B2545"
+            },
+            {
+              "name": "Blackened Plum",
+              "hex": "#2C1A2A"
+            }
+          ]
+        },
+        {
+          "id": "brow",
+          "swatches": [
+            {
+              "name": "Cool Dark Brown",
+              "hex": "#3B3230"
+            },
+            {
+              "name": "Espresso Cool",
+              "hex": "#2E2726"
+            }
+          ]
+        },
+        {
+          "id": "highlighter",
+          "swatches": [
+            {
+              "name": "Cool Silver Champagne",
+              "hex": "#E9E4DC"
+            },
+            {
+              "name": "Frost",
+              "hex": "#E4E9EE"
+            }
+          ]
+        }
+      ],
+      "productUrl": ""
+    },
+    {
+      "key": "true_winter",
+      "displayName": "True Winter",
+      "family": "Winter",
+      "undertone": "Cool",
+      "value": "Medium-deep",
+      "chroma": "Clear, high",
+      "contrast": "High",
+      "bestMetals": [
+        "Silver",
+        "White gold",
+        "Platinum"
+      ],
+      "avoid": [
+        "Warm gold",
+        "Earthy browns",
+        "Muted colours"
+      ],
+      "categories": [
+        {
+          "id": "lip",
+          "swatches": [
+            {
+              "name": "True Red",
+              "hex": "#C8102E"
+            },
+            {
+              "name": "Cool Cherry",
+              "hex": "#B01838"
+            },
+            {
+              "name": "Magenta",
+              "hex": "#B62A70"
+            },
+            {
+              "name": "Cool Berry",
+              "hex": "#9E2350"
+            },
+            {
+              "name": "Blue Red",
+              "hex": "#C11A3C"
+            }
+          ]
+        },
+        {
+          "id": "blush",
+          "swatches": [
+            {
+              "name": "Cool Pink",
+              "hex": "#E06A8E"
+            },
+            {
+              "name": "Raspberry",
+              "hex": "#C94C74"
+            },
+            {
+              "name": "Clear Rose",
+              "hex": "#DA5F82"
+            }
+          ]
+        },
+        {
+          "id": "eyeshadow",
+          "swatches": [
+            {
+              "name": "Cool Grey",
+              "hex": "#8E9299"
+            },
+            {
+              "name": "Icy Silver",
+              "hex": "#DCE1E6"
+            },
+            {
+              "name": "Sapphire",
+              "hex": "#1F4E9C"
+            },
+            {
+              "name": "Jet",
+              "hex": "#1A1A1D"
+            },
+            {
+              "name": "Cool Violet",
+              "hex": "#6A4A93"
+            }
+          ]
+        },
+        {
+          "id": "eyeliner",
+          "swatches": [
+            {
+              "name": "Jet Black",
+              "hex": "#0F0F11"
+            },
+            {
+              "name": "Sapphire",
+              "hex": "#173F84"
+            },
+            {
+              "name": "Cool Charcoal",
+              "hex": "#33363B"
+            }
+          ]
+        },
+        {
+          "id": "brow",
+          "swatches": [
+            {
+              "name": "Cool Dark Brown",
+              "hex": "#403734"
+            },
+            {
+              "name": "Soft Black",
+              "hex": "#2A2726"
+            }
+          ]
+        },
+        {
+          "id": "highlighter",
+          "swatches": [
+            {
+              "name": "Icy Silver",
+              "hex": "#EDF1F4"
+            },
+            {
+              "name": "Cool Pearl",
+              "hex": "#EFEAEE"
+            }
+          ]
+        }
+      ],
+      "productUrl": ""
+    },
+    {
+      "key": "bright_winter",
+      "displayName": "Bright Winter",
+      "family": "Winter",
+      "undertone": "Cool-neutral",
+      "value": "Medium",
+      "chroma": "Highest chroma",
+      "contrast": "Very high",
+      "bestMetals": [
+        "Shiny silver",
+        "Platinum",
+        "White gold"
+      ],
+      "avoid": [
+        "Muted/dusty shades",
+        "Warm earth tones"
+      ],
+      "categories": [
+        {
+          "id": "lip",
+          "swatches": [
+            {
+              "name": "Bright Cherry Red",
+              "hex": "#E01A3C"
+            },
+            {
+              "name": "Fuchsia",
+              "hex": "#D62D8B"
+            },
+            {
+              "name": "Hot Pink",
+              "hex": "#EE3E8B"
+            },
+            {
+              "name": "Bright Cool Coral",
+              "hex": "#F2456A"
+            },
+            {
+              "name": "Electric Berry",
+              "hex": "#C31E63"
+            }
+          ]
+        },
+        {
+          "id": "blush",
+          "swatches": [
+            {
+              "name": "Bright Cool Pink",
+              "hex": "#F26494"
+            },
+            {
+              "name": "Fuchsia Flush",
+              "hex": "#E45193"
+            },
+            {
+              "name": "Clear Watermelon",
+              "hex": "#F05C7E"
+            }
+          ]
+        },
+        {
+          "id": "eyeshadow",
+          "swatches": [
+            {
+              "name": "Icy White",
+              "hex": "#EFF3F7"
+            },
+            {
+              "name": "Bright Violet",
+              "hex": "#7B3FC4"
+            },
+            {
+              "name": "Electric Blue",
+              "hex": "#1668D6"
+            },
+            {
+              "name": "Jet",
+              "hex": "#141417"
+            },
+            {
+              "name": "Emerald",
+              "hex": "#0E8A5F"
+            }
+          ]
+        },
+        {
+          "id": "eyeliner",
+          "swatches": [
+            {
+              "name": "Jet Black",
+              "hex": "#0D0D10"
+            },
+            {
+              "name": "Electric Blue",
+              "hex": "#125BC0"
+            },
+            {
+              "name": "Bright Violet",
+              "hex": "#6B33B5"
+            }
+          ]
+        },
+        {
+          "id": "brow",
+          "swatches": [
+            {
+              "name": "Cool Dark Brown",
+              "hex": "#3A3230"
+            },
+            {
+              "name": "Soft Black",
+              "hex": "#252322"
+            }
+          ]
+        },
+        {
+          "id": "highlighter",
+          "swatches": [
+            {
+              "name": "Icy Platinum",
+              "hex": "#F2F5F8"
+            },
+            {
+              "name": "Crystal Pink",
+              "hex": "#F7E7EE"
+            }
+          ]
+        }
+      ],
+      "productUrl": ""
+    }
+  ],
+  "owner": "Blue Building",
+  "status": "placeholder"
+}
