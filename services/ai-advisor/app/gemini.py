@@ -116,6 +116,12 @@ def generate_reply(
             temperature=0.7,
             top_p=0.9,
             max_output_tokens=200,
+            # gemini-2.5-flash thinks by default, and that reasoning eats
+            # into max_output_tokens — left on, it was burning the whole
+            # budget on hidden "thinking" tokens and truncating the actual
+            # reply to a few words. This is a short-answer advisor
+            # fallback, not a reasoning task, so turn thinking off.
+            thinking_config=types.ThinkingConfig(thinking_budget=0),
         ),
     )
     return (response.text or "").strip()
