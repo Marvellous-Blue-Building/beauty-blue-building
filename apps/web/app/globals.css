@@ -39,6 +39,94 @@
   --font-mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
 }
 
+/*
+  Admin "Glassmorphism dashboard" theme — the development standard for every
+  admin/tenant-dashboard screen. Reference: docs/design/admin-glassmorphism-reference.webp,
+  rules: docs/admin-ui-guidelines.md. Scoped to admin via the `admin-*` names so
+  the shopper app palette above stays untouched.
+*/
+@theme {
+  --color-admin-ink: #404040; /* = neutral-700 — nothing in admin goes darker */
+  --color-admin-ink-muted: #6b7280;
+  --color-admin-ink-faint: #9ca3af;
+  /* Inactive sidebar menu text/icons — darker than ink-muted so it holds up on the photo backdrop. */
+  --color-admin-nav-ink: #595252;
+  /* Pink is the main/accent color; pink-strong is a derived darker shade for
+     hover and accent-colored text, which needs more contrast than #d26287
+     gives. Supporting neutrals come from docs/design/admin-color-palette.jpg. */
+  --color-admin-pink: #d26287;
+  --color-admin-pink-strong: #b0476d;
+  --color-admin-mint: #d3e3d6;
+  --color-admin-blush: #f2ded7;
+  --color-admin-rose: #efc5b9;
+  --color-admin-taupe: #dbcfc3;
+  --color-admin-cream: #f8f3ef;
+  --color-admin-accent: #d26287;
+  --color-admin-accent-strong: #b0476d;
+  /* Derived stroke/fill shades — rose & taupe are too light to read as a
+     chart line or behind white text at their palette values. */
+  --color-admin-rose-strong: #d9907d;
+  --color-admin-taupe-strong: #b3a290;
+  --color-admin-success: #22a06b;
+  --color-admin-danger: #e5484d;
+  --color-admin-warning: #e0a526;
+  --font-admin: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Frosted panel: sidebar, cards, modals, the login card.
+   Blur goes through Tailwind's backdrop utilities via @apply — a raw
+   `backdrop-filter` declaration inside @utility gets dropped from the build. */
+@utility glass-panel {
+  background: rgb(255 255 255 / 0.45);
+  border: 1px solid rgb(255 255 255 / 0.65);
+  box-shadow:
+    0 8px 32px rgb(31 41 55 / 0.08),
+    inset 0 1px 0 rgb(255 255 255 / 0.6);
+  @apply backdrop-blur-[24px] backdrop-saturate-[160%];
+}
+
+/* Outer dashboard frame — the big translucent sheet holding sidebar + main. */
+@utility glass-frame {
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.42), rgb(255 255 255 / 0.2));
+  border: 1px solid rgb(255 255 255 / 0.55);
+  box-shadow:
+    0 30px 80px -20px rgb(31 41 55 / 0.18),
+    inset 0 1px 0 rgb(255 255 255 / 0.7),
+    inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  @apply backdrop-blur-[40px] backdrop-saturate-[170%];
+}
+
+/* Content card inside the frame: brighter top-left sheen fading out. */
+@utility glass-card {
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.62) 0%, rgb(255 255 255 / 0.32) 100%);
+  border: 1px solid rgb(255 255 255 / 0.7);
+  box-shadow:
+    0 10px 30px -12px rgb(31 41 55 / 0.12),
+    inset 0 1px 0 rgb(255 255 255 / 0.85);
+  @apply backdrop-blur-[20px] backdrop-saturate-[150%];
+}
+
+/* Lighter inner glass for inputs, chips, secondary buttons, table headers. */
+@utility glass-inset {
+  background: rgb(255 255 255 / 0.55);
+  border: 1px solid rgb(255 255 255 / 0.7);
+  @apply backdrop-blur-[12px];
+}
+
+/* Admin root (app/[locale]/admin/page.tsx): the older sections still use
+   Tailwind's neutral-500 for secondary text, which washes out on glass —
+   remap it to the admin nav ink inside admin only. */
+.admin-theme {
+  --color-neutral-500: var(--color-admin-nav-ink);
+}
+
+/* GlassInput draws its focus ring on the wrapper, so suppress the global
+   :focus-visible outline (unlayered, so a Tailwind utility can't override it). */
+.glass-field input:focus-visible,
+.glass-field:focus-visible {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

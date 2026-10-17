@@ -427,14 +427,39 @@
   "admin": {
     "login": {
       "title": "Admin Dashboard",
-      "passwordPlaceholder": "Password admin",
+      "passwordPlaceholder": "Masukkan password",
       "submit": "Masuk",
-      "wrongPassword": "Password salah."
+      "wrongPassword": "Password salah. Coba lagi.",
+      "welcome": "Selamat datang kembali",
+      "subtitle": "Masuk untuk mengelola katalog, boost, dan forecasting toko Anda.",
+      "passwordLabel": "Password admin",
+      "showPassword": "Tampilkan password",
+      "hidePassword": "Sembunyikan password",
+      "checking": "Memeriksa…",
+      "httpError": "Login gagal (HTTP {status}). Coba lagi.",
+      "networkError": "Tidak bisa terhubung ke server.",
+      "footnote": "Akses khusus tim internal & tenant."
+    },
+    "header": {
+      "greeting": "Hi, Admin",
+      "welcome": "Selamat datang kembali di AI Beauty Adviser 👋",
+      "searchProducts": "Cari produk",
+      "alerts": "{count} alert demand signal",
+      "noAlerts": "Tidak ada alert demand signal",
+      "simulator": "Simulator",
+      "addBoost": "Tambah Boost",
+      "openMenu": "Buka menu",
+      "closeMenu": "Tutup menu"
     },
     "sidebar": {
-      "appName": "Beauty Advisor",
+      "appName": "AI Beauty Adviser",
       "tenantDashboard": "Tenant Dashboard",
       "logout": "Keluar",
+      "searchPlaceholder": "Cari produk...",
+      "searchButton": "Cari",
+      "apps": "Apps",
+      "adminName": "Admin",
+      "adminRole": "Akses tenant",
       "nav": {
         "overview": { "label": "Overview", "hint": "Ringkasan aktivitas" },
         "catalog": { "label": "Katalog", "hint": "Produk, harga, stok" },
@@ -455,6 +480,50 @@
         "widgetSessions": "Sesi widget",
         "conversations": "Percakapan",
         "messages": "Pesan chat"
+      },
+      "loadError": "Gagal memuat data overview.",
+      "kpi": {
+        "chats": "Percakapan AI",
+        "scans": "Skin Scan",
+        "users": "Pengguna Terdaftar",
+        "vsLastWeek": "vs 7 hari lalu",
+        "new": "baru"
+      },
+      "menu": {
+        "cardMenu": "Menu kartu",
+        "openSimulator": "Buka Chat Simulator",
+        "viewDemandSignal": "Lihat demand signal",
+        "viewForecasting": "Lihat forecasting",
+        "viewIntegration": "Lihat integrasi widget",
+        "manageStock": "Kelola stok di Katalog"
+      },
+      "activity": {
+        "title": "Aktivitas Pengguna",
+        "range": "{days} Hari",
+        "exportCsv": "Export CSV",
+        "chatSeries": "Pesan chat",
+        "scanSeries": "Skin scan"
+      },
+      "categories": { "title": "Kategori Produk", "top5": "Top 5", "empty": "Belum ada produk." },
+      "stock": {
+        "title": "Status Stok",
+        "inStock": "Tersedia (> 5)",
+        "lowStock": "Stok menipis (1–5)",
+        "outOfStock": "Habis"
+      },
+      "recent": {
+        "title": "Produk Terbaru",
+        "viewAll": "Lihat Semua",
+        "product": "Produk",
+        "name": "Nama",
+        "updated": "Diperbarui",
+        "price": "Harga",
+        "status": "Status",
+        "showing": "Tampil",
+        "of": "dari {total}",
+        "prevPage": "Halaman sebelumnya",
+        "nextPage": "Halaman berikutnya",
+        "stockStatus": { "available": "Tersedia", "low": "Menipis", "out": "Habis" }
       }
     },
     "catalog": {
@@ -478,6 +547,7 @@
       "empty": "Belum ada boost aktif."
     },
     "simulator": {
+      "skinTool": "Alat Analisis Skin Scanning",
       "title": "Chat Simulator",
       "subtitle": "Memanggil endpoint widget yang sama persis (<code>/api/widget/chat</code>) yang dipakai pengunjung sungguhan — bukan simulasi terpisah, jadi apa yang Anda lihat di sini adalah apa yang pelanggan lihat.",
       "placeholder": "Tulis pertanyaan seperti pelanggan…",
@@ -494,6 +564,19 @@
       "copyButton": "Salin snippet",
       "previewCardTitle": "Preview",
       "previewCardSubtitle": "Widget asli, berjalan di halaman contoh toko."
+    },
+    "conversations": {
+      "title": "Riwayat percakapan",
+      "subtitle": "Riwayat percakapan pengunjung widget.",
+      "empty": "Belum ada percakapan.",
+      "session": "Sesi {id}",
+      "noMessageYet": "(belum ada pesan)",
+      "counts": "{messages} pesan · {conversations} percakapan",
+      "selectPrompt": "Pilih sesi untuk melihat isi chat.",
+      "startedAt": "Mulai {date}",
+      "loading": "Memuat…",
+      "noMessages": "Tidak ada pesan.",
+      "newConversation": "Percakapan baru"
     },
     "forecasting": {
       "title": "Forecasting",

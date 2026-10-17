@@ -2,7 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AdminSidebar, type AdminSection } from "@/components/admin/AdminSidebar";
-import { useTranslations } from "next-intl";
+import { AdminFrame, AdminHeader, useSearchShortcut } from "@/components/admin/layout";
+import {
+  btnPrimaryCls,
+  btnSecondaryCls,
+  btnSecondarySmCls,
+  glassFieldCls,
+  glassFieldSmCls,
+  linkAccentCls,
+  pillCls,
+  subtlePanelCls,
+  tdGlassCls,
+  thGlassCls,
+} from "@/components/admin/glass";
+import { OverviewSection } from "@/components/admin/OverviewSection";
+import { useLocale, useTranslations } from "next-intl";
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts";
 import { formatDate as formatDateNumeric } from "@/lib/format";
 
@@ -93,73 +107,30 @@ interface EventAnalyticsRow {
   upcomingUplift: { upliftEstimasi: number | null; basis: "lookup" | "estimasi_kasar" } | null;
   attribution: { sessions: number; mentions: number; costPerSession: number | null } | null;
 }
-interface OverviewData {
-  totalProducts: number;
-  inStockProducts: number;
-  activeBoosts: number;
-  widgetSessions: number;
-  widgetConversations: number;
-  widgetMessages: number;
-}
 interface SimMessage {
   role: "user" | "bot";
   text: string;
-  products?: { name: string; brand?: string; price?: number }[];
+  products?: { name: string; brand?: string; price?: number; imageUrl?: string | null; colorPalette?: string[]; sizeLabel?: string | null }[];
 }
 
-const inputCls =
-  "rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
-const thCls = "px-2 py-1.5 text-left text-[11px] font-semibold uppercase tracking-wide text-neutral-400 border-b border-neutral-200";
-const tdCls = "px-2 py-1.5 text-[13px] text-neutral-800 border-b border-neutral-100 align-top";
+const inputCls = glassFieldCls;
+const thCls = thGlassCls;
+const tdCls = tdGlassCls;
 
 function Card({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
-    <div className="flex h-full flex-col rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
-      <h2 className="text-base font-bold text-neutral-900">{title}</h2>
+    <div className="glass-card flex h-full flex-col rounded-[24px] p-6">
+      <h2 className="text-base font-bold text-neutral-700">{title}</h2>
       {subtitle && <p className="mt-1 text-xs leading-relaxed text-neutral-500">{subtitle}</p>}
       <div className="mt-4 flex-1">{children}</div>
     </div>
   );
 }
 
-function OverviewSection() {
-  const t = useTranslations("admin.overview");
-  const [data, setData] = useState<OverviewData | null>(null);
-  useEffect(() => {
-    fetch("/api/admin/overview")
-      .then((r) => r.json())
-      .then(setData);
-  }, []);
-
-  const stat = (label: string, value: number | string) => (
-    <div className="rounded-xl border border-neutral-200 bg-white p-5">
-      <div className="text-2xl font-bold text-neutral-900">{value}</div>
-      <div className="mt-1 text-xs text-neutral-500">{label}</div>
-    </div>
-  );
-
-  return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="text-2xl font-bold text-neutral-900">{t("title")}</h1>
-        <p className="mt-1 text-sm text-neutral-500">{t("subtitle")}</p>
-      </div>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        {stat(t("stats.products"), data?.totalProducts ?? "–")}
-        {stat(t("stats.inStock"), data?.inStockProducts ?? "–")}
-        {stat(t("stats.activeBoosts"), data?.activeBoosts ?? "–")}
-        {stat(t("stats.widgetSessions"), data?.widgetSessions ?? "–")}
-        {stat(t("stats.conversations"), data?.widgetConversations ?? "–")}
-        {stat(t("stats.messages"), data?.widgetMessages ?? "–")}
-      </div>
-    </div>
-  );
-}
-
-function CatalogSection() {
+function CatalogSection({ initialSearch = "" }: { initialSearch?: string }) {
   const t = useTranslations("admin.catalog");
   const [products, setProducts] = useState<ProductRow[]>([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialSearch);
 
   async function loadProducts(q?: string) {
     const res = await fetch(`/api/admin/products${q ? `?search=${encodeURIComponent(q)}` : ""}`);
@@ -167,7 +138,8 @@ function CatalogSection() {
     setProducts(data.products ?? []);
   }
   useEffect(() => {
-    loadProducts();
+    loadProducts(initialSearch || undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- remounted (keyed) on each new sidebar search
   }, []);
 
   async function updateProduct(id: string, patch: Partial<{ price: number; stockQuantity: number; category: string }>) {
@@ -180,7 +152,7 @@ function CatalogSection() {
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="text-2xl font-bold text-neutral-900">{t("title")}</h1>
+      <h1 className="text-2xl font-bold text-neutral-700">{t("title")}</h1>
       <Card title={t("cardTitle")}>
         <div className="mb-4 flex flex-wrap gap-2">
           <input
@@ -190,12 +162,12 @@ function CatalogSection() {
             placeholder={t("searchPlaceholder")}
             className={`${inputCls} min-w-[200px] flex-1`}
           />
-          <button onClick={() => loadProducts(search)} className="rounded-lg border border-neutral-300 px-4 py-2 text-sm hover:bg-neutral-50">
+          <button onClick={() => loadProducts(search)} className={btnSecondaryCls}>
             {t("searchButton")}
           </button>
         </div>
         <div className="max-h-[560px] overflow-auto">
-          <table className="w-full min-w-[560px] border-collapse">
+          <table className="w-full min-w-[560px] border-separate border-spacing-0">
             <thead>
               <tr>
                 <th className={thCls}>{t("columns.product")}</th>
@@ -216,7 +188,7 @@ function CatalogSection() {
                       type="number"
                       defaultValue={Math.round(Number(p.price))}
                       onBlur={(e) => updateProduct(p.id, { price: Number(e.target.value) })}
-                      className="w-24 rounded-md border border-neutral-300 px-2 py-1 text-xs"
+                      className={`${glassFieldSmCls} w-24`}
                     />
                   </td>
                   <td className={tdCls}>
@@ -224,7 +196,7 @@ function CatalogSection() {
                       type="number"
                       defaultValue={p.stock_quantity}
                       onBlur={(e) => updateProduct(p.id, { stockQuantity: Number(e.target.value) })}
-                      className="w-16 rounded-md border border-neutral-300 px-2 py-1 text-xs"
+                      className={`${glassFieldSmCls} w-16`}
                     />
                   </td>
                   <td className={tdCls}>{p.category}</td>
@@ -278,7 +250,7 @@ function MarketingSection() {
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="text-2xl font-bold text-neutral-900">{t("title")}</h1>
+      <h1 className="text-2xl font-bold text-neutral-700">{t("title")}</h1>
       <Card title={t("cardTitle")} subtitle={t("cardSubtitle")}>
         <div className="mb-4 flex flex-wrap gap-2">
           <input
@@ -295,11 +267,11 @@ function MarketingSection() {
               </option>
             ))}
           </select>
-          <button onClick={addBoost} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-90">
+          <button onClick={addBoost} className={btnPrimaryCls}>
             {t("addButton")}
           </button>
         </div>
-        <table className="w-full min-w-[420px] border-collapse">
+        <table className="w-full min-w-[420px] border-separate border-spacing-0">
           <thead>
             <tr>
               <th className={thCls}>{t("columns.keyword")}</th>
@@ -316,13 +288,13 @@ function MarketingSection() {
                 <td className={tdCls}>
                   <button
                     onClick={() => toggleBoost(b.id, !b.active)}
-                    className={`rounded-full border px-2.5 py-1 text-[11px] ${b.active ? "border-green-200 bg-green-50 text-green-700" : "border-neutral-200 bg-white text-neutral-500"}`}
+                    className={`${pillCls(b.active ? "success" : "neutral")} px-2.5 py-1`}
                   >
                     {b.active ? t("active") : t("inactive")}
                   </button>
                 </td>
                 <td className={tdCls}>
-                  <button onClick={() => deleteBoost(b.id)} className="text-[11px] text-red-600 hover:underline">
+                  <button onClick={() => deleteBoost(b.id)} className="text-[11px] font-medium text-admin-danger hover:underline">
                     {t("delete")}
                   </button>
                 </td>
@@ -358,11 +330,11 @@ function fmtPct(v: number | null): string {
 }
 
 const ALARM_STYLE: Record<number, string> = {
-  "-1": "bg-blue-50 text-blue-700",
-  "0": "bg-neutral-100 text-neutral-500",
-  "1": "bg-amber-50 text-amber-700",
-  "2": "bg-orange-50 text-orange-700",
-  "3": "bg-red-50 text-red-700",
+  "-1": "bg-admin-taupe/50 text-admin-nav-ink",
+  "0": "bg-white/60 text-admin-nav-ink",
+  "1": "bg-admin-warning/15 text-[#9a6b06]",
+  "2": "bg-admin-rose/45 text-[#a5513f]",
+  "3": "bg-admin-danger/10 text-admin-danger",
 };
 const MILESTONE_KEYS = ["H-56", "H-42", "H-21", "H-7", "H-3", "H+5", "H+21"] as const;
 const MILESTONE_DAYS: Record<(typeof MILESTONE_KEYS)[number], number> = {
@@ -387,7 +359,7 @@ function TrendBadge({ trend }: { trend: "up" | "down" | "flat" }) {
   return (
     <span
       className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-        trend === "up" ? "bg-green-50 text-green-700" : trend === "down" ? "bg-red-50 text-red-700" : "bg-neutral-100 text-neutral-500"
+        trend === "up" ? "bg-admin-success/10 text-admin-success" : trend === "down" ? "bg-admin-danger/10 text-admin-danger" : "bg-white/60 text-admin-nav-ink"
       }`}
     >
       {arrow} {t(`trend.${trend}`)}
@@ -404,18 +376,18 @@ function AlarmBadge({ level, label, cusum }: { level: number; label: string; cus
 }
 function KpiTile({ label, value, hint, danger }: { label: string; value: string; hint: string; danger?: boolean }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+    <div className="glass-card rounded-[20px] p-5">
       <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">{label}</div>
-      <div className={`mt-1 text-2xl font-bold ${danger ? "text-red-600" : "text-neutral-900"}`}>{value}</div>
+      <div className={`mt-1 text-2xl font-bold ${danger ? "text-admin-danger" : "text-neutral-700"}`}>{value}</div>
       <div className="mt-0.5 text-[11px] text-neutral-400">{hint}</div>
     </div>
   );
 }
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-neutral-200 p-3">
+    <div className={`${subtlePanelCls} p-3`}>
       <div className="text-[11px] text-neutral-400">{label}</div>
-      <div className="text-sm font-semibold text-neutral-800">{value}</div>
+      <div className="text-sm font-semibold text-neutral-700">{value}</div>
     </div>
   );
 }
@@ -423,7 +395,7 @@ function SubTabButton({ active, onClick, children }: { active: boolean; onClick:
   return (
     <button
       onClick={onClick}
-      className={`rounded-lg px-3 py-1.5 text-sm font-medium ${active ? "bg-neutral-900 text-white" : "border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"}`}
+      className={`rounded-lg px-3 py-1.5 text-sm font-medium ${active ? "bg-admin-accent text-white shadow-[0_8px_20px_-8px_rgb(210_98_135/0.7)]" : "glass-inset text-neutral-700 hover:bg-white/75"}`}
     >
       {children}
     </button>
@@ -443,13 +415,13 @@ function ForecastChart({ series }: { series: { bucket: string; actual: number; b
   return (
     <ResponsiveContainer width="100%" height={240}>
       <LineChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgb(64 64 64 / 0.08)" />
         <XAxis dataKey="time" tick={{ fontSize: 10 }} interval="preserveStartEnd" minTickGap={30} />
         <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
         <Tooltip contentStyle={{ fontSize: 12 }} />
         <Legend wrapperStyle={{ fontSize: 11 }} />
-        <Line type="monotone" dataKey={actualLabel} stroke="var(--color-primary)" strokeWidth={2} dot={false} />
-        <Line type="monotone" dataKey={baselineLabel} stroke="#b9a7ae" strokeWidth={1.5} strokeDasharray="4 3" dot={false} />
+        <Line type="monotone" dataKey={actualLabel} stroke="var(--color-admin-accent)" strokeWidth={2.5} dot={false} />
+        <Line type="monotone" dataKey={baselineLabel} stroke="var(--color-admin-taupe-strong)" strokeWidth={1.5} strokeDasharray="4 3" dot={false} />
       </LineChart>
     </ResponsiveContainer>
   );
@@ -477,21 +449,21 @@ function EventTimeline({ events, onSelect, selectedId }: { events: EventAnalytic
           <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
             {EVENT_TYPE_VALUES.includes(type as (typeof EVENT_TYPE_VALUES)[number]) ? t(`eventTypes.${type}`) : type}
           </div>
-          <div className="relative h-9 rounded-md bg-neutral-50">
+          <div className="relative h-9 rounded-lg bg-white/45">
             {nowPct >= 0 && nowPct <= 100 && (
-              <div className="absolute top-0 h-full border-l-2 border-dashed border-neutral-400" style={{ left: `${nowPct}%` }} />
+              <div className="absolute top-0 h-full border-l-2 border-dashed border-admin-accent/60" style={{ left: `${nowPct}%` }} />
             )}
             {rows.map((e) => {
               const left = ((new Date(e.startsAt).getTime() - rangeStart) / span) * 100;
               const width = Math.max(9, ((new Date(e.endsAt).getTime() - new Date(e.startsAt).getTime()) / span) * 100);
               const color =
                 e.status === "batal"
-                  ? "bg-neutral-200 text-neutral-400 line-through"
+                  ? "bg-admin-taupe/60 text-admin-nav-ink line-through"
                   : e.status === "selesai"
-                    ? "bg-neutral-500"
+                    ? "bg-admin-taupe-strong"
                     : e.id === selectedId
-                      ? "bg-primary ring-2 ring-offset-1 ring-primary"
-                      : "bg-primary/80";
+                      ? "bg-admin-accent ring-2 ring-white ring-offset-1 ring-offset-admin-accent"
+                      : "bg-admin-accent/75";
               return (
                 <button
                   key={e.id}
@@ -525,7 +497,7 @@ function MilestoneChecklist({ event, onToggle }: { event: EventAnalyticsRow; onT
         return (
           <li key={key} className="flex items-start gap-2 text-sm">
             <input type="checkbox" checked={done} onChange={(e) => onToggle(key, e.target.checked)} className="mt-1" />
-            <span className={overdue ? "text-red-600" : "text-neutral-700"}>
+            <span className={overdue ? "text-admin-danger" : "text-neutral-700"}>
               <span className="font-semibold">{key}</span> · {t(`milestones.${key}`)}
               {overdue ? t("overdueSuffix") : ""}
             </span>
@@ -623,7 +595,7 @@ function OverviewTab({
         {topProduct ? (
           <>
             <ForecastChart series={topProduct.series} />
-            <button onClick={() => onSelectProduct(topProduct.id)} className="mt-2 text-[11px] font-medium text-primary hover:underline">
+            <button onClick={() => onSelectProduct(topProduct.id)} className={`mt-2 text-[11px] ${linkAccentCls}`}>
               {t("forecastChart.viewDetail")}
             </button>
           </>
@@ -633,7 +605,7 @@ function OverviewTab({
       </Card>
 
       <Card title={t("skuTable.title")} subtitle={t("skuTable.subtitle")}>
-        <table className="w-full min-w-[760px] border-collapse">
+        <table className="w-full min-w-[760px] border-separate border-spacing-0">
           <thead>
             <tr>
               <th className={thCls}>{t("skuTable.columns.sku")}</th>
@@ -660,14 +632,14 @@ function OverviewTab({
                 </td>
                 <td className={tdCls}>{a.stock_quantity}</td>
                 <td className={tdCls}>
-                  {a.hoursOfStockLeft === null ? "—" : <span className={a.hoursOfStockLeft < 24 ? "font-semibold text-red-600" : ""}>{a.hoursOfStockLeft}</span>}
+                  {a.hoursOfStockLeft === null ? "—" : <span className={a.hoursOfStockLeft < 24 ? "font-semibold text-admin-danger" : ""}>{a.hoursOfStockLeft}</span>}
                 </td>
                 <td className={tdCls}>
                   <AlarmBadge level={a.alarmLevel} label={a.alarmLabel} cusum={a.cusum} />
                 </td>
                 <td className={tdCls}>
                   <div className="flex flex-col items-start gap-1">
-                    <button onClick={() => onSelectProduct(a.id)} className="text-[11px] font-medium text-primary hover:underline">
+                    <button onClick={() => onSelectProduct(a.id)} className={`text-[11px] ${linkAccentCls}`}>
                       {t("skuTable.viewDetail")}
                     </button>
                     {a.alarmLevel >= 2 && (
@@ -698,7 +670,7 @@ function OverviewTab({
         <Card title={t("upcomingEvents.title")} subtitle={t("upcomingEvents.subtitle")}>
           <ul className="flex flex-col gap-2">
             {upcoming.map((e) => (
-              <li key={e.id} className="rounded-lg border border-neutral-200 p-2 text-sm">
+              <li key={e.id} className={`${subtlePanelCls} p-2.5 text-sm`}>
                 <div className="font-semibold">{e.name}</div>
                 <div className="text-[11px] text-neutral-400">
                   {fmtDate(e.startsAt)} · {e.categoryFocus ?? "—"}
@@ -713,7 +685,7 @@ function OverviewTab({
         <Card title={t("alertFeed.title")} subtitle={t("alertFeed.subtitle")}>
           <ul className="flex flex-col gap-3">
             {alerting.map((a) => (
-              <li key={a.id} className="rounded-lg border border-neutral-200 p-3">
+              <li key={a.id} className={`${subtlePanelCls} p-3`}>
                 <div className="text-sm">
                   <span className="font-semibold">{tShared(`alarmLabels.${alarmLabelKey(a.alarmLabel)}`)}</span> · {a.name} — CUSUM {a.cusum}
                 </div>
@@ -729,21 +701,21 @@ function OverviewTab({
                   <button
                     onClick={() => logAction(a, "tindak_lanjut")}
                     disabled={loggingId === a.id}
-                    className="rounded-md bg-neutral-900 px-2 py-1 text-[11px] text-white disabled:opacity-50"
+                    className="rounded-md bg-admin-accent px-2 py-1 text-[11px] text-white hover:bg-admin-accent-strong disabled:opacity-50"
                   >
                     {t("alertFeed.followUp")}
                   </button>
                   <button
                     onClick={() => logAction(a, "diabaikan")}
                     disabled={loggingId === a.id}
-                    className="rounded-md border border-neutral-300 px-2 py-1 text-[11px] disabled:opacity-50"
+                    className={btnSecondarySmCls}
                   >
                     {t("alertFeed.ignore")}
                   </button>
                   <button
                     onClick={() => logAction(a, "salah_alarm")}
                     disabled={loggingId === a.id}
-                    className="rounded-md border border-neutral-300 px-2 py-1 text-[11px] disabled:opacity-50"
+                    className={btnSecondarySmCls}
                   >
                     {t("alertFeed.falseAlarm")}
                   </button>
@@ -756,7 +728,7 @@ function OverviewTab({
       </div>
 
       <Card title={t("sentiment.title")} subtitle={t("sentiment.subtitle")}>
-        <table className="w-full min-w-[420px] border-collapse">
+        <table className="w-full min-w-[420px] border-separate border-spacing-0">
           <thead>
             <tr>
               <th className={thCls}>{t("sentiment.columns.product")}</th>
@@ -772,8 +744,8 @@ function OverviewTab({
                   <div className="font-semibold">{s.name}</div>
                   <div className="text-[11px] text-neutral-400">{s.brand}</div>
                 </td>
-                <td className={`${tdCls} text-green-700`}>{s.positive}</td>
-                <td className={`${tdCls} text-red-600`}>{s.negative}</td>
+                <td className={`${tdCls} text-admin-success`}>{s.positive}</td>
+                <td className={`${tdCls} text-admin-danger`}>{s.negative}</td>
                 <td className={tdCls}>{s.neutral}</td>
               </tr>
             ))}
@@ -859,7 +831,7 @@ function DetailSkuTab({
               key={a.id}
               onClick={() => setSelectedProductId(a.id)}
               className={`rounded-full border px-3 py-1 text-[12px] ${
-                a.id === product.id ? "border-primary bg-primary/10 font-medium text-primary" : "border-neutral-200 text-neutral-600 hover:bg-neutral-50"
+                a.id === product.id ? "border-admin-accent/40 bg-admin-accent/10 font-medium text-admin-accent-strong" : "border-white/70 bg-white/40 text-neutral-700 hover:bg-white/70"
               }`}
             >
               {a.name}
@@ -884,7 +856,7 @@ function DetailSkuTab({
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card title={t("signalBreakdown.title")} subtitle={t("signalBreakdown.subtitle")}>
-          <table className="w-full border-collapse">
+          <table className="w-full border-separate border-spacing-0">
             <thead>
               <tr>
                 <th className={thCls}>{t("signalBreakdown.columns.signal")}</th>
@@ -909,7 +881,7 @@ function DetailSkuTab({
         <Card title={t("relatedEvents.title")} subtitle={t("relatedEvents.subtitle")}>
           <ul className="flex flex-col gap-2">
             {relatedEvents.map((e) => (
-              <li key={e.id} className="rounded-lg border border-neutral-200 p-2 text-sm">
+              <li key={e.id} className={`${subtlePanelCls} p-2.5 text-sm`}>
                 <div className="font-semibold">{e.name}</div>
                 <div className="text-[11px] text-neutral-400">
                   {fmtDate(e.startsAt)} ·{" "}
@@ -926,7 +898,7 @@ function DetailSkuTab({
         <div className="flex flex-wrap items-end gap-2">
           <div>
             <label className="mb-1 block text-[11px] text-neutral-500">{t("override.currentForecast")}</label>
-            <div className="rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm font-semibold">{product.forecastNextHour}</div>
+            <div className="glass-inset rounded-xl px-3 py-2 text-sm font-semibold">{product.forecastNextHour}</div>
           </div>
           <input value={overrideValue} onChange={(e) => setOverrideValue(e.target.value)} placeholder={t("override.valuePlaceholder")} className={inputCls} />
           <input
@@ -938,13 +910,13 @@ function DetailSkuTab({
           <button
             onClick={saveOverride}
             disabled={savingOverride}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+            className={btnPrimaryCls}
           >
             {savingOverride ? t("override.saving") : t("override.save")}
           </button>
         </div>
         {overrideHistory.length > 0 && (
-          <table className="mt-4 w-full border-collapse">
+          <table className="mt-4 w-full border-separate border-spacing-0">
             <thead>
               <tr>
                 <th className={thCls}>{t("override.historyColumns.date")}</th>
@@ -1088,7 +1060,7 @@ function EventPlannerTab({
             >
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <h3 className="mb-2 text-sm font-semibold text-neutral-800">{t("detail.upliftTitle")}</h3>
+                  <h3 className="mb-2 text-sm font-semibold text-neutral-700">{t("detail.upliftTitle")}</h3>
                   {selectedEvent.historicalUplift ? (
                     <p className="text-sm">
                       <span className="font-bold">{fmtPct(selectedEvent.historicalUplift.upliftBersih)}</span> — {tShared("uplift.tingkatC")},{" "}
@@ -1103,7 +1075,7 @@ function EventPlannerTab({
                     <p className="text-sm text-neutral-400">{t("detail.notComputable")}</p>
                   )}
 
-                  <h3 className="mb-2 mt-4 text-sm font-semibold text-neutral-800">{t("detail.attributionTitle")}</h3>
+                  <h3 className="mb-2 mt-4 text-sm font-semibold text-neutral-700">{t("detail.attributionTitle")}</h3>
                   {selectedEvent.promoCode ? (
                     <p className="text-sm">
                       {t("detail.attributionLine", {
@@ -1120,7 +1092,7 @@ function EventPlannerTab({
                   )}
                 </div>
                 <div>
-                  <h3 className="mb-2 text-sm font-semibold text-neutral-800">{t("detail.milestonesTitle")}</h3>
+                  <h3 className="mb-2 text-sm font-semibold text-neutral-700">{t("detail.milestonesTitle")}</h3>
                   <MilestoneChecklist event={selectedEvent} onToggle={(k, d) => toggleMilestone(selectedEvent, k, d)} />
                 </div>
               </div>
@@ -1177,11 +1149,11 @@ function EventPlannerTab({
               placeholder={t("table.promoCodePlaceholder")}
               className={inputCls}
             />
-            <button onClick={addEvent} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-90">
+            <button onClick={addEvent} className={btnPrimaryCls}>
               {t("table.addButton")}
             </button>
           </div>
-          <table className="w-full min-w-[760px] border-collapse">
+          <table className="w-full min-w-[760px] border-separate border-spacing-0">
             <thead>
               <tr>
                 <th className={thCls}>{t("table.columns.event")}</th>
@@ -1213,7 +1185,7 @@ function EventPlannerTab({
                     <select
                       value={e.status}
                       onChange={(ev) => setEventStatus(e.id, ev.target.value)}
-                      className="rounded-full border border-neutral-200 bg-white px-2 py-1 text-[11px]"
+                      className="glass-field glass-inset h-7 rounded-full px-2.5 text-[11px] text-neutral-700 focus:outline-none focus:ring-4 focus:ring-admin-accent/15"
                     >
                       {EVENT_STATUSES.map((s) => (
                         <option key={s} value={s}>
@@ -1223,7 +1195,7 @@ function EventPlannerTab({
                     </select>
                   </td>
                   <td className={tdCls}>
-                    <button onClick={() => deleteEventRow(e.id)} className="text-[11px] text-red-600 hover:underline">
+                    <button onClick={() => deleteEventRow(e.id)} className="text-[11px] font-medium text-admin-danger hover:underline">
                       {t("table.deleteButton")}
                     </button>
                   </td>
@@ -1244,7 +1216,7 @@ function EventPlannerTab({
       {eventSubTab === "eval" && (
         <>
           <Card title={t("eval.upliftCard.title")} subtitle={t("eval.upliftCard.subtitle")}>
-            <table className="w-full min-w-[560px] border-collapse">
+            <table className="w-full min-w-[560px] border-separate border-spacing-0">
               <thead>
                 <tr>
                   <th className={thCls}>{t("eval.upliftCard.columns.event")}</th>
@@ -1270,7 +1242,7 @@ function EventPlannerTab({
                         {e.historicalUplift ? (
                           <span
                             className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                              e.historicalUplift.significant ? "bg-green-50 text-green-700" : "bg-neutral-100 text-neutral-500"
+                              e.historicalUplift.significant ? "bg-admin-success/10 text-admin-success" : "bg-white/60 text-admin-nav-ink"
                             }`}
                           >
                             {tShared("uplift.tingkatC")} · {e.historicalUplift.significant ? tShared("uplift.signifikan") : tShared("uplift.tidakSignifikan")}
@@ -1278,7 +1250,7 @@ function EventPlannerTab({
                         ) : e.upcomingUplift ? (
                           <span
                             className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                              e.upcomingUplift.basis === "lookup" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"
+                              e.upcomingUplift.basis === "lookup" ? "bg-admin-accent/10 text-admin-accent-strong" : "bg-admin-warning/15 text-[#9a6b06]"
                             }`}
                           >
                             {e.upcomingUplift.basis === "lookup" ? tShared("uplift.lookupSubtipe") : tShared("uplift.estimasiKasar")}
@@ -1307,7 +1279,7 @@ function EventPlannerTab({
               total: attributionSummary.totalSessions,
             })}
           >
-            <table className="w-full min-w-[560px] border-collapse">
+            <table className="w-full min-w-[560px] border-separate border-spacing-0">
               <thead>
                 <tr>
                   <th className={thCls}>{t("eval.attributionCard.columns.promoCode")}</th>
@@ -1365,18 +1337,18 @@ function EventPlannerTab({
               <button
                 onClick={runWhatif}
                 disabled={whatifLoading}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                className={btnPrimaryCls}
               >
                 {whatifLoading ? t("eval.simulatorCard.calculating") : t("eval.simulatorCard.calculate")}
               </button>
             </div>
             {whatifResult && (
-              <div className="rounded-lg border border-neutral-200 p-4">
+              <div className={`${subtlePanelCls} p-4`}>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-lg font-bold">{fmtPct(whatifResult.upliftEstimasi)}</span>
                   <span
                     className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                      whatifResult.basis === "lookup" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"
+                      whatifResult.basis === "lookup" ? "bg-admin-accent/10 text-admin-accent-strong" : "bg-admin-warning/15 text-[#9a6b06]"
                     }`}
                   >
                     {whatifResult.basis === "lookup" ? tShared("uplift.lookupSubtipe") : tShared("uplift.estimasiKasar")}
@@ -1410,12 +1382,12 @@ function MarketingTab({
   const t = useTranslations("admin.forecasting.marketing");
 
   const phase = (label: string, status: "live" | "planned", desc: string) => (
-    <div className="flex items-start gap-3 rounded-lg border border-neutral-200 p-3">
-      <span className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${status === "live" ? "bg-green-500" : "bg-neutral-300"}`} />
+    <div className={`flex items-start gap-3 ${subtlePanelCls} p-3`}>
+      <span className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${status === "live" ? "bg-admin-success" : "bg-admin-taupe-strong"}`} />
       <div>
-        <div className="text-sm font-semibold text-neutral-800">
+        <div className="text-sm font-semibold text-neutral-700">
           {label}
-          <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-medium ${status === "live" ? "bg-green-50 text-green-700" : "bg-neutral-100 text-neutral-500"}`}>
+          <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-medium ${status === "live" ? "bg-admin-success/10 text-admin-success" : "bg-white/60 text-admin-nav-ink"}`}>
             {status === "live" ? t("statusLive") : t("statusPlanned")}
           </span>
         </div>
@@ -1430,7 +1402,7 @@ function MarketingTab({
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h2 className="text-lg font-bold text-neutral-900">{t("title")}</h2>
+        <h2 className="text-lg font-bold text-neutral-700">{t("title")}</h2>
         <p className="mt-1 max-w-3xl text-sm text-neutral-500">{t("intro")}</p>
       </div>
 
@@ -1457,7 +1429,7 @@ function MarketingTab({
         ) : (
           <ul className="flex flex-col gap-2">
             {promoEvents.map((e) => (
-              <li key={e.id} className="flex items-center justify-between rounded-lg border border-neutral-200 p-2 text-sm">
+              <li key={e.id} className={`flex items-center justify-between ${subtlePanelCls} p-2.5 text-sm`}>
                 <span>
                   <span className="font-semibold">{e.promoCode}</span> · {e.name}
                 </span>
@@ -1469,7 +1441,7 @@ function MarketingTab({
             ))}
           </ul>
         )}
-        <button onClick={goToAttribution} className="mt-3 text-[11px] font-medium text-primary hover:underline">
+        <button onClick={goToAttribution} className={`mt-3 text-[11px] ${linkAccentCls}`}>
           {t("promoChannelCard.viewDetail")}
         </button>
       </Card>
@@ -1524,16 +1496,16 @@ function ForecastingSection() {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">{t("title")}</h1>
+        <h1 className="text-2xl font-bold text-neutral-700">{t("title")}</h1>
         <p className="mt-1 max-w-3xl text-sm text-neutral-500">{t("intro")}</p>
       </div>
 
-      <div className="flex flex-wrap gap-2 border-b border-neutral-200 pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-white/60 pb-3">
         {UPLIFT_TAB_IDS.map((id) => (
           <button
             key={id}
             onClick={() => setTab(id)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium ${tab === id ? "bg-neutral-900 text-white" : "text-neutral-500 hover:bg-neutral-100"}`}
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium ${tab === id ? "bg-admin-accent text-white shadow-[0_8px_20px_-8px_rgb(210_98_135/0.7)]" : "text-admin-nav-ink hover:bg-white/50"}`}
           >
             {t(`tabs.${id}`)}
           </button>
@@ -1627,72 +1599,57 @@ function SimulatorSection() {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">{t("title")}</h1>
+        <h1 className="text-2xl font-bold text-neutral-700">{t("title")}</h1>
         <p className="mt-1 text-sm text-neutral-500">{t.rich("subtitle", { code: (chunks) => <code>{chunks}</code> })}</p>
       </div>
-      <div className="mx-auto w-full max-w-xl rounded-xl border border-neutral-200 bg-white shadow-sm">
-        <div ref={scrollRef} className="flex h-[480px] flex-col gap-3 overflow-y-auto p-4">
+      <div className="glass-card mx-auto w-full max-w-2xl overflow-hidden rounded-[24px]">
+        <div ref={scrollRef} className="no-scrollbar flex h-[520px] flex-col gap-3 overflow-y-auto p-5">
           {messages.length === 0 && <p className="text-center text-sm text-neutral-400">{t("emptyState")}</p>}
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${m.role === "user" ? "bg-primary text-white" : "bg-neutral-100 text-neutral-800"}`}>
-                  {m.text?.includes("[Skin Scanning Analysis Tool]") ? (
-                    <div className="flex flex-col items-center gap-2">
-                      <img 
-                        src="/assets/skin_analysis_tool.png" 
-                        alt="Skin Analysis Tool" 
-                        className="w-[100px] h-auto rounded-[10px] object-cover shadow-sm" 
-                      />
-                      <span className="text-[11px] font-medium text-neutral-500">Skin Scanning Analysis Tool</span>
-                    </div>
-                  ) : (
-                    <>
-                      {m.text}
-                      {m.products && m.products.length > 0 && (
-                        <div className="mt-2 flex gap-2 overflow-x-auto pb-2">
-                          {m.products.slice(0, 3).map((p, j) => (
-                            <div key={j} className="flex-shrink-0 w-32 rounded-lg border border-neutral-200 bg-white p-2 shadow-sm">
-                              <img 
-                                src={p.imageUrl || "/product.png"} 
-                                alt={p.name} 
-                                className="w-full h-20 object-cover rounded-md mb-2" 
-                              />
-                              <div className="text-[10px] font-bold truncate">{p.name}</div>
-                              <div className="text-[9px] text-neutral-500 truncate">{p.brand}</div>
-                              <div className="flex flex-col gap-1 mt-1">
-                                {p.colorPalette && p.colorPalette.length > 0 && (
-                                  <div className="flex flex-wrap gap-1">
-                                    {p.colorPalette.map((hex, idx) => (
-                                      <div 
-                                        key={idx} 
-                                        className="h-2 w-2 rounded-full border border-neutral-300" 
-                                        style={{ backgroundColor: hex }} 
-                                        title={hex}
-                                      />
-                                    ))}
-                                  </div>
-                                )}
-                                {p.sizeLabel && (
-                                  <div className="text-[8px] font-medium text-neutral-600 italic truncate">
-                                    {p.sizeLabel}
-                                  </div>
-                                )}
-                              </div>
-                              <div className="text-[10px] font-semibold text-primary mt-1">
-                                {p.price != null ? `Rp ${Number(p.price).toLocaleString("id-ID")}` : ""}
-                              </div>
+              <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${m.role === "user" ? "rounded-br-md bg-admin-accent text-white" : "rounded-bl-md border border-white/80 bg-white/70 text-neutral-700"}`}>
+                {m.text?.includes("[Skin Scanning Analysis Tool]") ? (
+                  <div className="flex flex-col items-center gap-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- static asset, fixed small size */}
+                    <img src="/assets/skin_analysis_tool.png" alt={t("skinTool")} className="h-auto w-[100px] rounded-[10px] object-cover shadow-sm" />
+                    <span className="text-[11px] font-medium text-neutral-500">{t("skinTool")}</span>
+                  </div>
+                ) : (
+                  <>
+                    {m.text}
+                    {m.products && m.products.length > 0 && (
+                      <div className="no-scrollbar mt-2 flex gap-2 overflow-x-auto pb-1">
+                        {m.products.slice(0, 3).map((p, j) => (
+                          <div key={j} className="w-32 shrink-0 rounded-xl border border-white/80 bg-white/70 p-2 text-neutral-700">
+                            {/* eslint-disable-next-line @next/next/no-img-element -- remote retailer CDN, not in next/image remotePatterns */}
+                            <img src={p.imageUrl || "/product.png"} alt={p.name} className="mb-2 h-20 w-full rounded-lg bg-white/60 object-cover" />
+                            <div className="truncate text-[10px] font-bold">{p.name}</div>
+                            <div className="truncate text-[9px] text-neutral-500">{p.brand}</div>
+                            <div className="mt-1 flex flex-col gap-1">
+                              {p.colorPalette && p.colorPalette.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                  {p.colorPalette.map((hex, idx) => (
+                                    <div key={idx} className="h-2 w-2 rounded-full border border-white/90 ring-1 ring-black/10" style={{ backgroundColor: hex }} title={hex} />
+                                  ))}
+                                </div>
+                              )}
+                              {p.sizeLabel && <div className="truncate text-[8px] font-medium italic text-neutral-500">{p.sizeLabel}</div>}
                             </div>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
+                            <div className="mt-1 text-[10px] font-semibold text-admin-accent-strong">
+                              {p.price != null ? `Rp ${Number(p.price).toLocaleString("id-ID")}` : ""}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           ))}
           {sending && <div className="text-xs text-neutral-400">{t("typing")}</div>}
         </div>
-        <div className="flex gap-2 border-t border-neutral-200 p-3">
+        <div className="flex gap-2 border-t border-white/60 bg-white/25 p-4">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -1700,7 +1657,7 @@ function SimulatorSection() {
             placeholder={t("placeholder")}
             className={`${inputCls} flex-1`}
           />
-          <button onClick={send} disabled={sending} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+          <button onClick={send} disabled={sending} className={btnPrimaryCls}>
             {t("send")}
           </button>
         </div>
@@ -1721,15 +1678,15 @@ function IntegrationSection() {
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="text-2xl font-bold text-neutral-900">{t("title")}</h1>
+      <h1 className="text-2xl font-bold text-neutral-700">{t("title")}</h1>
       <Card title={t("embedCardTitle")} subtitle={t("embedCardSubtitle")}>
-        <pre className="overflow-x-auto rounded-lg bg-neutral-900 p-4 text-xs text-neutral-100">{snippet}</pre>
-        <button onClick={copy} className="mt-3 rounded-lg border border-neutral-300 px-4 py-2 text-sm hover:bg-neutral-50">
+        <pre className="overflow-x-auto rounded-xl bg-neutral-700 p-4 text-xs text-neutral-100">{snippet}</pre>
+        <button onClick={copy} className={`mt-3 ${btnSecondaryCls}`}>
           {t("copyButton")}
         </button>
       </Card>
       <Card title={t("previewCardTitle")} subtitle={t("previewCardSubtitle")}>
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
+        <div className="overflow-hidden rounded-2xl border border-white/70">
           <iframe src="/demo-retailer.html" className="h-[520px] w-full" title="Widget preview" />
         </div>
       </Card>
@@ -1755,8 +1712,8 @@ interface ConversationMessageRow {
   products: { name: string; brand: string | null; price: number | null }[];
 }
 
-function formatDateTime(value: string) {
-  return new Date(value).toLocaleString("id-ID", {
+function formatDateTime(value: string, tag: string) {
+  return new Date(value).toLocaleString(tag, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -1766,6 +1723,9 @@ function formatDateTime(value: string) {
 }
 
 function ConversationsSection() {
+  const t = useTranslations("admin.conversations");
+  const tag = useLocale() === "id" ? "id-ID" : "en-US";
+  const fmt = (v: string) => formatDateTime(v, tag);
   const [sessions, setSessions] = useState<ConversationSessionRow[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ConversationMessageRow[]>([]);
@@ -1794,71 +1754,70 @@ function ConversationsSection() {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Conversation history</h1>
-        <p className="mt-1 text-sm text-neutral-500">Riwayat percakapan pengunjung widget.</p>
+        <h1 className="text-2xl font-bold text-neutral-700">{t("title")}</h1>
+        <p className="mt-1 text-sm text-neutral-500">{t("subtitle")}</p>
       </div>
-      <div className="flex h-[640px] overflow-hidden rounded-xl border border-neutral-200 bg-white">
-        <div className="flex w-64 shrink-0 flex-col overflow-y-auto border-r border-neutral-200">
-          {sessions.length === 0 && <p className="p-4 text-sm text-neutral-400">Belum ada percakapan.</p>}
+      <div className="glass-card flex h-[640px] overflow-hidden rounded-[24px]">
+        <div className="no-scrollbar flex w-72 shrink-0 flex-col gap-1 overflow-y-auto border-r border-white/60 p-3">
+          {sessions.length === 0 && <p className="p-3 text-sm text-neutral-500">{t("empty")}</p>}
           {sessions.map((s) => (
             <button
               key={s.id}
               onClick={() => selectSession(s.id)}
-              className={`border-b border-neutral-100 px-4 py-3 text-left transition ${
-                selectedId === s.id ? "bg-primary-dim" : "hover:bg-neutral-50"
+              aria-current={selectedId === s.id ? "true" : undefined}
+              className={`rounded-2xl border px-4 py-3 text-left transition ${
+                selectedId === s.id ? "border-admin-accent/30 bg-admin-accent/10" : "border-transparent hover:bg-white/50"
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] text-neutral-400">Sesi {s.id.slice(0, 8)}</span>
-                <span className="text-[11px] text-neutral-400">{formatDateTime(s.last_seen_at)}</span>
+              <div className="flex items-center justify-between gap-2">
+                <span className={`truncate text-[11px] ${selectedId === s.id ? "font-medium text-admin-accent-strong" : "text-neutral-500"}`}>
+                  {t("session", { id: s.id.slice(0, 8) })}
+                </span>
+                <span className="shrink-0 whitespace-nowrap text-[11px] text-neutral-500">{fmt(s.last_seen_at)}</span>
               </div>
-              <div className="mt-1 line-clamp-2 text-[13px] font-medium text-neutral-800">
-                {s.first_user_message?.trim() || <span className="font-normal text-neutral-400">(belum ada pesan)</span>}
+              <div className="mt-1 line-clamp-2 text-[13px] font-medium text-neutral-700">
+                {s.first_user_message?.trim() || <span className="font-normal text-neutral-500">{t("noMessageYet")}</span>}
               </div>
-              <div className="mt-1 text-[11px] text-neutral-400">
-                {s.message_count} pesan · {s.conversation_count} percakapan
+              <div className="mt-1 text-[11px] text-neutral-500">
+                {t("counts", { messages: s.message_count, conversations: s.conversation_count })}
               </div>
             </button>
           ))}
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col bg-neutral-50">
+        <div className="flex min-h-0 flex-1 flex-col bg-white/20">
           {!selected ? (
             <div className="flex flex-1 items-center justify-center">
-              <p className="text-sm text-neutral-400">Pilih sesi untuk melihat isi chat.</p>
+              <p className="text-sm text-neutral-500">{t("selectPrompt")}</p>
             </div>
           ) : (
             <>
-              <div className="border-b border-neutral-200 bg-white px-6 py-3">
-                <div className="text-sm font-semibold text-neutral-800">Sesi {selected.id.slice(0, 8)}</div>
-                <div className="text-[11px] text-neutral-400">
-                  Mulai {formatDateTime(selected.created_at)} · {selected.message_count} pesan ·{" "}
-                  {selected.conversation_count} percakapan
+              <div className="border-b border-white/60 bg-white/35 px-6 py-4">
+                <div className="text-sm font-semibold text-neutral-700">{t("session", { id: selected.id.slice(0, 8) })}</div>
+                <div className="mt-0.5 text-[11px] text-neutral-500">
+                  {t("startedAt", { date: fmt(selected.created_at) })} ·{" "}
+                  {t("counts", { messages: selected.message_count, conversations: selected.conversation_count })}
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto p-6">
+              <div className="no-scrollbar flex-1 overflow-y-auto p-6">
                 <div className="mx-auto flex max-w-2xl flex-col gap-3">
-                  {loadingMessages && <p className="text-center text-sm text-neutral-400">Memuat…</p>}
-                  {!loadingMessages && messages.length === 0 && (
-                    <p className="text-center text-sm text-neutral-400">Tidak ada pesan.</p>
-                  )}
+                  {loadingMessages && <p className="text-center text-sm text-neutral-500">{t("loading")}</p>}
+                  {!loadingMessages && messages.length === 0 && <p className="text-center text-sm text-neutral-500">{t("noMessages")}</p>}
                   {messages.map((m, i) => {
                     const newConversation = i > 0 && messages[i - 1].conversation_id !== m.conversation_id;
                     return (
                       <div key={m.id} className="flex flex-col gap-3">
                         {newConversation && (
                           <div className="my-1 flex items-center gap-3">
-                            <div className="h-px flex-1 bg-neutral-200" />
-                            <span className="text-[10px] font-semibold tracking-wide text-neutral-400 uppercase">
-                              Percakapan baru
-                            </span>
-                            <div className="h-px flex-1 bg-neutral-200" />
+                            <div className="h-px flex-1 bg-white/80" />
+                            <span className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500">{t("newConversation")}</span>
+                            <div className="h-px flex-1 bg-white/80" />
                           </div>
                         )}
                         <div className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                           <div
                             className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
-                              m.role === "user" ? "bg-primary text-white" : "bg-white text-neutral-800 shadow-sm"
+                              m.role === "user" ? "rounded-br-md bg-admin-accent text-white" : "rounded-bl-md border border-white/80 bg-white/70 text-neutral-700"
                             }`}
                           >
                             <div className="whitespace-pre-wrap">{m.text}</div>
@@ -1872,9 +1831,7 @@ function ConversationsSection() {
                                 ))}
                               </div>
                             )}
-                            <div className={`mt-1 text-[10px] ${m.role === "user" ? "text-white/70" : "text-neutral-400"}`}>
-                              {formatDateTime(m.created_at)}
-                            </div>
+                            <div className={`mt-1 text-[10px] ${m.role === "user" ? "text-white/75" : "text-neutral-500"}`}>{fmt(m.created_at)}</div>
                           </div>
                         </div>
                       </div>
@@ -1892,29 +1849,62 @@ function ConversationsSection() {
 
 function AdminShell() {
   const [section, setSection] = useState<AdminSection>("overview");
+  const [catalogQuery, setCatalogQuery] = useState<{ q: string; n: number }>({ q: "", n: 0 });
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [alertCount, setAlertCount] = useState(0);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/analytics")
+      .then((r) => (r.ok ? r.json() : { products: [] }))
+      .then((d: { products?: { alarmLevel: number }[] }) => setAlertCount((d.products ?? []).filter((p) => p.alarmLevel >= 1).length))
+      .catch(() => {});
+  }, []);
+
+  function select(s: AdminSection) {
+    setSection(s);
+    setDrawerOpen(false);
+  }
+  function focusSearch() {
+    if (window.matchMedia("(min-width: 1024px)").matches) searchRef.current?.focus();
+    else setDrawerOpen(true);
+  }
+  useSearchShortcut(focusSearch);
+
+  const sidebar = (
+    <AdminSidebar
+      active={section}
+      onSelect={select}
+      searchRef={searchRef}
+      onSearch={(q) => {
+        setCatalogQuery((c) => ({ q, n: c.n + 1 }));
+        select("catalog");
+      }}
+    />
+  );
+
   return (
-    <div className="flex h-full w-full">
-      <AdminSidebar active={section} onSelect={setSection} />
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-5xl px-6 py-8 sm:px-10">
-          {section === "overview" && <OverviewSection />}
-          {section === "catalog" && <CatalogSection />}
-          {section === "marketing" && <MarketingSection />}
-          {section === "forecasting" && <ForecastingSection />}
-          {section === "simulator" && <SimulatorSection />}
-          {section === "integration" && <IntegrationSection />}
-          {section === "conversations" && <ConversationsSection />}
-        </div>
-      </div>
-    </div>
+    <AdminFrame
+      sidebar={sidebar}
+      header={<AdminHeader onMenu={() => setDrawerOpen(true)} onSearchFocus={focusSearch} onSelect={select} alertCount={alertCount} />}
+      drawerOpen={drawerOpen}
+      onCloseDrawer={() => setDrawerOpen(false)}
+    >
+      {section === "overview" && <OverviewSection onSelect={select} />}
+      {section === "catalog" && <CatalogSection key={catalogQuery.n} initialSearch={catalogQuery.q} />}
+      {section === "marketing" && <MarketingSection />}
+      {section === "forecasting" && <ForecastingSection />}
+      {section === "simulator" && <SimulatorSection />}
+      {section === "integration" && <IntegrationSection />}
+      {section === "conversations" && <ConversationsSection />}
+    </AdminFrame>
   );
 }
 
 export default function AdminPage() {
   return (
     <div
-      className="fixed inset-0 z-[999999] overflow-hidden bg-neutral-50 text-neutral-900"
-      style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
+      className="admin-theme fixed inset-0 z-[999999] overflow-hidden bg-neutral-50 font-admin text-admin-ink"
     >
       <AdminShell />
     </div>
