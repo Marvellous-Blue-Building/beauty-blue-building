@@ -16,6 +16,7 @@ import {
   thGlassCls,
 } from "@/components/admin/glass";
 import { OverviewSection } from "@/components/admin/OverviewSection";
+import { ProductCardRow, type ProductCardData } from "@/components/admin/ProductCardRow";
 import { useLocale, useTranslations } from "next-intl";
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts";
 import { formatDate as formatDateNumeric } from "@/lib/format";
@@ -1709,7 +1710,7 @@ interface ConversationMessageRow {
   text: string | null;
   created_at: string;
   conversation_id: string;
-  products: { name: string; brand: string | null; price: number | null }[];
+  products: ProductCardData[];
 }
 
 function formatDateTime(value: string, tag: string) {
@@ -1821,16 +1822,7 @@ function ConversationsSection() {
                             }`}
                           >
                             <div className="whitespace-pre-wrap">{m.text}</div>
-                            {m.products.length > 0 && (
-                              <div className="mt-2 flex flex-col gap-1 border-t border-black/10 pt-2">
-                                {m.products.map((p, j) => (
-                                  <div key={i + "-" + j} className="text-[11px] opacity-80">
-                                    {p.name}
-                                    {p.brand ? ` · ${p.brand}` : ""}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
+                            {m.products.length > 0 && <ProductCardRow products={m.products} className="mt-2.5" />}
                             <div className={`mt-1 text-[10px] ${m.role === "user" ? "text-white/75" : "text-neutral-500"}`}>{fmt(m.created_at)}</div>
                           </div>
                         </div>
