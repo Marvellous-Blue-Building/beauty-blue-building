@@ -88,7 +88,7 @@ cd services/skin-scanning
 [ -d .venv ] || python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -q -r requirements.txt
-[ -f models/face_landmarker.task ] || python scripts/download_model.py
+python scripts/download_model.py   # skips models already present
 [ -f .env ] || cp .env.example .env
 deactivate
 cd ../..
@@ -277,6 +277,23 @@ Note: `data/02_import_products.sql` expects a `beauty_product.csv` file
 that is **not** checked into this repo (too large) — skip it and use the
 full dump (2.1) instead if you need real product data.
 
+### 2.3 Apply the newer migrations (after 2.1 or 2.2)
+
+The dump predates the widget, forecasting and beauty-scan tables. Apply
+these on top — each is safe to re-run:
+
+```bash
+for f in data/14_widget_sessions.sql \
+         data/15_tenant_boosts.sql \
+         data/16_event_calendar.sql \
+         data/17_alert_log.sql \
+         data/18_forecast_overrides.sql \
+         data/19_event_milestones.sql \
+         data/20_widget_beauty_scans.sql; do
+  docker exec -i beauty-advisor-db psql -U bluebuilding -d bluebuilding < "$f"
+done
+```
+
 ---
 
 ## 3. Start Redis
@@ -361,7 +378,7 @@ cd services/skin-scanning
 python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python scripts/download_model.py   # one-time: fetches models/face_landmarker.task (~3.7MB)
+python scripts/download_model.py   # one-time: fetches models/face_landmarker.task (~3.7MB) and models/selfie_multiclass_256x256.tflite (~16MB)
 cp .env.example .env
 uvicorn app.main:app --reload --port 3003
 ```
@@ -481,6 +498,58 @@ idempotent script in **Section 0** instead.
 
 ---
 
+## 7a. Running via Docker Compose
+
+An alternative to Sections 1–7 above: a `docker-compose.yml` at the repo
+root containerizes all 5 services plus Postgres/Redis, for prod-parity
+local testing and as prep for deploying to Cloud Run later. This is
+**additive** — the manual venv/`npm run dev` workflow above still works
+unchanged; use whichever fits what you're doing (manual flow for
+day-to-day development with hot-reload, Compose for a closer-to-production
+smoke test).
+
+1. Copy the root env template and fill in real values: `cp .env.example .env`
+2. Build and start the database/cache first: `docker compose up -d postgres redis`
+3. Restore the schema (same one-time step as Section 2.1, just run
+   against the compose-managed container):
+   ```bash
+   docker compose exec -T postgres psql -U bluebuilding -d bluebuilding < data/bluebuilding_full_dump.sql
+   ```
+4. Apply the newer migrations on top (same as Section 2.3 — the dump has no
+   widget, forecasting or beauty-scan tables; without them the widget can't
+   start a session or save a scan, and the forecasting pages fail). Each is
+   safe to re-run:
+   ```bash
+   for f in data/14_widget_sessions.sql \
+            data/15_tenant_boosts.sql \
+            data/16_event_calendar.sql \
+            data/17_alert_log.sql \
+            data/18_forecast_overrides.sql \
+            data/19_event_milestones.sql \
+            data/20_widget_beauty_scans.sql; do
+     docker compose exec -T postgres psql -U bluebuilding -d bluebuilding < "$f"
+   done
+   ```
+5. Build and start everything else: `docker compose up -d --build`
+6. Visit **http://localhost:3002/login** — same URL/ports as the manual
+   setup.
+
+Notes:
+- `kb_holiday.md`/`kb_weather.md` (Section 6c) aren't git-tracked, so the
+  `geotagging-weather` service's bind mounts are commented out in
+  `docker-compose.yml` by default — uncomment them if you have those
+  files locally, otherwise weather-dependent endpoints 500, same as the
+  non-Docker setup.
+- Inter-service URLs inside Compose use service DNS names (e.g.
+  `http://matching-service:8000`), not `localhost:<port>` — that
+  substitution is already wired into `docker-compose.yml`, nothing to
+  configure.
+- Postgres data now persists across `docker compose down`/`up` via a
+  named volume (`pgdata`) — the plain `docker run` setup in Section 2
+  does not persist data, so this is an improvement, not just parity.
+
+---
+
 ## 8. Troubleshooting
 
 *   **Web app can't reach the database** — confirm the Postgres container is running (`docker ps`) and `DATABASE_URL` in `.env.local` matches the credentials in this doc.
@@ -489,6 +558,7 @@ idempotent script in **Section 0** instead.
 *   **Chat always gives the generic "Thanks for sharing..." reply for ambiguous questions** — either `services/ai-advisor` isn't running / `AI_ADVISOR_SERVICE_URL` isn't set in `.env.local`, or the Gemma model failed to download/load (check `services/ai-advisor` logs — usually a missing/invalid `KAGGLE_USERNAME`/`KAGGLE_KEY` or the Gemma license not being accepted on Kaggle yet).
 *   **Holiday/weather context never shows up in recommendations or chat** — this degrades silently by design (best-effort), so check each link in the chain: `services/geotagging-weather` running on port 8010 and `GEOTAGGING_WEATHER_SERVICE_URL` set; the user actually has a cached location (`Get Realtime Location` toggle on in Profile, and the browser granted geolocation permission); and `indonesia_holiday` has rows for the current year (populated on login — re-login to refresh it).
 *   **`/context` returns a 500 (or the above degrades even with a real cached location)** — `kb_holiday.md`/`kb_weather.md` are missing from the repo root; check `services/geotagging-weather`'s logs for a `FileNotFoundError`. They're not git-tracked (see Section 6c), so restore them manually if they're gone.
+*   **Widget beauty scan reads colour but not face shape** — the face-shape reading needs the head straight and a neutral expression (mouth closed, brows relaxed) in most of the burst; the result says which. Without `models/selfie_multiclass_256x256.tflite` the colour analysis still runs but judges hair by colour alone — re-run `python scripts/download_model.py`.
 *   **Scan shows "Pose: Off" and never takes the photo by itself** — the browser couldn't load MediaPipe's in-browser face tracker (fetched on first visit from `cdn.jsdelivr.net` and `storage.googleapis.com`), so hands-free capture is off. Check your network/ad-blocker; "Take photo now" and photo upload still work.
 *   **`pip install` fails on `mediapipe`** — you're very likely not on Python 3.12. Re-create the virtualenv with `python3.12 -m venv .venv` explicitly.
 *   **Login redirect fails** — your Google OAuth client's "Authorized redirect URI" must exactly match `http://localhost:3002/api/auth/google/callback`.

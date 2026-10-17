@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ScreenContainer } from "@/components/layout/ScreenContainer";
 import { ScoreRing } from "@/components/scan/ScoreRing";
+import { BeautyProfile } from "@/components/scan/BeautyProfile";
 import { FaceMap, SEVERITY_MARKER } from "@/components/scan/FaceMap";
 import { MetricCard } from "@/components/scan/MetricCard";
 import { buttonClassName } from "@/components/ui/Button";
@@ -21,6 +22,8 @@ export default function ScanReportPage() {
   const imageDataUrl = useScanStore((s) => s.imageDataUrl);
   const imageCrop = useScanStore((s) => s.imageCrop);
   const origin = useScanStore((s) => s.origin);
+  const beauty = useScanStore((s) => s.beauty);
+  const poseThumbs = useScanStore((s) => s.poseThumbs);
   const [activeArea, setActiveArea] = useState<number | null>(null);
 
   if (!result) {
@@ -98,6 +101,11 @@ export default function ScanReportPage() {
           )}
         </div>
       </section>
+
+      {/* Colour season, face shape and skin type — from the same three-pose scan */}
+      {beauty && beauty.skinMetrics.scanId === result.scanId && (
+        <BeautyProfile beauty={beauty} thumbs={poseThumbs} />
+      )}
 
       {/* Face map + areas to watch */}
       <h3 className="mb-2.5 text-[12px] font-bold tracking-[0.8px] text-canvas-ink uppercase">

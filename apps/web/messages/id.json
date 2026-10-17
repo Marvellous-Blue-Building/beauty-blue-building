@@ -59,11 +59,11 @@
     "startScan": "Mulai Pindai Kulit"
   },
   "scan": {
-    "stepLabel": "Cek kulit AI",
-    "title": "Posisikan wajah Anda di dalam bingkai",
-    "subtitle": "Pencahayaan baik, tanpa riasan, ekspresi netral. Foto Anda diproses secara aman dan tidak pernah dibagikan.",
+    "stepLabel": "Cek kulit & kecantikan AI",
+    "title": "Pindai wajah dalam 3 pose singkat",
+    "subtitle": "Hadap ke kamera, lalu toleh ke tiap sisi — cahaya baik, tanpa riasan, ekspresi netral. Foto Anda diproses secara aman dan tidak pernah dibagikan.",
     "centerPrompt": "Posisikan wajah Anda di dalam panduan oval",
-    "progressLabel": "Menganalisis kulit Anda",
+    "progressLabel": "Menganalisis warna, bentuk wajah & kulit",
     "statusMapping": "Menemukan wajah & zona kulit Anda…",
     "statusCalibrating": "Memeriksa pencahayaan & kilap…",
     "statusTzone": "Melihat pori-pori & minyak di zona-T…",
@@ -118,12 +118,44 @@
     "guideMoveRight": "Geser sedikit ke kanan",
     "guideMoveUp": "Naikkan sedikit",
     "guideMoveDown": "Turunkan sedikit",
-    "stepPosition": "Posisi",
-    "stepHold": "Tahan",
     "stepAnalyze": "Analisis",
-    "handsFreeHint": "Tanpa sentuh — foto diambil otomatis saat semuanya sudah pas.",
+    "handsFreeHint": "Tanpa sentuh — 3 foto singkat: menghadap kamera, lalu tiap sisi. Setiap foto diambil otomatis saat posenya pas.",
     "takePhotoNow": "Ambil foto sekarang",
-    "uploadPhoto": "Unggah foto"
+    "uploadPhoto": "Unggah foto",
+    "poseFront": "Depan",
+    "poseRight": "Kanan",
+    "poseLeft": "Kiri",
+    "angleOk": "Sudut: Pas",
+    "angleTurned": "Sudut: Menoleh",
+    "angleTilted": "Sudut: Miring",
+    "angleTurnMore": "Sudut: Toleh lagi",
+    "angleTooFar": "Sudut: Terlalu jauh",
+    "guideTurnRight": "Perlahan tolehkan kepala ke kanan",
+    "guideTurnLeft": "Perlahan tolehkan kepala ke kiri",
+    "guideTurnLess": "Sedikit saja — kembalikan sedikit",
+    "guideLevelHead": "Jaga kepala tetap tegak",
+    "guideHoldAngle": "Sempurna — tahan sudut ini…",
+    "guideManualRight": "Tolehkan kepala ke kanan, lalu ketuk tombol rana",
+    "guideManualLeft": "Tolehkan kepala ke kiri, lalu ketuk tombol rana",
+    "capturedFront": "Foto depan tersimpan",
+    "capturedRight": "Sisi kanan tersimpan",
+    "capturedLeft": "Sisi kiri tersimpan",
+    "nextRight": "Berikutnya: perlahan tolehkan kepala ke kanan",
+    "nextLeft": "Berikutnya: perlahan tolehkan kepala ke kiri",
+    "nextAnalyze": "Ketiga foto sudah diambil — menganalisis…",
+    "meterLabel": "Sudut toleh",
+    "meterHintRight": "Toleh ke kanan sampai titik berada di area yang diarsir",
+    "meterHintLeft": "Toleh ke kiri sampai titik berada di area yang diarsir",
+    "takeSidePhotoNow": "Ambil sisi ini sekarang",
+    "restartPoses": "Ulangi dari awal",
+    "statusColour": "Membaca warna kulit & undertone…",
+    "statusShape": "Mengukur proporsi wajah…",
+    "statusCheeksSides": "Membaca tiap pipi dari foto sampingnya…",
+    "guideChinDown": "Turunkan dagu sedikit",
+    "guideChinUp": "Angkat dagu sedikit",
+    "guideCloseMouth": "Tutup mulut sebentar",
+    "guideRelaxFace": "Rileks — tahan senyum sebentar",
+    "angleExpression": "Wajah: Rileks"
   },
   "scanning": {
     "title": "Memetakan titik wajah…",
@@ -235,7 +267,119 @@
     "nextTitle": "Berikutnya: rutinitas yang cocok untuk Anda",
     "nextBody": "Jawab 5 pertanyaan singkat dan kami akan mencocokkan produk dengan hasil ini.",
     "checkinNextTitle": "Simpan check-in ini",
-    "checkinNextBody": "Tambahkan pindaian ini ke progres Anda agar bisa dibandingkan dari waktu ke waktu."
+    "checkinNextBody": "Tambahkan pindaian ini ke progres Anda agar bisa dibandingkan dari waktu ke waktu.",
+    "beauty": {
+      "kicker": "Profil kecantikan Anda",
+      "title": "Warna, bentuk wajah & tipe kulit",
+      "notRead": "Bagian ini belum terbaca kali ini. Coba pindai lagi di cahaya yang lebih terang dan merata.",
+      "notReadShort": "Belum terbaca",
+      "seasonKicker": "Musim warna Anda",
+      "confidence": "{value}% cocok",
+      "closeTo": "dekat dengan {season}",
+      "undertone": "Undertone: {value}",
+      "undertones": {
+        "warm": "Hangat",
+        "cool": "Dingin",
+        "neutral": "Netral"
+      },
+      "skinToneCaption": "Warna kulit Anda, setelah koreksi cahaya ruangan",
+      "hair": "Rambut",
+      "axesTitle": "Yang menentukan musim Anda",
+      "paletteTitle": "Palet makeup Anda",
+      "paletteDraft": "Palet ini masih versi awal dan akan terus disempurnakan.",
+      "shadesTitle": "Shade terdekat di katalog kami",
+      "shadeVeryClose": "Sangat dekat",
+      "shadeClose": "Dekat",
+      "closestTo": "Paling dekat dengan {swatch}",
+      "category": {
+        "lip": "Lipstik",
+        "blush": "Blush",
+        "eyeshadow": "Eyeshadow",
+        "eyeliner": "Eyeliner",
+        "brow": "Alis",
+        "highlighter": "Highlighter",
+        "base": "Foundation & cushion"
+      },
+      "shapeKicker": "Bentuk wajah Anda",
+      "proportionsTitle": "Proporsi wajah Anda",
+      "skinKicker": "Perkiraan",
+      "skinFrom3": "dari 3 foto, tiap pipi dari sisi yang menghadapnya",
+      "skinFrom1": "dari satu foto depan",
+      "posesTitle": "3 foto Anda",
+      "poseFrontCaption": "Depan · dahi, hidung, dagu",
+      "poseRightCaption": "Toleh kanan · pipi kiri",
+      "poseLeftCaption": "Toleh kiri · pipi kanan",
+      "poseRejected": "{pose}: tidak dipakai — {reason}. Pipi itu dibaca dari foto depan.",
+      "poseReason": {
+        "not_turned": "kepala kurang menoleh",
+        "wrong_way": "kepala menoleh ke arah sebaliknya",
+        "turned_too_far": "kepala menoleh terlalu jauh",
+        "no_face": "wajah tidak terdeteksi"
+      },
+      "regionsTitle": "Yang terbaca di tiap area",
+      "fromSide": "foto samping",
+      "regionNotRead": "Belum terbaca",
+      "nothingStandsOut": "Tidak ada yang menonjol",
+      "findingHigh": "{finding} — jelas",
+      "findingSome": "{finding} — sedikit",
+      "finding": {
+        "shine": "Kilap",
+        "pores": "Pori terlihat",
+        "spots": "Noda gelap",
+        "acne": "Jerawat",
+        "lines": "Garis halus",
+        "uneven": "Warna kurang merata"
+      },
+      "approximate": "Perkiraan",
+      "retryButton": "Scan ulang",
+      "retryTipsTitle": "Coba ini",
+      "retry": {
+        "shapeTitle": "Bentuk wajah belum terbaca",
+        "colourTitle": "Musim warna belum terbaca",
+        "tips": {
+          "face_straight": [
+            "Hadap lurus ke kamera, dagu sejajar",
+            "Letakkan kamera kira-kira setinggi mata"
+          ],
+          "neutral_face": [
+            "Wajah rileks dengan mulut tertutup",
+            "Tahan senyum sampai lingkaran penuh"
+          ],
+          "hold_still": [
+            "Diam sampai lingkaran hijau penuh",
+            "Sandarkan siku atau taruh ponsel di meja"
+          ],
+          "cannot_measure": [
+            "Cari cahaya terang dari depan",
+            "Pastikan seluruh wajah ada di dalam oval"
+          ],
+          "more_light": [
+            "Menghadap jendela atau lampu",
+            "Hindari cahaya terang dari belakang"
+          ],
+          "less_light": [
+            "Menjauh dari cahaya yang terlalu terang",
+            "Cahaya siang yang lembut paling baik"
+          ],
+          "show_hair": [
+            "Biarkan sedikit rambut terlihat",
+            "Hijab juga tidak apa-apa"
+          ]
+        }
+      },
+      "skinSwatch": "Kulit",
+      "whySeason": "Kenapa {season}",
+      "legend": {
+        "fine": "Baik",
+        "some": "Sedikit",
+        "clear": "Jelas"
+      },
+      "spec": {
+        "colour": "Warna",
+        "shape": "Bentuk",
+        "skin": "Kulit"
+      }
+    }
   },
   "quiz": {
     "stepOf": "Langkah {step} dari 5 — {section}",
@@ -423,5 +567,414 @@
   "email": {
     "pdfTitle": "Laporan Pindai Kulit Anda",
     "pdfScannedOn": "Dipindai pada {date}"
+  },
+  "admin": {
+    "login": {
+      "title": "Admin Dashboard",
+      "passwordPlaceholder": "Masukkan password",
+      "submit": "Masuk",
+      "wrongPassword": "Password salah. Coba lagi.",
+      "welcome": "Selamat datang kembali",
+      "subtitle": "Masuk untuk mengelola katalog, boost, dan forecasting toko Anda.",
+      "passwordLabel": "Password admin",
+      "showPassword": "Tampilkan password",
+      "hidePassword": "Sembunyikan password",
+      "checking": "Memeriksa…",
+      "httpError": "Login gagal (HTTP {status}). Coba lagi.",
+      "networkError": "Tidak bisa terhubung ke server.",
+      "footnote": "Akses khusus tim internal & tenant."
+    },
+    "header": {
+      "greeting": "Hi, Admin",
+      "welcome": "Selamat datang kembali di AI Beauty Adviser 👋",
+      "searchProducts": "Cari produk",
+      "alerts": "{count} alert demand signal",
+      "noAlerts": "Tidak ada alert demand signal",
+      "simulator": "Simulator",
+      "addBoost": "Tambah Boost",
+      "openMenu": "Buka menu",
+      "closeMenu": "Tutup menu"
+    },
+    "sidebar": {
+      "appName": "AI Beauty Adviser",
+      "tenantDashboard": "Tenant Dashboard",
+      "logout": "Keluar",
+      "searchPlaceholder": "Cari produk...",
+      "searchButton": "Cari",
+      "apps": "Apps",
+      "adminName": "Admin",
+      "adminRole": "Akses tenant",
+      "nav": {
+        "overview": { "label": "Overview", "hint": "Ringkasan aktivitas" },
+        "catalog": { "label": "Katalog", "hint": "Produk, harga, stok" },
+        "marketing": { "label": "Marketing & Trend", "hint": "Boost keyword" },
+        "forecasting": { "label": "Forecasting", "hint": "Demand signal" },
+        "simulator": { "label": "Chat Simulator", "hint": "Uji widget" },
+        "integration": { "label": "Integrasi", "hint": "Embed widget" },
+        "conversations": { "label": "Conversation history", "hint": "Riwayat percakapan" }
+      }
+    },
+    "overview": {
+      "title": "Overview",
+      "subtitle": "Semua angka di bawah ini dibaca langsung dari database, bukan data contoh.",
+      "stats": {
+        "products": "Produk katalog",
+        "inStock": "Stok tersedia",
+        "activeBoosts": "Boost aktif",
+        "widgetSessions": "Sesi widget",
+        "conversations": "Percakapan",
+        "messages": "Pesan chat"
+      },
+      "loadError": "Gagal memuat data overview.",
+      "kpi": {
+        "chats": "Percakapan AI",
+        "scans": "Skin Scan",
+        "users": "Pengguna Terdaftar",
+        "vsLastWeek": "vs 7 hari lalu",
+        "new": "baru"
+      },
+      "menu": {
+        "cardMenu": "Menu kartu",
+        "openSimulator": "Buka Chat Simulator",
+        "viewDemandSignal": "Lihat demand signal",
+        "viewForecasting": "Lihat forecasting",
+        "viewIntegration": "Lihat integrasi widget",
+        "manageStock": "Kelola stok di Katalog"
+      },
+      "activity": {
+        "title": "Aktivitas Pengguna",
+        "range": "{days} Hari",
+        "exportCsv": "Export CSV",
+        "chatSeries": "Pesan chat",
+        "scanSeries": "Skin scan"
+      },
+      "categories": { "title": "Kategori Produk", "top5": "Top 5", "empty": "Belum ada produk." },
+      "stock": {
+        "title": "Status Stok",
+        "inStock": "Tersedia (> 5)",
+        "lowStock": "Stok menipis (1–5)",
+        "outOfStock": "Habis"
+      },
+      "recent": {
+        "title": "Produk Terbaru",
+        "viewAll": "Lihat Semua",
+        "product": "Produk",
+        "name": "Nama",
+        "updated": "Diperbarui",
+        "price": "Harga",
+        "status": "Status",
+        "showing": "Tampil",
+        "of": "dari {total}",
+        "prevPage": "Halaman sebelumnya",
+        "nextPage": "Halaman berikutnya",
+        "stockStatus": { "available": "Tersedia", "low": "Menipis", "out": "Habis" }
+      }
+    },
+    "catalog": {
+      "title": "Katalog Produk",
+      "cardTitle": "Cari & edit produk",
+      "searchPlaceholder": "Cari nama / brand / SKU…",
+      "searchButton": "Cari",
+      "columns": { "product": "Produk", "price": "Harga", "stock": "Stok", "category": "Kategori" }
+    },
+    "marketing": {
+      "title": "Marketing & Trend Boost",
+      "cardTitle": "Trend / Merchandising Boost",
+      "cardSubtitle": "Keyword di sini ikut menaikkan ranking produk di rekomendasi chat (ranking-only, tidak pernah jadi syarat mutlak) — langsung aktif, tanpa perlu ubah kode.",
+      "keywordPlaceholder": "mis. glass skin, bold red lip",
+      "weightOption": "Bobot {w}",
+      "addButton": "Tambah",
+      "columns": { "keyword": "Keyword", "weight": "Bobot", "status": "Status" },
+      "active": "Aktif",
+      "inactive": "Nonaktif",
+      "delete": "Hapus",
+      "empty": "Belum ada boost aktif."
+    },
+    "simulator": {
+      "skinTool": "Alat Analisis Skin Scanning",
+      "title": "Chat Simulator",
+      "subtitle": "Memanggil endpoint widget yang sama persis (<code>/api/widget/chat</code>) yang dipakai pengunjung sungguhan — bukan simulasi terpisah, jadi apa yang Anda lihat di sini adalah apa yang pelanggan lihat.",
+      "placeholder": "Tulis pertanyaan seperti pelanggan…",
+      "send": "Kirim",
+      "typing": "Mengetik…",
+      "emptyState": "Coba kirim pesan seperti pengunjung toko.",
+      "serverError": "Maaf, ada gangguan di server.",
+      "connectionError": "Tidak bisa terhubung ke server."
+    },
+    "integration": {
+      "title": "Integrasi",
+      "embedCardTitle": "Embed widget ke website toko",
+      "embedCardSubtitle": "Satu baris script — tempel sebelum '</body>' di website toko manapun.",
+      "copyButton": "Salin snippet",
+      "previewCardTitle": "Preview",
+      "previewCardSubtitle": "Widget asli, berjalan di halaman contoh toko."
+    },
+    "conversations": {
+      "title": "Riwayat percakapan",
+      "subtitle": "Riwayat percakapan pengunjung widget.",
+      "empty": "Belum ada percakapan.",
+      "session": "Sesi {id}",
+      "noMessageYet": "(belum ada pesan)",
+      "counts": "{messages} pesan · {conversations} percakapan",
+      "selectPrompt": "Pilih sesi untuk melihat isi chat.",
+      "startedAt": "Mulai {date}",
+      "loading": "Memuat…",
+      "noMessages": "Tidak ada pesan.",
+      "newConversation": "Percakapan baru"
+    },
+    "forecasting": {
+      "title": "Forecasting",
+      "intro": "Mengacu ke roadmap internal 3-fase (Knowledge Base Sistem Analitik Forecasting & Marketing Beauty) dan layout dari \"Wireframe Forecasting & Marketing Strategy\". Semua angka di bawah berasal dari data nyata project ini (cart/chat, kalender event, teks chat) — bukan placeholder. Bagian yang butuh data warehouse, integrasi iklan per kanal, dan 12–24 bulan histori penjualan (forecast ML, Marketing Mix Modeling) ditandai jujur di tab Strategi Marketing, bukan dikerjakan dengan data palsu.",
+      "tabs": {
+        "overview": "Forecast Overview",
+        "sku": "Detail SKU",
+        "events": "Event & Promo Planner",
+        "marketing": "Strategi Marketing"
+      },
+      "shared": {
+        "eventTypes": {
+          "event_offline": "Event Offline",
+          "promo_marketplace": "Promo Marketplace",
+          "promo_brand": "Promo Brand",
+          "campaign": "Kampanye Marketing",
+          "seasonal": "Musiman"
+        },
+        "eventStatus": {
+          "rencana": "rencana",
+          "disetujui": "disetujui",
+          "berjalan": "berjalan",
+          "selesai": "selesai",
+          "batal": "batal"
+        },
+        "trend": { "up": "naik", "down": "turun", "flat": "stabil" },
+        "alarmLabels": {
+          "normal": "Normal",
+          "watch": "Watch",
+          "rising": "Rising",
+          "surge": "Surge",
+          "fading": "Fading"
+        },
+        "alertActions": {
+          "tindak_lanjut": "Ditindaklanjuti",
+          "diabaikan": "Diabaikan",
+          "salah_alarm": "Ditandai salah alarm"
+        },
+        "milestones": {
+          "H-56": "Masuk kalender, uplift & kebutuhan stok dihitung",
+          "H-42": "PO ke supplier (lead time > 4 minggu)",
+          "H-21": "Konfirmasi stok gudang vs kebutuhan",
+          "H-7": "Kirim ke lokasi / alokasi stok online",
+          "H-3": "Hitung ulang dengan sinyal terbaru",
+          "H+5": "Isi data aktual event",
+          "H+21": "Uplift bersih final"
+        },
+        "overdueSuffix": " (lewat tenggat)",
+        "chart": { "actual": "Aktual", "baseline": "Baseline", "emptySeries": "Belum ada data series untuk produk ini." },
+        "uplift": {
+          "tingkatC": "Tingkat C",
+          "signifikan": "signifikan",
+          "tidakSignifikan": "tidak signifikan",
+          "lookupSubtipe": "Lookup sub-tipe",
+          "estimasiKasar": "Estimasi kasar"
+        }
+      },
+      "overview": {
+        "kpi": {
+          "alertActiveLabel": "Alert aktif",
+          "alertActiveHint": "alarmLevel ≥ 1 (Watch/Rising/Surge/Fading)",
+          "stockoutRiskLabel": "SKU risiko stockout",
+          "stockoutRiskHint": "stok < 24 jam pada laju forecast",
+          "forecastSignalLabel": "Forecast sinyal jam depan",
+          "forecastSignalHint": "total semua SKU terlacak",
+          "eventsNearLabel": "Event ±30 hari",
+          "eventsNearHint": "dari kalender nyata",
+          "avgUpliftLabel": "Uplift rata² event selesai",
+          "avgUpliftHint": "dari {count} event Tingkat C"
+        },
+        "forecastChart": {
+          "title": "Forecast vs Aktual",
+          "topProductSubtitle": "SKU paling disorot saat ini: {name} ({label}). Garis putus = baseline Holt's linear trend — bukan Prophet/LightGBM (belum ada histori penjualan untuk melatihnya).",
+          "emptySubtitle": "Belum ada SKU dengan aktivitas cart/chat.",
+          "emptyBody": "Belum ada aktivitas cart/chat yang tercatat.",
+          "viewDetail": "Lihat Detail SKU →",
+          "emptySeries": "Belum ada data series untuk produk ini."
+        },
+        "skuTable": {
+          "title": "SKU prioritas — forecast, stok, sinyal",
+          "subtitle": "Forecast: Holt's linear trend per jam. Cover (jam): stok gudang ÷ laju forecast saat ini. Sinyal: alarm CUSUM robust z-score.",
+          "columns": {
+            "sku": "SKU",
+            "category": "Kategori",
+            "forecastNextHour": "Forecast jam depan",
+            "trend": "Tren",
+            "stock": "Stok",
+            "cover": "Cover (jam)",
+            "signal": "Sinyal",
+            "action": "Aksi"
+          },
+          "viewDetail": "Lihat detail",
+          "sendAlert": "Kirim alert email",
+          "sending": "Mengirim...",
+          "sent": "Email terkirim ✓",
+          "empty": "Belum ada aktivitas cart/chat yang tercatat."
+        },
+        "upcomingEvents": {
+          "title": "Event & promo akan datang",
+          "subtitle": "8 minggu ke depan, status rencana/disetujui — dari kalender nyata.",
+          "upliftSuffix": " · estimasi uplift {pct}",
+          "empty": "Belum ada event terjadwal 8 minggu ke depan."
+        },
+        "alertFeed": {
+          "title": "Alert Demand Signal hari ini",
+          "subtitle": "Level Rising/Surge — tombol balasan masuk alert_log untuk evaluasi (prinsip Demand Signal System.md).",
+          "lastMarked": "Terakhir ditandai: {action} · {date}",
+          "followUp": "Tindak lanjuti",
+          "ignore": "Abaikan",
+          "falseAlarm": "Salah alarm",
+          "empty": "Tidak ada alert Rising/Surge saat ini."
+        },
+        "sentiment": {
+          "title": "Sentimen Chat (heuristik) — Fase 3",
+          "subtitle": "Lexicon kata kunci ID+EN atas teks chat visitor sungguhan (bukan review marketplace — tidak ada tabel review; bukan model NLP terlatih).",
+          "columns": { "product": "Produk", "positive": "Positif", "negative": "Negatif", "neutral": "Netral" },
+          "empty": "Belum ada percakapan dengan rekomendasi produk untuk dianalisis."
+        }
+      },
+      "sku": {
+        "noProduct": "Belum ada produk dengan aktivitas cart/chat tercatat.",
+        "pickSku": {
+          "title": "Pilih SKU",
+          "searchPlaceholder": "Cari nama produk...",
+          "noMatch": "Tidak ada produk cocok."
+        },
+        "detail": {
+          "forecastNextHour": "Forecast jam depan",
+          "trend": "Tren",
+          "dataPoints": "{count} jam",
+          "dataPointsLabel": "Titik data",
+          "stock": "Stok",
+          "trendUp": "Naik",
+          "trendDown": "Turun",
+          "trendFlat": "Stabil"
+        },
+        "signalBreakdown": {
+          "title": "Demand Signal breakdown",
+          "subtitle": "2 sinyal nyata project ini — bukan 8 sinyal KB (Google Trends/sosial/review/kompetitor butuh integrasi API yang belum ada).",
+          "columns": { "signal": "Sinyal", "valueNow": "Nilai jam ini", "zScore": "z-score", "weight": "Bobot" },
+          "cartAdd": "Add-to-cart",
+          "chatMention": "Mention chat"
+        },
+        "relatedEvents": {
+          "title": "Event yang memengaruhi SKU ini",
+          "subtitle": "Event dengan kategori fokus sama dengan produk ini.",
+          "empty": "Tidak ada event untuk kategori ini."
+        },
+        "override": {
+          "title": "Override & catatan planner",
+          "subtitle": "Forecast model tidak pernah ditimpa — override dicatat berdampingan beserta alasannya (KB: bandingkan akurasi model vs manual 3 bulan kemudian).",
+          "currentForecast": "Forecast model saat ini",
+          "valuePlaceholder": "Override (jam depan)",
+          "reasonPlaceholder": "Alasan (wajib)",
+          "save": "Simpan override",
+          "saving": "Menyimpan...",
+          "historyColumns": { "date": "Tanggal", "value": "Nilai override", "reason": "Alasan" }
+        }
+      },
+      "events": {
+        "subTabs": { "timeline": "Timeline", "table": "Tabel & Kelola", "eval": "Evaluasi & Attribution" },
+        "timeline": {
+          "cardTitle": "Timeline Event & Promo",
+          "cardSubtitle": "Dikelompokkan per tipe — klik bar untuk detail.",
+          "empty": "Belum ada event untuk ditampilkan di timeline.",
+          "legend": "Garis putus = hari ini. Klik bar untuk lihat detail uplift, attribution, dan tenggat."
+        },
+        "detail": {
+          "upliftTitle": "Uplift",
+          "notComputable": "Belum bisa dihitung (butuh kategori fokus).",
+          "attributionTitle": "Attribution",
+          "noPromoCode": "Belum ada kode promo diatur untuk event ini.",
+          "attributionLine": "Kode {code}: {sessions} sesi, {mentions} mention{cost}.",
+          "attributionCostSuffix": ", Rp {amount}/sesi",
+          "milestonesTitle": "Tenggat mundur"
+        },
+        "table": {
+          "cardTitle": "Kalender Event & Promo — Fase 2",
+          "cardSubtitle": "Satu sumber kebenaran untuk event/promo — sepenuhnya nyata (CRUD), dikelola di sini, bukan placeholder.",
+          "namePlaceholder": "Nama event/promo",
+          "subTypePlaceholder": "Sub-tipe (mis. tanggal kembar)",
+          "categoryPlaceholder": "Kategori fokus (mis. skincare)",
+          "discountPlaceholder": "Diskon %",
+          "budgetPlaceholder": "Budget iklan (Rp)",
+          "promoCodePlaceholder": "Kode promo (unik)",
+          "addButton": "Tambah Event",
+          "columns": {
+            "event": "Event",
+            "date": "Tanggal",
+            "category": "Kategori",
+            "discount": "Diskon",
+            "promoCode": "Kode Promo",
+            "status": "Status"
+          },
+          "deleteButton": "Hapus",
+          "empty": "Belum ada event di kalender."
+        },
+        "eval": {
+          "upliftCard": {
+            "title": "Uplift & Kebutuhan Stok Event",
+            "subtitle": "Event selesai: uplift historis Tingkat C (rasio ke median jendela bersih 8 minggu). Event mendatang: estimasi lookup table dari event sub-tipe sama (Tahap 1), ditandai 'estimasi kasar' jika belum ada preseden sejenis.",
+            "columns": { "event": "Event", "status": "Status", "uplift": "Uplift", "method": "Metode" },
+            "empty": "Belum ada event selesai atau rencana dengan kategori fokus untuk dihitung."
+          },
+          "attributionCard": {
+            "title": "Attribution (Kode Promo) — Fase 2",
+            "subtitleTemplate": "Lapis 1 (kode promo unik) + Lapis 3 (organik). {organik} dari {total} total sesi widget adalah organik (tanpa kode promo). Belum ada multi-touch attribution (Lapis 2).",
+            "columns": {
+              "promoCode": "Kode Promo",
+              "event": "Event",
+              "sessions": "Sesi Teratribusi",
+              "mentions": "Mention Teratribusi",
+              "costPerSession": "Biaya / Sesi"
+            },
+            "empty": "Belum ada event dengan kode promo diatur."
+          },
+          "simulatorCard": {
+            "title": "Simulator Skenario (What-If) — Fase 3",
+            "subtitle": "Pakai engine uplift yang sama di atas (lookup table per sub-tipe), dijalankan interaktif untuk kategori/diskon hipotetis. 'Proyeksi nilai aktivitas' adalah proksi skala (sinyal × rata-rata harga kategori), bukan forecast penjualan.",
+            "categoryPlaceholder": "Kategori (mis. skincare)",
+            "subTypePlaceholder": "Sub-tipe (opsional)",
+            "discountPlaceholder": "Diskon %",
+            "calculate": "Hitung",
+            "calculating": "Menghitung...",
+            "fromEvents": "dari {count} event historis signifikan",
+            "projectedValue": "Proyeksi nilai aktivitas: {amount}",
+            "note": "Proyeksi nilai aktivitas = sinyal aktivitas (bukan unit terjual) × rata-rata harga kategori — indikasi skala, bukan forecast penjualan (tidak ada tabel order)."
+          }
+        }
+      },
+      "marketing": {
+        "title": "Strategi Marketing — status per kanal",
+        "intro": "Wireframe aslinya menampilkan diagnosis iROAS/CAC per kanal iklan (TikTok Ads, Meta Ads, Influencer, dst) dan alokasi budget MMM. Project ini hanya punya satu kanal yang benar-benar bisa diukur: kode promo yang ditempel di event (Fase 2). Sisanya butuh integrasi API iklan dan data penjualan per transaksi yang belum ada — ditandai jujur di bawah, bukan diisi angka contoh.",
+        "statusLive": "Terukur",
+        "statusPlanned": "Belum tersedia",
+        "measurableCard": {
+          "title": "Yang bisa diukur vs yang belum",
+          "promoCodeTitle": "Kode promo per event (Lapis 1 attribution)",
+          "promoCodeDesc": "Sesi widget yang membawa kode promo dilacak ke event pemiliknya — nyata, lihat Event & Promo Planner > Evaluasi & Attribution.",
+          "channelRoasTitle": "ROAS/iROAS/CAC per kanal iklan (TikTok Ads, Meta Ads, Influencer, dll)",
+          "channelRoasDesc": "Butuh integrasi API tiap platform iklan untuk data belanja, dan data penjualan per transaksi untuk pendapatan teratribusi — keduanya tidak ada di project ini.",
+          "mmmTitle": "Marketing Mix Modeling & alokasi budget otomatis",
+          "mmmDesc": "Butuh ≥24 bulan data belanja mingguan per kanal untuk regresi adstock/saturasi — datanya belum ada sama sekali.",
+          "incrementalityTitle": "Uji inkrementalitas (geo/audience holdout)",
+          "incrementalityDesc": "Butuh kemampuan menahan kampanye di sebagian kota/audiens dan membandingkan — tidak ada infrastruktur eksperimen semacam itu di project ini."
+        },
+        "promoChannelCard": {
+          "title": "Satu-satunya kanal terukur saat ini: kode promo",
+          "subtitleTemplate": "{organik} dari {total} total sesi widget organik (tanpa kode) — {attributed} sesi lewat {eventCount} kode promo event.",
+          "empty": "Belum ada event dengan kode promo diatur.",
+          "sessionsSuffix": " sesi",
+          "viewDetail": "Lihat detail attribution →"
+        }
+      }
+    }
   }
 }

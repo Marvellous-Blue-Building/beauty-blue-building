@@ -55,3 +55,17 @@ class ScanReport(ScanMetrics):
     createdAt: datetime
     ragTriggerStatus: str
     flaggedZones: list[FlaggedZone] = []
+
+
+class ColorAnalyzeRequest(BaseModel):
+    imageBase64: str
+
+
+class ColorAnalyzeResponse(BaseModel):
+    skinToneHex: str
+    labL: float
+    labA: float
+    labB: float
+    itaAngle: float
+    undertone: Literal["warm", "cool", "neutral"]
+    depthCategory: Literal["fair", "light", "medium", "tan", "deep"]
