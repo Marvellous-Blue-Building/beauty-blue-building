@@ -111,7 +111,12 @@ export function beautyScanGuidance(report: BeautyScanReport): string {
 
 // ---------------------------------------------------------------- direct answers
 
-const SHADE_QUESTION = /cocok|sesuai|\bpas\b|shade|warna|rekomendasi|saran|bagus/i;
+export type WidgetLanguage = "id" | "en";
+
+const UNDERTONE_EN: Record<string, string> = { warm: "warm", cool: "cool", neutral: "neutral" };
+
+// Question detection is bilingual in both languages — only the reply follows `language`.
+const SHADE_QUESTION = /cocok|sesuai|\bpas\b|shade|warna|rekomendasi|saran|bagus|suit|match|go with|recommend|best|right for|colou?r/i;
 const SHADE_WORDS: [string, RegExp][] = [
   ["lip", /lipstik|lipstick|lip ?tint|lip ?cream|lip ?matte|\blip\b|bibir/i],
   ["blush", /blush|perona pipi/i],
@@ -121,7 +126,7 @@ const SHADE_WORDS: [string, RegExp][] = [
   ["highlighter", /highlight/i],
   ["base", /foundation|cushion|bb cream|cc cream|concealer|alas bedak/i],
 ];
-const SKIN_PRODUCT_WORDS = /produk|serum|toner|pelembab|moisturi[sz]er|sunscreen|cleanser|sabun|krim|essence|masker/i;
+const SKIN_PRODUCT_WORDS = /produk|serum|toner|pelembab|moisturi[sz]er|sunscreen|cleanser|sabun|krim|cream|essence|masker|\bmask\b|product/i;
 
 export interface BeautyScanAnswer {
   text: string;
@@ -130,13 +135,17 @@ export interface BeautyScanAnswer {
 }
 
 /** Answers questions the scan itself can answer — "lipstik yang cocok
- * untukku?", "bentuk wajahku apa?", "tipe kulitku apa?" — from the saved
- * result, without a guess from the general pipeline. Null for anything
- * else, which goes through the normal chat pipeline with the scan as
- * grounding. */
-export function answerFromBeautyScan(userText: string, report: BeautyScanReport): BeautyScanAnswer | null {
+ * untukku?" / "which lipstick suits me?", "bentuk wajahku apa?", "what's my
+ * skin type?" — from the saved result, without a guess from the general
+ * pipeline. Null for anything else, which goes through the normal chat
+ * pipeline with the scan as grounding. Replies in `language` (the widget's
+ * page language); the report's own names are already in the language the
+ * scan ran in. */
+export function answerFromBeautyScan(userText: string, report: BeautyScanReport, language: WidgetLanguage = "id"): BeautyScanAnswer | null {
+  const en = language === "en";
   const text = userText.toLowerCase();
   const season = report.colour.season;
+  const undertoneWord = (en ? UNDERTONE_EN : UNDERTONE_ID)[report.colour.undertone ?? "neutral"];
 
   const shadeKind = SHADE_WORDS.find(([, pattern]) => pattern.test(text))?.[0];
   if (shadeKind && SHADE_QUESTION.test(text)) {
@@ -146,44 +155,71 @@ export function answerFromBeautyScan(userText: string, report: BeautyScanReport)
       if (!group || !skin) return null;
       return group.matches.length
         ? {
-            text: `Dari scan-mu, ini foundation dan cushion di katalog yang warnanya paling dekat dengan warna kulitmu. Tetap coba swatch di rahang dulu ya, karena kamera dan cahaya bisa menggeser warna.`,
+            text: en
+              ? "From your scan, these are the foundations and cushions in the catalog closest to your skin tone. Swatch on your jawline first — camera and lighting can shift colour."
+              : `Dari scan-mu, ini foundation dan cushion di katalog yang warnanya paling dekat dengan warna kulitmu. Tetap coba swatch di rahang dulu ya, karena kamera dan cahaya bisa menggeser warna.`,
             productIds: group.matches.map((m) => m.productId),
           }
-        : { text: "Dari scan-mu, belum ada shade foundation di katalog yang cukup dekat dengan warna kulitmu.", productIds: [] };
+        : {
+            text: en
+              ? "From your scan, there's no foundation shade in the catalog close enough to your skin tone yet."
+              : "Dari scan-mu, belum ada shade foundation di katalog yang cukup dekat dengan warna kulitmu.",
+            productIds: [],
+          };
     }
     if (!season) return null;
     const swatches = report.colour.palette?.categories.find((c) => c.id === shadeKind)?.swatches ?? [];
     const label = report.colour.palette?.categories.find((c) => c.id === shadeKind)?.label ?? shadeKind;
     const names = swatches.slice(0, 3).map((s) => s.name).join(", ");
-    const lead = `Kamu ${season.displayName}${names ? `, jadi ${label.toLowerCase()} dengan nuansa ${names} paling menyatu dengan warnamu` : ""}.`;
+    const lead = en
+      ? `You're a ${season.displayName}${names ? `, so ${label.toLowerCase()} in ${names} blends best with your colouring` : ""}.`
+      : `Kamu ${season.displayName}${names ? `, jadi ${label.toLowerCase()} dengan nuansa ${names} paling menyatu dengan warnamu` : ""}.`;
     if (group && group.matches.length) {
-      return { text: `${lead} Ini shade dari katalog yang paling dekat:`, productIds: group.matches.map((m) => m.productId) };
+      return { text: `${lead} ${en ? "These are the closest shades in the catalog:" : "Ini shade dari katalog yang paling dekat:"}`, productIds: group.matches.map((m) => m.productId) };
     }
-    return { text: `${lead} Sayangnya belum ada shade di katalog yang cukup dekat dengan palet itu.`, productIds: [] };
-  }
-
-  if (/bentuk wajah/.test(text) && !SKIN_PRODUCT_WORDS.test(text)) {
-    const shape = report.faceShape.shape;
-    if (!shape) return null;
-    const best = (report.faceShape.looks?.ranked ?? []).filter((l) => l.tier === "best").map((l) => l.displayName);
-    const also = shape.alsoFits ? ` Wajahmu juga mendekati ${shape.alsoFits.displayName}.` : "";
-    const looks = best.length ? ` Look yang paling sedikit perlu penyesuaian: ${best.join(" dan ")}.` : "";
-    return { text: `Dari scan-mu, bentuk wajahmu ${shape.displayName}. ${report.faceShape.description ?? ""}${also}${looks}`.replace(/\s+/g, " ").trim(), productIds: [] };
-  }
-
-  if (/(tipe|jenis) kulit/.test(text) && /\b(apa|gimana|bagaimana|termasuk)\b/.test(text) && !SKIN_PRODUCT_WORDS.test(text)) {
     return {
-      text: `Dari scan-mu, kulitmu terbaca ${report.skin.analysis.summary.toLowerCase()}. Ini perkiraan dari ${
-        report.captureMode === "three-pose" ? "3 foto (depan, kanan, kiri)" : "foto wajahmu"
-      }, bukan diagnosis. Mau aku carikan skincare yang cocok untuk itu?`,
+      text: `${lead} ${en ? "Unfortunately there's no catalog shade close enough to that palette yet." : "Sayangnya belum ada shade di katalog yang cukup dekat dengan palet itu."}`,
       productIds: [],
     };
   }
 
-  if (/(musim|season|palet) warna|warna apa yang cocok|undertone/.test(text) && season) {
-    const undertone = UNDERTONE_ID[report.colour.undertone ?? "neutral"];
-    const runner = season.conclusive || !season.runnerUp ? "" : ` Hasilnya juga dekat dengan ${season.runnerUp.displayName}.`;
-    return { text: `Dari scan-mu, kamu ${season.displayName} dengan undertone ${undertone} (keyakinan ${season.confidencePercent}%).${runner}`, productIds: [] };
+  if (/bentuk wajah|face shape/.test(text) && !SKIN_PRODUCT_WORDS.test(text)) {
+    const shape = report.faceShape.shape;
+    if (!shape) return null;
+    const best = (report.faceShape.looks?.ranked ?? []).filter((l) => l.tier === "best").map((l) => l.displayName);
+    const also = shape.alsoFits ? (en ? ` It's also close to ${shape.alsoFits.displayName}.` : ` Wajahmu juga mendekati ${shape.alsoFits.displayName}.`) : "";
+    const looks = best.length
+      ? en ? ` Looks that need the least adjusting: ${best.join(" and ")}.` : ` Look yang paling sedikit perlu penyesuaian: ${best.join(" dan ")}.`
+      : "";
+    const lead = en ? `From your scan, your face shape is ${shape.displayName}.` : `Dari scan-mu, bentuk wajahmu ${shape.displayName}.`;
+    return { text: `${lead} ${report.faceShape.description ?? ""}${also}${looks}`.replace(/\s+/g, " ").trim(), productIds: [] };
+  }
+
+  const askedSkinType = /(tipe|jenis) kulit/.test(text) ? /\b(apa|gimana|bagaimana|termasuk)\b/.test(text) : /skin type/.test(text) && /\b(what|which|my)\b/.test(text);
+  if (askedSkinType && !SKIN_PRODUCT_WORDS.test(text)) {
+    const summary = report.skin.analysis.summary.toLowerCase();
+    return {
+      text: en
+        ? `From your scan, your skin reads as ${summary}. That's an estimate from ${
+            report.captureMode === "three-pose" ? "3 photos (front, right, left)" : "your photo"
+          }, not a diagnosis. Want me to find skincare that suits it?`
+        : `Dari scan-mu, kulitmu terbaca ${summary}. Ini perkiraan dari ${
+            report.captureMode === "three-pose" ? "3 foto (depan, kanan, kiri)" : "foto wajahmu"
+          }, bukan diagnosis. Mau aku carikan skincare yang cocok untuk itu?`,
+      productIds: [],
+    };
+  }
+
+  if (/(musim|season|palet) warna|warna apa yang cocok|undertone|colou?r season|my season|palette|what colou?rs? suit/.test(text) && season) {
+    const runner = season.conclusive || !season.runnerUp
+      ? ""
+      : en ? ` It's also close to ${season.runnerUp.displayName}.` : ` Hasilnya juga dekat dengan ${season.runnerUp.displayName}.`;
+    return {
+      text: en
+        ? `From your scan, you're a ${season.displayName} with a ${undertoneWord} undertone (${season.confidencePercent}% confidence).${runner}`
+        : `Dari scan-mu, kamu ${season.displayName} dengan undertone ${undertoneWord} (keyakinan ${season.confidencePercent}%).${runner}`,
+      productIds: [],
+    };
   }
 
   return null;
