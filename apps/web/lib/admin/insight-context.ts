@@ -4,9 +4,11 @@ import { listEvents } from "@/lib/events";
 /** node-postgres hands back a native Date for DATE/TIMESTAMPTZ columns —
  * several of the types this file reads from (EventRow.startsAt, raw
  * `created_at`/`sale_date` query rows) are typed as `string` but aren't
- * one at runtime, so every date value gets normalized through this. */
+ * one at runtime, so every date value gets normalized through this.
+ * Keyed on the Jakarta calendar day: events start at 00:00 WIB, which in UTC
+ * is still the previous day (9.9 would read as 2026-09-08). */
 function dateKey(value: string | Date): string {
-  return new Date(value).toISOString().slice(0, 10);
+  return new Date(value).toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
 }
 
 /**

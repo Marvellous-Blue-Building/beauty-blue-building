@@ -6,7 +6,8 @@ const INSIGHT_TIMEOUT_MS = 60_000;
 export async function generateInsightReply(
   message: string,
   dataContext: string,
-  conversationContext: string[] = []
+  conversationContext: string[] = [],
+  language: "id" | "en" = "id"
 ): Promise<string> {
   if (!AI_ADVISOR_SERVICE_URL) {
     throw new Error("AI_ADVISOR_SERVICE_URL is not configured");
@@ -18,7 +19,7 @@ export async function generateInsightReply(
     const res = await fetch(`${AI_ADVISOR_SERVICE_URL}/insight`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, dataContext, conversationContext }),
+      body: JSON.stringify({ message, dataContext, conversationContext, language }),
       signal: controller.signal,
     });
     if (!res.ok) {

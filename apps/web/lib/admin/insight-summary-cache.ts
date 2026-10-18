@@ -13,15 +13,18 @@ interface CachedSummary {
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
-let cached: CachedSummary | null = null;
+// One entry per reply language, so the EN and ID dashboards each get their own.
+const cache = new Map<string, CachedSummary>();
 
-export function getCachedSummary(): CachedSummary | null {
+export function getCachedSummary(language: string): CachedSummary | null {
+  const cached = cache.get(language);
   if (!cached) return null;
   const age = Date.now() - new Date(cached.generatedAt).getTime();
   return age < ONE_DAY_MS ? cached : null;
 }
 
-export function setCachedSummary(text: string): CachedSummary {
-  cached = { text, generatedAt: new Date().toISOString() };
+export function setCachedSummary(language: string, text: string): CachedSummary {
+  const cached = { text, generatedAt: new Date().toISOString() };
+  cache.set(language, cached);
   return cached;
 }
