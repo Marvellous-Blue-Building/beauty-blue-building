@@ -987,13 +987,13 @@
       "about": "About Us",
       "contact": "Contact Us",
       "login": "Log In",
-      "tryScan": "Try Skin Scan"
+      "tryScan": "Live Demo"
     },
     "hero": {
       "eyebrow": "AI skin & beauty advisor",
       "title": "Your skin, decoded in three poses",
       "subtitle": "One camera scan reads your skin, colour season and face shape — then an AI advisor matches you with products from a real catalog and builds your routine.",
-      "ctaPrimary": "Try Skin Scan",
+      "ctaPrimary": "Live Demo",
       "ctaSecondary": "For retailers",
       "chipSeason": "Colour season",
       "chipFace": "Face shape",

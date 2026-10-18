@@ -131,9 +131,9 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
               <Link href="/login" className={btnSecondaryCls}>
                 {t("nav.login")}
               </Link>
-              <Link href="/welcome" className={btnPrimaryCls}>
+              <a href="/demo-retailer.html" target="_blank" rel="noopener noreferrer" className={btnPrimaryCls}>
                 {t("nav.tryScan")}
-              </Link>
+              </a>
             </div>
             <details className="relative lg:hidden">
               <summary className="glass-inset flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-xl text-neutral-700 [&::-webkit-details-marker]:hidden" aria-label="Menu">
@@ -149,9 +149,9 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
                   <Link href="/login" className="rounded-xl px-3 py-2.5 text-sm text-neutral-700 hover:bg-white/60">
                     {t("nav.login")}
                   </Link>
-                  <Link href="/welcome" className={`${btnPrimaryCls} mt-1`}>
+                  <a href="/demo-retailer.html" target="_blank" rel="noopener noreferrer" className={`${btnPrimaryCls} mt-1`}>
                     {t("nav.tryScan")}
-                  </Link>
+                  </a>
                 </div>
               </div>
             </details>
@@ -169,10 +169,10 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
             <h1 className="mt-5 text-4xl font-semibold leading-[1.08] tracking-tight text-neutral-700 sm:text-5xl lg:text-[56px]">{t("hero.title")}</h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-neutral-500">{t("hero.subtitle")}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/welcome" className={`${btnPrimaryCls} h-12 px-6 text-[15px]`}>
+              <a href="/demo-retailer.html" target="_blank" rel="noopener noreferrer" className={`${btnPrimaryCls} h-12 px-6 text-[15px]`}>
                 {t("hero.ctaPrimary")}
                 <IconArrowRight size={18} />
-              </Link>
+              </a>
               <a href="#retailers" className={`${btnSecondaryCls} h-12 px-6 text-[15px]`}>
                 {t("hero.ctaSecondary")}
               </a>
