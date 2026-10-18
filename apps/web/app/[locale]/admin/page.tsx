@@ -1582,12 +1582,25 @@ function ForecastingSection({ onOpenInsight }: { onOpenInsight: () => void }) {
 
 function SimulatorSection() {
   const t = useTranslations("admin.simulator");
+  const locale = useLocale();
   const [messages, setMessages] = useState<SimMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [greeting, setGreeting] = useState<string | null>(null);
   const sessionRef = useRef<string | null>(null);
   const conversationRef = useRef<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Same greeting + "Scan my face" chip a real visitor sees when the
+  // widget first opens (see public/widget-loader.js's openWidget) —
+  // fetched from the same /api/widget/config a real embed calls, not
+  // hardcoded, so it stays in sync with WIDGET_GREETING/WIDGET_GREETING_EN.
+  useEffect(() => {
+    fetch(`/api/widget/config${locale === "en" ? "?lang=en" : ""}`)
+      .then((r) => r.json())
+      .then((d: { greeting?: string }) => setGreeting(d.greeting ?? null))
+      .catch(() => {});
+  }, [locale]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -1601,8 +1614,8 @@ function SimulatorSection() {
     return data.sessionId as string;
   }
 
-  async function send() {
-    const text = input.trim();
+  async function send(override?: string) {
+    const text = (override ?? input).trim();
     if (!text || sending) return;
     setInput("");
     setMessages((m) => [...m, { role: "user", text }]);
@@ -1652,7 +1665,29 @@ function SimulatorSection() {
       </div>
       <div className="glass-card mx-auto w-full max-w-2xl overflow-hidden rounded-[24px]">
         <div ref={scrollRef} className="no-scrollbar flex h-[520px] flex-col gap-3 overflow-y-auto p-5">
-          {messages.length === 0 && <p className="text-center text-sm text-neutral-400">{t("emptyState")}</p>}
+          {messages.length === 0 && (
+            <div className="flex flex-col gap-3">
+              {greeting && (
+                <div className="flex items-end gap-2 justify-start">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-admin-accent text-white">
+                    <IconSparkle size={14} />
+                  </span>
+                  <div className="max-w-[80%] rounded-2xl rounded-bl-md border border-white/80 bg-white/70 px-4 py-2 text-sm text-neutral-700">
+                    {greeting}
+                  </div>
+                </div>
+              )}
+              <div className="ml-9 flex flex-wrap gap-2">
+                <button
+                  onClick={() => send(t("scanChip"))}
+                  disabled={sending}
+                  className="rounded-full border border-white/80 bg-white/70 px-3.5 py-1.5 text-xs text-neutral-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {t("scanChip")}
+                </button>
+              </div>
+            </div>
+          )}
           {messages.map((m, i) => (
             <div key={i} className={`flex items-end gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
               {m.role === "bot" && (
@@ -1727,7 +1762,7 @@ function SimulatorSection() {
             placeholder={t("placeholder")}
             className={`${inputCls} flex-1`}
           />
-          <button onClick={send} disabled={sending} className={btnPrimaryCls}>
+          <button onClick={() => send()} disabled={sending} className={btnPrimaryCls}>
             {t("send")}
           </button>
         </div>
