@@ -979,7 +979,7 @@
     },
     "insight": {
       "title": "Vera Intelligence",
-      "subtitle": "Tanya soal penjualan, event, dan alert demand-signal — berdasarkan kalender event beneran plus data sampel penjualan.",
+      "subtitle": "Tanya soal penjualan, event, dan alert demand-signal — berdasarkan data tenant kamu.",
       "empty": "Tanya apa saja soal penjualan, event, atau alert kamu.",
       "placeholder": "Tanya Vera Intelligence...",
       "send": "Kirim",

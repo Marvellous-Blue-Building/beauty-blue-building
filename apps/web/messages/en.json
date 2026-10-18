@@ -979,7 +979,7 @@
     },
     "insight": {
       "title": "Vera Intelligence",
-      "subtitle": "Ask about your sales, events, and demand-signal alerts — grounded in your real event calendar plus sample sales data.",
+      "subtitle": "Ask about your sales, events, and demand-signal alerts — grounded in your real data.",
       "empty": "Ask anything about your sales, events, or alerts.",
       "placeholder": "Ask Vera Intelligence...",
       "send": "Send",

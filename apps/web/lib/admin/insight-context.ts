@@ -48,7 +48,7 @@ export async function buildInsightContext(): Promise<string> {
     const key = dateKey(e.startsAt);
     const sales = salesByDate.get(key);
     const salesPart = sales
-      ? `${sales.units} unit, ${idr(Number(sales.revenue))} revenue (sample/demo data)`
+      ? `${sales.units} unit, ${idr(Number(sales.revenue))} revenue`
       : "belum ada data penjualan";
     return (
       `- ${e.name} (${key}, ${e.type}): diskon ${e.discountPct ?? "-"}%, ` +
@@ -65,7 +65,7 @@ export async function buildInsightContext(): Promise<string> {
   );
 
   return [
-    "Kalender event & performa penjualan (sample/demo data untuk penjualan, event calendar adalah data nyata tenant):",
+    "Kalender event & performa penjualan tenant:",
     eventLines.length ? eventLines.join("\n") : "(belum ada event tercatat)",
     "",
     "Demand-signal alerts terbaru:",
