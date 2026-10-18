@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
-from app.gemma import generate_reply
+from app.gemini import generate_reply
 from app.schemas import AdviseRequest, AdviseResponse
 
 router = APIRouter()
@@ -15,13 +15,13 @@ def advise(payload: AdviseRequest):
     if not text:
         raise HTTPException(status_code=422, detail="message must not be empty")
     try:
-        reply, nav_buttons = generate_reply(
+        reply = generate_reply(
             text,
             recognized_entities=payload.recognizedEntities,
             candidate_products=payload.candidateProducts,
             conversation_context=payload.conversationContext,
         )
-    except Exception as exc:  # model/download failure — surface as 503, not a 500 stack trace
-        raise HTTPException(status_code=503, detail=f"Gemma model unavailable: {exc}") from exc
-    return AdviseResponse(reply=reply, navButtons=nav_buttons)
+    except Exception as exc:  # missing credentials / Gemini API failure — surface as 503, not a 500 stack trace
+        raise HTTPException(status_code=503, detail=f"Gemini unavailable: {exc}") from exc
+    return AdviseResponse(reply=reply)
 

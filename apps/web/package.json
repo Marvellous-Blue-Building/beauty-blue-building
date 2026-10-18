@@ -13,7 +13,6 @@
     "@mediapipe/tasks-vision": "1.0.1",
     "@react-pdf/renderer": "^4.9.0",
     "clsx": "latest",
-    "ioredis": "^6.0.0",
     "next": "latest",
     "next-intl": "latest",
     "nodemailer": "^10.1.1",

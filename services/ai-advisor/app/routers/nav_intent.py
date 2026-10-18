@@ -29,8 +29,8 @@ def detect_nav_intent(payload: NavIntentRequest):
     progress tracking) — the same real detector used nowhere until now
     (skin_intent_detector.py). Lets apps/web's deterministic-reply branch
     (lib/chat/bot-reply.ts) surface nav buttons without its own keyword
-    regex, matching the honesty tier of this service (see gemma.py's
-    SYSTEM_PROMPT, which does the equivalent for the Gemma fallback).
+    regex, matching the honesty tier of this service (see gemini.py's
+    SYSTEM_PROMPT, which does the equivalent for the Gemini fallback).
 
     Uses detect_all rather than detect's single best match — a message
     naming both a scan ("scan kulit") and a progress check ("lihat

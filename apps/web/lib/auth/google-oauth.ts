@@ -1,8 +1,9 @@
 /**
  * Minimal, dependency-free Google OAuth 2.0 Authorization Code flow.
  * Written by hand (not NextAuth/Auth.js) so the exact session mechanics
- * requested — a Redis flag with a 1-day TTL plus a durable user_sessions
- * audit table — aren't fighting a library's own session/adapter opinions.
+ * requested — a user_sessions row with a 1-day expiry, doubling as both
+ * the validity check and the durable audit record — aren't fighting a
+ * library's own session/adapter opinions.
  */
 
 const GOOGLE_AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth";

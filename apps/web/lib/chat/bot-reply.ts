@@ -52,10 +52,36 @@ const AI_ADVISOR_SERVICE_URL = process.env.AI_ADVISOR_SERVICE_URL;
 // the chat indefinitely.
 const AI_ADVISOR_TIMEOUT_MS = 60_000;
 
+async function detectNavIntent(userText: string): Promise<{ label: string; target: string }[]> {
+  if (!AI_ADVISOR_SERVICE_URL) return [];
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), AI_ADVISOR_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${AI_ADVISOR_SERVICE_URL}/detect-nav-intent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: userText }),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      console.error(`detectNavIntent: ai-advisor /detect-nav-intent responded with ${res.status}`);
+      return [];
+    }
+    const data = (await res.json()) as { navButtons: { label: string; target: string }[] };
+    return data.navButtons ?? [];
+  } catch (err) {
+    console.error("detectNavIntent: ai-advisor unreachable:", err);
+    return [];
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function generateAiAdvisorReply(
   userText: string,
   grounding: { recognizedEntities: string[]; candidateProducts: string[]; conversationContext: string[] }
-): Promise<{ text: string; navButtons: { label: string; target: string }[] }> {
+): Promise<{ text: string }> {
   if (!AI_ADVISOR_SERVICE_URL) {
     throw new Error("AI_ADVISOR_SERVICE_URL is not configured");
   }
@@ -78,9 +104,9 @@ async function generateAiAdvisorReply(
       const detail = await res.text().catch(() => "");
       throw new Error(`ai-advisor responded with ${res.status}: ${detail}`);
     }
-    const data = (await res.json()) as { reply: string; navButtons: { label: string; target: string }[] };
+    const data = (await res.json()) as { reply: string };
     if (!data.reply) throw new Error("ai-advisor returned an empty reply");
-    return { text: data.reply, navButtons: data.navButtons ?? [] };
+    return { text: data.reply };
   } finally {
     clearTimeout(timeout);
   }
@@ -93,29 +119,6 @@ export async function generateBotReply(
 ): Promise<BotReply> {
   const environmentalContext = await getEnvironmentalContext(userId).catch(() => null);
   const understanding = await callChatUnderstand(conversationId, userText, environmentalContext, userId).catch(() => null);
-
-  // Intent detection for navigation buttons (Deterministic fallback)
-  // We keep this as a safety layer because LLMs can be inconsistent.
-  const navButtons: { label: string; target: string }[] = [];
-  const lowerText = userText.toLowerCase();
-  let textAppend = "";
-
-  if (
-    (lowerText.includes("track") && (lowerText.includes("progress") || lowerText.includes("perkembangan"))) ||
-    (lowerText.includes("progres") || lowerText.includes("progress"))
-  ) {
-    navButtons.push({ label: "Track Your Progress", target: "progress" });
-    textAppend += " [Track Your Progress]";
-  }
-  if (
-    lowerText.includes("skin scan") ||
-    lowerText.includes("scanning") ||
-    lowerText.includes("analisis kulit") ||
-    (lowerText.includes("cek") && lowerText.includes("kulit"))
-  ) {
-    navButtons.push({ label: "Skin Scanning Analysis Tool", target: "progress/check-in" });
-    textAppend += " [Skin Scanning Analysis Tool]";
-  }
 
   // Attach whatever the pipeline found whenever it found anything —
   // independent of both the reply TEXT's origin (deterministic pipeline vs.
@@ -133,21 +136,43 @@ export async function generateBotReply(
   const rawJsonText = understanding ? JSON.stringify(understanding) : undefined;
 
   if (understanding && !understanding.isAmbiguous && understanding.reply) {
+    // Deterministic branch: no Gemma call happens here, so nav intent is
+    // classified by services/ai-advisor's /detect-nav-intent (the same real
+    // SkinAnalysisIntentDetector used for the fallback branch's tags) rather
+    // than a hardcoded keyword check — fails open (no buttons) if the
+    // service is unreachable. The "[Label]" suffix is appended to the stored
+    // text (not just returned as navButtons) because conversations/[id]/
+    // route.ts reconstructs navButtons for reloaded history by re-parsing
+    // that stored text — the same convention Gemma's own tagged output
+    // already relies on for the fallback branch below.
+    const navButtons = await detectNavIntent(userText);
+    const textAppend = navButtons.map((btn) => ` [${btn.label}]`).join("");
     return { text: understanding.reply + textAppend, products, rawJsonText, navButtons };
   }
 
   const candidateProducts = (understanding?.candidates ?? []).map((p) => `${p.name} — ${p.category}`);
   // Propagates on failure — see route.ts for how that surfaces to the user.
-  const aiResponse = await generateAiAdvisorReply(userText, {
-    recognizedEntities: understanding?.recognizedEntities ?? [],
-    candidateProducts,
-    conversationContext: understanding?.conversationContext ?? [],
-  });
+  // /detect-nav-intent (the same real detector used by the deterministic
+  // branch above) is the single source of truth for nav buttons here too.
+  // Gemma used to self-tag its own reply with "[Label]" markers, but it sees
+  // conversationContext (recent turns) alongside the current message, so it
+  // could tag based on something mentioned earlier in the conversation
+  // rather than the message actually being replied to — gemma.py no longer
+  // does this; nav intent is decided purely from the current userText.
+  const [aiResponse, navButtons] = await Promise.all([
+    generateAiAdvisorReply(userText, {
+      recognizedEntities: understanding?.recognizedEntities ?? [],
+      candidateProducts,
+      conversationContext: understanding?.conversationContext ?? [],
+    }),
+    detectNavIntent(userText),
+  ]);
+  const textAppend = navButtons.map((btn) => ` [${btn.label}]`).join("");
 
-  return { 
-    text: aiResponse.text + textAppend, 
-    products, 
-    rawJsonText, 
-    navButtons: [...navButtons, ...aiResponse.navButtons] 
+  return {
+    text: aiResponse.text + textAppend,
+    products,
+    rawJsonText,
+    navButtons,
   };
 }

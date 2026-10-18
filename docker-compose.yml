@@ -19,11 +19,6 @@ services:
       timeout: 5s
       retries: 10
 
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6380:6379"
-
   matching-service:
     build: ./services/matching-service
     environment:
@@ -42,10 +37,14 @@ services:
   ai-advisor:
     build: ./services/ai-advisor
     environment:
-      KAGGLE_USERNAME: ${KAGGLE_USERNAME:-}
-      KAGGLE_KEY: ${KAGGLE_KEY:-}
-      KAGGLE_API_TOKEN: ${KAGGLE_API_TOKEN:-}
-      GEMMA_KAGGLE_HANDLE: ${GEMMA_KAGGLE_HANDLE:-google/gemma-2/transformers/gemma-2-2b-it}
+      # app/gemini.py tries Vertex AI first (GOOGLE_CLOUD_PROJECT set, needs
+      # ~/.config/gcloud ADC creds mounted in to actually work from inside a
+      # container), falling back to the Gemini Developer API (GEMINI_API_KEY)
+      # — the simpler path for local Compose testing.
+      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT:-}
+      GOOGLE_CLOUD_LOCATION: ${GOOGLE_CLOUD_LOCATION:-us-central1}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
     ports:
       - "3004:3004"
 
@@ -73,7 +72,6 @@ services:
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-}
     environment:
       DATABASE_URL: postgresql://bluebuilding:bluebuilding@postgres:5432/bluebuilding
-      REDIS_URL: redis://redis:6379
       MATCHING_SERVICE_URL: http://matching-service:8000
       SKIN_SCAN_SERVICE_URL: http://skin-scanning:3003
       AI_ADVISOR_SERVICE_URL: http://ai-advisor:3004
@@ -100,8 +98,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_started
       matching-service:
         condition: service_started
       skin-scanning:

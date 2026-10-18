@@ -13,6 +13,13 @@ class AdviseRequest(BaseModel):
 
 class AdviseResponse(BaseModel):
     reply: str
+
+
+class NavIntentRequest(BaseModel):
+    message: str = Field(min_length=1)
+
+
+class NavIntentResponse(BaseModel):
     navButtons: list[dict[str, str]] = []
 
 
