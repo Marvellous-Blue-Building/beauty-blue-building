@@ -1021,7 +1021,7 @@
       "ctaPrimary": "See the customer experience",
       "ctaSecondary": "Get started",
       "shotAlt": "GlowOps tenant dashboard",
-      "phoneAlt": "Three-pose skin scan screen",
+      "phoneAlt": "Three-pose skin scan mid-scan, with an AI-generated demo face",
       "chipSales": "Sales Intelligence",
       "chipDemand": "Demand Signal",
       "chipAdvisor": "Beauty Advisor"
@@ -1061,7 +1061,8 @@
       "scan": {
         "title": "Skin analysis & color analysis",
         "body": "Front, right and left poses. Reads hydration, acne and pigmentation, plus colour season, face shape and skin type.",
-        "alt": "Skin scan intro with the three-pose stepper"
+        "alt": "Skin scan in progress on an AI-generated demo face",
+        "aiNote": "Demo face is AI-generated."
       },
       "chat": {
         "title": "Best color recommendations",

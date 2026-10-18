@@ -1021,7 +1021,7 @@
       "ctaPrimary": "Lihat sisi customer",
       "ctaSecondary": "Mulai sekarang",
       "shotAlt": "Dashboard tenant GlowOps",
-      "phoneAlt": "Layar skin scan tiga pose",
+      "phoneAlt": "Skin scan tiga pose yang sedang berjalan, dengan wajah demo buatan AI",
       "chipSales": "Sales Intelligence",
       "chipDemand": "Demand Signal",
       "chipAdvisor": "Beauty Advisor"
@@ -1061,7 +1061,8 @@
       "scan": {
         "title": "Skin analysis & color analysis",
         "body": "Pose depan, kanan, dan kiri. Membaca hidrasi, jerawat, dan pigmentasi, plus colour season, bentuk wajah, dan jenis kulit.",
-        "alt": "Layar awal skin scan dengan langkah tiga pose"
+        "alt": "Skin scan yang sedang berjalan pada wajah demo buatan AI",
+        "aiNote": "Wajah demo dibuat dengan AI."
       },
       "chat": {
         "title": "Rekomendasi warna terbaik",
