@@ -725,7 +725,7 @@
     },
     "forecasting": {
       "title": "Forecasting",
-      "intro": "Follows the internal 3-phase roadmap (Knowledge Base Sistem Analitik Forecasting & Marketing Beauty) and the layout from \"Wireframe Forecasting & Marketing Strategy\". Every number below comes from this project's real data (cart/chat, event calendar, chat text) — not placeholders. Parts that need a data warehouse, per-channel ad integrations, and 12–24 months of sales history (ML forecasting, Marketing Mix Modeling) are honestly flagged in the Marketing Strategy tab, not faked with made-up data.",
+      "intro": "Track demand signals, plan your events and promos, and get AI-powered insight into what's driving your sales — all from your store's own data. Forecast Overview shows today's demand trend, SKU Detail breaks it down per product, Event & Promo Planner helps you plan what's next, and Marketing Strategy shows channel-level attribution.",
       "tabs": {
         "overview": "Forecast Overview",
         "sku": "SKU Detail",

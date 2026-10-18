@@ -725,7 +725,7 @@
     },
     "forecasting": {
       "title": "Forecasting",
-      "intro": "Mengacu ke roadmap internal 3-fase (Knowledge Base Sistem Analitik Forecasting & Marketing Beauty) dan layout dari \"Wireframe Forecasting & Marketing Strategy\". Semua angka di bawah berasal dari data nyata project ini (cart/chat, kalender event, teks chat) — bukan placeholder. Bagian yang butuh data warehouse, integrasi iklan per kanal, dan 12–24 bulan histori penjualan (forecast ML, Marketing Mix Modeling) ditandai jujur di tab Strategi Marketing, bukan dikerjakan dengan data palsu.",
+      "intro": "Pantau demand signal, rencanakan event & promo kamu, dan dapatkan insight AI soal apa yang mendorong penjualanmu — semua dari data toko kamu sendiri. Forecast Overview nunjukin tren demand hari ini, SKU Detail breakdown per produk, Event & Promo Planner bantu kamu rencanain langkah berikutnya, dan Marketing Strategy nunjukin attribution per kanal.",
       "tabs": {
         "overview": "Forecast Overview",
         "sku": "Detail SKU",
