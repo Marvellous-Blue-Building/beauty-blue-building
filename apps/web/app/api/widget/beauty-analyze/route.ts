@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     // The report is written in the widget's page language (Indonesian unless it asks for English).
     const language = body.lang === "en" ? "en" : "id";
-    const report = await callBeautyScanService({ ...input, language }, req.nextUrl.origin);
+    const report = await callBeautyScanService({ ...input, language });
     // Shades are a bonus on top of the scan — the scan still saves without them.
     report.catalogShades = await matchCatalogShades(report).catch(() => []);
     const saved = await saveWidgetBeautyScan(sessionId, requestId, report);

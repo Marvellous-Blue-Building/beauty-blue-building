@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   const language = (await cookies()).get("NEXT_LOCALE")?.value === "id" ? "id" : "en";
 
   try {
-    const report = await callBeautyScanService({ ...input, language }, request.nextUrl.origin);
+    const report = await callBeautyScanService({ ...input, language });
     report.catalogShades = await matchCatalogShades(report).catch(() => []);
     // Same convenience cache /api/scan-analyze keeps for a /scan/report refresh.
     serverStore.latestScanResult = report.skinMetrics;
