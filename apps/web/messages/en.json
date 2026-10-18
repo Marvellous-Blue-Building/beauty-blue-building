@@ -693,8 +693,9 @@
     },
     "simulator": {
       "skinTool": "Skin Scanning Analysis Tool",
+      "trackProgress": "Track Your Progress",
       "title": "Chat Simulator",
-      "subtitle": "Calls the exact same widget endpoint (<code>/api/widget/chat</code>) real visitors use — not a separate simulation, so what you see here is what customers see.",
+      "subtitle": "Calls the exact same widget endpoint (<code>/api/widget/chat</code>) real visitors use. It's not a separate simulation, so what you see here is what customers see.",
       "placeholder": "Type a question like a customer…",
       "send": "Send",
       "typing": "Typing…",

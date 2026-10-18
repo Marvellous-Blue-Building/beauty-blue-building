@@ -1629,7 +1629,7 @@ function SimulatorSection() {
           const frame = JSON.parse(line.slice(5).trim());
           if (frame.type === "start") conversationRef.current = frame.payload.conversationId;
           if (frame.type === "done") {
-            const answer = String(frame.payload.answer ?? "").replace(/\[Track Your Progress\]/g, "").trim();
+            const answer = String(frame.payload.answer ?? "").trim();
             setMessages((m) => [...m, { role: "bot", text: answer, products: frame.payload.products }]);
           }
           if (frame.type === "error") {
@@ -1654,13 +1654,24 @@ function SimulatorSection() {
         <div ref={scrollRef} className="no-scrollbar flex h-[520px] flex-col gap-3 overflow-y-auto p-5">
           {messages.length === 0 && <p className="text-center text-sm text-neutral-400">{t("emptyState")}</p>}
           {messages.map((m, i) => (
-            <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div key={i} className={`flex items-end gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              {m.role === "bot" && (
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-admin-accent text-white">
+                  <IconSparkle size={14} />
+                </span>
+              )}
               <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${m.role === "user" ? "rounded-br-md bg-admin-accent text-white" : "rounded-bl-md border border-white/80 bg-white/70 text-neutral-700"}`}>
                 {m.text?.includes("[Skin Scanning Analysis Tool]") ? (
                   <div className="flex flex-col items-center gap-2">
                     {/* eslint-disable-next-line @next/next/no-img-element -- static asset, fixed small size */}
-                    <img src="/assets/skin_analysis_tool.png" alt={t("skinTool")} className="h-auto w-[100px] rounded-[10px] object-cover shadow-sm" />
+                    <img src="/assets/chat/skin-scan-analysis.png" alt={t("skinTool")} className="h-auto w-[100px] rounded-[10px] object-cover shadow-sm" />
                     <span className="text-[11px] font-medium text-neutral-500">{t("skinTool")}</span>
+                  </div>
+                ) : m.text?.includes("[Track Your Progress]") ? (
+                  <div className="flex flex-col items-center gap-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- static asset, fixed small size */}
+                    <img src="/assets/chat/track-progress.png" alt={t("trackProgress")} className="h-auto w-[100px] rounded-[10px] object-cover shadow-sm" />
+                    <span className="text-[11px] font-medium text-neutral-500">{t("trackProgress")}</span>
                   </div>
                 ) : (
                   <>
@@ -1695,7 +1706,18 @@ function SimulatorSection() {
               </div>
             </div>
           ))}
-          {sending && <div className="text-xs text-neutral-400">{t("typing")}</div>}
+          {sending && (
+            <div className="flex items-end justify-start gap-2">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-admin-accent text-white">
+                <IconSparkle size={14} />
+              </span>
+              <div className="flex items-center gap-1 rounded-2xl rounded-bl-md border border-white/80 bg-white/70 px-4 py-3">
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.3s]" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.15s]" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400" />
+              </div>
+            </div>
+          )}
         </div>
         <div className="flex gap-2 border-t border-white/60 bg-white/25 p-4">
           <input

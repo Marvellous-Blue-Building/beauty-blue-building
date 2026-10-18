@@ -693,8 +693,9 @@
     },
     "simulator": {
       "skinTool": "Alat Analisis Skin Scanning",
+      "trackProgress": "Lacak Progres Kamu",
       "title": "Chat Simulator",
-      "subtitle": "Memanggil endpoint widget yang sama persis (<code>/api/widget/chat</code>) yang dipakai pengunjung sungguhan — bukan simulasi terpisah, jadi apa yang Anda lihat di sini adalah apa yang pelanggan lihat.",
+      "subtitle": "Memanggil endpoint widget yang sama persis (<code>/api/widget/chat</code>) yang dipakai pengunjung sungguhan. Ini bukan simulasi terpisah, jadi apa yang Anda lihat di sini adalah apa yang pelanggan lihat.",
       "placeholder": "Tulis pertanyaan seperti pelanggan…",
       "send": "Kirim",
       "typing": "Mengetik…",
