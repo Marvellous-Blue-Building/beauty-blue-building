@@ -319,7 +319,7 @@
       "regionsTitle": "What we saw in each area",
       "fromSide": "side photo",
       "regionNotRead": "Not read",
-      "nothingStandsOut": "Nothing stands out",
+      "nothingStandsOut": "Not detected in this photo",
       "findingHigh": "{finding} — clear",
       "findingSome": "{finding} — some",
       "finding": {
@@ -500,6 +500,7 @@
     "clearConfirm": "This starts a fresh conversation. Your current chat is saved and still viewable in Conversation History."
   },
   "progress": {
+    "scoreUnavailable": "A validated health score is not available for this scan.",
     "stepLabel": "Routine Builder & Tracker",
     "title": "Your Progress",
     "subtitle": "Weekly photo check-ins compared against your baseline scan.",

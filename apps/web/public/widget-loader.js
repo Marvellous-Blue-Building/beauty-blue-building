@@ -24,6 +24,7 @@
   if (!script) return;
 
   var API_BASE = script.getAttribute("data-api-base") || new URL(script.src, location.href).origin;
+  var INLINE = script.getAttribute("data-display") === "inline";
   var SESSION_KEY = "bw_session_id";
   var CONVO_KEY = "bw_conversation_id";
   // UI language: data-lang on the script tag, else the host page's <html lang>. An English page
@@ -248,34 +249,18 @@
     alert: lineIcon(24, '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.1"/>'),
   };
 
-  /** A small flat portrait for the guide: facing the camera, or turned to her
-   * right (dir 1) or left (-1) the way the mirrored preview will show it. */
-  function boothArt(dir) {
-    var d = dir * 6; // features slide toward the turn
-    var cx = 30 + dir * 2.6;
-    var rx = 14 - Math.abs(dir) * 1.8;
-    var near = 2.9, far = 2.9 - Math.abs(dir) * 1.1; // the far eye narrows
-    var eyes = [[24.8 + d, dir > 0 ? near : far], [35.2 + d, dir > 0 ? far : near]];
-    var l = cx - rx - 0.6, r = cx + rx + 0.6;
-    function f(n) { return n.toFixed(1); }
-    // A side-swept fringe, parted toward the turn.
-    var part = cx + (dir || 1) * 3;
-    var out = '<svg viewBox="0 0 60 80" aria-hidden="true">' +
-      '<path class="cloth" d="M2 80c2-11 13-16.5 28-16.5S56 69 58 80z"/>' +
-      '<path fill="#D29E82" d="M25 51h10v13c-3 2-7 2-10 0z"/>' +
-      '<ellipse fill="#3A2630" cx="' + f(30 - dir * 0.8) + '" cy="35.5" rx="18.6" ry="22.5"/>' +
-      '<ellipse fill="#EFC6AA" cx="' + f(cx) + '" cy="38.5" rx="' + f(rx) + '" ry="18"/>' +
-      '<path fill="#3A2630" d="M' + f(l) + ' 39C' + f(l - 1) + ' 14 ' + f(r + 1) + ' 11 ' + f(r) + ' 35C' + f(r - 2) + ' 27 ' + f(part + 4) + ' 22.5 ' + f(part) + ' 23.5' +
-        'C' + f(part - 7) + ' 25 ' + f(l + 2) + ' 30 ' + f(l) + ' 39z"/>';
-    eyes.forEach(function (e) {
-      out += '<ellipse cx="' + f(e[0]) + '" cy="39.4" rx="' + f(e[1] * 0.78) + '" ry="1.25" fill="#3A2630"/>' +
-        '<path d="M' + f(e[0] - e[1]) + ' 38.9q' + f(e[1]) + ' -1.9 ' + f(2 * e[1]) + ' 0" fill="none" stroke="#3A2630" stroke-width=".9" stroke-linecap="round"/>' +
-        '<path d="M' + f(e[0] - e[1] - 0.5) + ' 35.2q' + f(e[1] + 0.5) + ' -1.6 ' + f(2 * e[1] + 1) + ' -.2" fill="none" stroke="#3A2630" stroke-width="1.1" stroke-linecap="round" opacity=".85"/>' +
-        '<circle cx="' + f(e[0] - 0.4) + '" cy="45.2" r="' + f(1.4 + e[1] * 0.6) + '" fill="#E8908F" opacity=".33"/>';
-    });
-    out += '<path d="M' + f(30 + d + dir * 0.4) + ' 40.6q' + f(dir ? dir * 2.8 : -1.5) + ' 4.3 ' + f(dir ? -dir * 0.4 : 0.8) + ' 5.5" fill="none" stroke="#B9806A" stroke-width="1.2" stroke-linecap="round"/>' +
-      '<path fill="#C55E6E" d="M' + f(26.4 + d) + ' 50.6q3.6-2.2 7.2 0q-3.6 3.2-7.2 0z"/></svg>';
-    return out;
+  /** Photographic poses match the mirrored camera preview: front, right, left.
+   * One shared strip keeps the portraits consistent and needs only one request. */
+  function boothPortrait(index, label) {
+    var portrait = document.createElement("img");
+    portrait.src = new URL("assets/chat/pose-guide.webp", script.src).href;
+    portrait.alt = label;
+    portrait.width = 1536;
+    portrait.height = 683;
+    portrait.decoding = "async";
+    portrait.draggable = false;
+    portrait.style.left = (-100 * index) + "%";
+    return portrait;
   }
 
   /** Overlapping palette dots, like swatches fanned on a counter. */
@@ -434,8 +419,8 @@
       "border:1px solid var(--bw-glass-line);border-radius:16px;background:rgba(255,255,255,.86);box-shadow:0 10px 22px -16px rgba(64,40,48,.45);" +
       "animation:bwcard .35s cubic-bezier(.2,.9,.3,1.15) both;}" +
       "@keyframes bwcard{from{opacity:0;transform:translateY(6px) scale(.97);}to{opacity:1;transform:none;}}" +
-      ".bw-pimg{position:relative;aspect-ratio:1/1;background:#fff;display:flex;align-items:center;justify-content:center;}" +
-      ".bw-pimg img{width:100%;height:100%;object-fit:cover;display:block;}" +
+      ".bw-pimg{position:relative;aspect-ratio:1/1;flex:none;overflow:hidden;background:#fff;display:flex;align-items:center;justify-content:center;}" +
+      ".bw-pimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;padding:8px;box-sizing:border-box;}" +
       ".bw-pimg .bw-ph{font-size:22px;color:var(--bw-primary);opacity:.7;}" +
       ".bw-pbadge{position:absolute;top:6px;left:6px;background:var(--bw-primary);color:#fff;font-size:9.5px;font-weight:700;" +
       "border-radius:999px;padding:2px 7px;}" +
@@ -448,6 +433,11 @@
       ".bw-pswatch{display:flex;align-items:center;gap:3px;}" +
       ".bw-pswatch i{width:10px;height:10px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);}" +
       ".bw-pswatch span{font-size:9.5px;color:var(--bw-faint);margin-left:1px;}" +
+      ".bw-pdetails{display:flex;flex-direction:column;gap:6px;margin:5px 0;padding:8px;border-radius:9px;background:color-mix(in srgb,var(--bw-primary) 7%,#fff);}" +
+      ".bw-pdetail{display:flex;flex-direction:column;gap:2px;min-width:0;}" +
+      ".bw-pdetail small{font-size:9px;color:var(--bw-muted);}.bw-pvalue{display:flex;align-items:center;gap:5px;font-size:10.5px;line-height:1.35;overflow-wrap:anywhere;}" +
+      ".bw-pdot{width:12px;height:12px;border-radius:50%;flex:none;border:1px solid rgba(0,0,0,.12);}" +
+      ".bw-pcategory{font-size:9px;color:var(--bw-primary);font-weight:600;}" +
       ".bw-pprice{margin-top:auto;padding-top:3px;display:flex;align-items:baseline;flex-wrap:wrap;gap:0 5px;}" +
       ".bw-pprice b{font-size:12.5px;}.bw-pprice s{font-size:10px;color:var(--bw-faint);}" +
       ".bw-chips{display:flex;flex-wrap:wrap;gap:6px;}" +
@@ -515,9 +505,8 @@
       ".bw-booth figure{flex:1;margin:0;min-width:0;}" +
       ".bw-booth .f{position:relative;aspect-ratio:3/4;border-radius:999px 999px 12px 12px;overflow:hidden;background:#F6DCCF;animation:bwbooth 4.5s ease-in-out infinite;}" +
       ".bw-booth figure:nth-child(2) .f{background:#F3D2D4;animation-delay:1.5s;}.bw-booth figure:nth-child(3) .f{background:#EFD9C3;animation-delay:3s;}" +
-      ".bw-booth svg{position:absolute;inset:0;width:100%;height:100%;}" +
-      ".bw-booth .cloth{fill:var(--bw-primary);}" +
-      ".bw-booth figcaption{display:flex;align-items:baseline;gap:6px;font-size:11.5px;margin-top:8px;white-space:nowrap;}" +
+      ".bw-booth img{position:absolute;top:0;width:300%;max-width:none;height:100%;object-fit:fill;}" +
+      ".bw-booth figcaption{display:flex;align-items:baseline;gap:6px;font-size:11.5px;line-height:1.35;margin-top:8px;}" +
       ".bw-booth figcaption b{font-family:var(--bw-serif);font-weight:400;font-size:15px;color:#FFD5C2;}" +
       "@keyframes bwbooth{0%,38%,100%{transform:none;box-shadow:0 0 0 0 rgba(255,255,255,0);}" +
       "7%,30%{transform:translateY(-4px);box-shadow:0 0 0 2px #fff,0 12px 20px -8px rgba(0,0,0,.45);}}" +
@@ -661,14 +650,6 @@
       ".bw-pal i:hover{transform:scale(1.18);}" +
       ".bw-shelf{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 16px;margin:10px -16px 0;padding:2px 16px 6px;scrollbar-width:none;}" +
       ".bw-shelf::-webkit-scrollbar{display:none;}" +
-      ".bw-pc{flex:none;width:128px;scroll-snap-align:start;background:var(--bw-glass);border-radius:14px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--bw-glass-line);display:flex;flex-direction:column;}" +
-      ".bw-pc .sw{position:relative;height:58px;}" +
-      ".bw-pc .sw span{position:absolute;left:8px;bottom:8px;font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;" +
-      "background:rgba(255,255,255,.92);color:var(--bw-ink);padding:3px 7px;border-radius:999px;}" +
-      ".bw-pc .tx{padding:9px 10px 10px;display:flex;flex-direction:column;flex:1;}" +
-      ".bw-pc small{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--bw-muted);}" +
-      ".bw-pc .nm{font-size:12px;line-height:1.35;margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}" +
-      ".bw-pc b{font-size:12.5px;font-weight:600;margin-top:auto;padding-top:6px;}" +
       ".bw-note{font-size:12.5px;line-height:1.55;background:color-mix(in srgb,var(--bw-primary) 8%,#fff);border-radius:12px;padding:10px 12px;margin:10px 0 0;}" +
       ".bw-note.warn{background:#FBEEDD;}" +
       ".bw-caveat{font-size:11px;line-height:1.55;color:var(--bw-faint);margin:14px 0 0;}" +
@@ -707,7 +688,12 @@
       ".bw-row2 small{display:block;font-size:10.5px;color:var(--bw-faint);margin-top:2px;}" +
       ".bw-legend{display:flex;gap:14px;font-size:10.5px;color:var(--bw-muted);margin-top:4px;}" +
       ".bw-legend span{display:flex;align-items:center;gap:5px;}.bw-legend i{width:7px;height:7px;border-radius:50%;}" +
-      ".bw-score{padding:9px 0;}" +
+      ".bw-measure{margin-top:10px;padding:13px;border:1px solid var(--bw-line);border-radius:15px;background:color-mix(in srgb,var(--bw-primary) 4%,#fff);}" +
+      ".bw-measure .top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:12px;}" +
+      ".bw-measure-status{font-size:10px;color:var(--bw-muted);white-space:nowrap;}" +
+      ".bw-measure-value{font-size:25px;font-variant-numeric:tabular-nums;margin-top:7px;}.bw-measure-value small{font-size:10px;color:var(--bw-muted);margin-left:6px;}" +
+      ".bw-measure-coverage{height:4px;margin-top:6px;overflow:hidden;border-radius:4px;background:var(--bw-line);}.bw-measure-coverage i{display:block;height:100%;background:var(--bw-primary);}" +
+      ".bw-score{padding:9px 0;}.bw-measure.bw-score{padding:16px;}.bw-measure.bw-score .bw-measure-value{font-size:14px;margin-top:0;white-space:nowrap;color:var(--bw-primary);}.bw-measure summary{cursor:pointer;}" +
       ".bw-score .top{display:flex;justify-content:space-between;font-size:12.5px;}" +
       ".bw-score .top span:last-child{color:var(--bw-muted);font-variant-numeric:tabular-nums;}" +
       ".bw-score .bar{height:6px;border-radius:6px;background:color-mix(in srgb,var(--bw-primary) 10%,#fff);margin-top:7px;overflow:hidden;}" +
@@ -780,6 +766,10 @@
 
       var styleEl = document.createElement("style");
       styleEl.textContent = STYLE(state.config);
+      // Simulator presentation only; chat, camera and report rendering stay shared.
+      if (INLINE) styleEl.textContent +=
+        ".bw-panel,.bw-panel.bw-wide{inset:0;width:100%;height:100dvh;max-width:none;max-height:none;border-radius:0;box-shadow:none;}" +
+        ".bw-launcher,.bw-head > .bw-close{display:none;}";
       shadow.appendChild(styleEl);
 
       var launcher = el(
@@ -896,7 +886,7 @@
         [[0, tr("Hadap kamera", "Face the camera")], [1, tr("Toleh kanan", "Turn right")], [-1, tr("Toleh kiri", "Turn left")]].forEach(function (b, i) {
           var fig = document.createElement("figure");
           var frame = text("div", "f");
-          frame.innerHTML = boothArt(b[0]);
+          frame.appendChild(boothPortrait(i, b[1]));
           fig.appendChild(frame);
           var cap = document.createElement("figcaption");
           cap.appendChild(text("b", null, String(i + 1)));
@@ -1819,18 +1809,9 @@
           p.appendChild(text("div", "bw-label", tr("Dari katalog, paling dekat dengan paletmu", "From the catalog, closest to your palette")));
           var shelf = text("div", "bw-shelf");
           picks.forEach(function (x) {
-            var m = x.m;
-            var card = text("div", "bw-pc");
-            card.title = tr("Paling dekat dengan ", "Closest to ") + m.swatchName;
-            var sw = swatch("div", safeHex(m.colorHex) || "#eee");
-            sw.className = "sw";
-            sw.appendChild(text("span", null, x.group));
-            card.appendChild(sw);
-            var tx = text("div", "tx");
-            tx.appendChild(text("small", null, m.brand));
-            tx.appendChild(text("span", "nm", (m.colorName ? m.colorName + " · " : "") + m.name));
-            tx.appendChild(text("b", null, rupiah(m.price)));
-            card.appendChild(tx);
+            var card = productCard(x.m);
+            card.title = tr("Paling dekat dengan ", "Closest to ") + x.m.swatchName;
+            card.querySelector(".bw-pinfo").prepend(text("div", "bw-pcategory", x.group));
             shelf.appendChild(card);
           });
           p.appendChild(shelf);
@@ -1905,26 +1886,83 @@
         var level = "lo";
         SKIN_FINDINGS.forEach(function (f) {
           var v = d[f[0]];
+          if (typeof v !== "number" || !isFinite(v)) return;
           if (v >= 0.6) { found.push(tr(f[1] + " jelas", "marked " + f[1])); level = "hi"; }
           else if (v >= 0.3) { found.push(tr(f[1] + " sedikit", "slight " + f[1])); if (level === "lo") level = "mid"; }
         });
-        if (d.warna_kulit_merata < 0.5) { found.push(tr("warna kurang merata", "uneven tone")); if (level === "lo") level = "mid"; }
-        return { words: found.length ? found.join(", ") : tr("tidak ada yang menonjol", "nothing stands out"), level: level };
+        if (typeof d.warna_kulit_merata === "number" && d.warna_kulit_merata < 0.5) { found.push(tr("warna kurang merata", "uneven tone")); if (level === "lo") level = "mid"; }
+        return { words: found.length ? found.join(", ") : tr("tidak terdeteksi pada foto", "not detected in this photo"), level: level };
       }
 
-      function scoreBand(score) {
-        if (score >= 80) return tr("sangat baik", "very good");
-        if (score >= 60) return tr("baik", "good");
-        if (score >= 40) return tr("cukup", "fair");
-        return tr("perlu perhatian", "needs attention");
+      // Display-only provisional scale; parity tested against measurement-copy.ts.
+      function visualScore(reading) {
+        var anchors = { cheek_roughness: [1.2, 3.5], fine_lines: [1.8, 5], tone_spots: [4, 12], cheek_texture: [1.8, 5], nose_pores: [2.5, 6.5] };
+        var range = anchors[reading.key];
+        if (!range || reading.status !== "measured" || typeof reading.value !== "number" || !Number.isFinite(reading.value) || reading.value < 0 || reading.unit !== "log_contrast" || reading.source !== "front" || reading.reason != null || !Number.isFinite(reading.samplePixels) || reading.samplePixels < 120 || !Number.isFinite(reading.coverage) || reading.coverage < 0.5 || reading.coverage > 1) return null;
+        return Math.round(Math.max(5, Math.min(99, 95 - 50 * (reading.value - range[0]) / (range[1] - range[0]))));
       }
 
-      function dial(value) {
-        var v = Math.max(0, Math.min(100, Math.round(value)));
-        var node = el('<div class="bw-dial"><svg viewBox="0 0 76 76" aria-hidden="true"><circle class="bg" cx="38" cy="38" r="32"/>' +
-          '<circle class="arc" cx="38" cy="38" r="32" pathLength="100" stroke-dasharray="' + v + ' 100"/></svg><div><b></b><small>' + tr("dari 100", "out of 100") + "</small></div></div>");
-        node.querySelector("b").textContent = String(v);
-        return node;
+      function renderMeasurements(parent, metrics) {
+        var block = section(parent, tr("Skor tampilan kulit", "Skin appearance scores"));
+        block.appendChild(text("p", "bw-text", tr(
+          "Estimasi visual dari foto depan. Skor lebih tinggi berarti kontras detail lebih rendah, bukan kulit lebih sehat.",
+          "Visual estimates from your front photo. Higher scores mean less detail contrast, not healthier skin.")));
+        var explanation = document.createElement("details");
+        explanation.className = "bw-metaline";
+        explanation.appendChild(text("summary", null, tr("Cara membaca angka ini", "How to read these numbers")));
+        explanation.appendChild(text("p", null, tr(
+          "Angka kontras mentah pada rincian berlawanan arah dengan skor: angka mentah lebih tinggi berarti kontras detail lebih kuat, bukan otomatis kulit lebih buruk. Belum ada batas normal atau tidak normal. Penghalusan kamera dapat menyembunyikan detail.",
+          "The raw contrast readings in the details run in the opposite direction to the scores: higher raw values mean stronger detail contrast, not necessarily worse skin. No normal or abnormal cutoffs have been established. Camera smoothing can hide detail.")));
+        block.appendChild(explanation);
+        var labels = {
+          cheek_roughness: tr("Kehalusan permukaan", "Surface smoothness"),
+          fine_lines: tr("Kelembutan garis", "Line softness"),
+          tone_spots: tr("Kerataan warna", "Tone evenness"),
+          cheek_texture: tr("Kehalusan tekstur", "Texture smoothness"),
+          nose_pores: tr("Tampilan pori", "Pore appearance"),
+        };
+        var reasons = {
+          low_resolution: tr("Dekatkan wajah; detail terlalu kecil pada foto asli.", "Move closer; detail is too small in the original photo."),
+          missing_region: tr("Area yang diperlukan tidak terlihat. Singkirkan penghalang lalu pindai ulang.", "A required area is not visible. Remove obstructions and scan again."),
+          insufficient_skin: tr("Terlalu sedikit detail kulit. Kurangi pantulan dan periksa posisi wajah.", "Too little usable skin detail. Reduce glare and check face position."),
+          overexposed: tr("Cahaya terlalu terang menghilangkan detail. Gunakan cahaya lembut.", "Bright light has washed out detail. Use softer lighting."),
+          invalid_signal: tr("Detail belum dapat diukur dengan andal. Ambil foto baru.", "Detail could not be measured reliably. Take a new photo."),
+        };
+        var readings = (metrics && metrics.measurements) || [];
+        readings.forEach(function (reading) {
+          var score = visualScore(reading);
+          var measured = score !== null;
+          var card = text("div", "bw-measure bw-score");
+          var top = text("div", "top");
+          top.appendChild(text("b", null, labels[reading.key] || reading.key));
+          top.appendChild(text("span", "bw-measure-value", measured ? score + " / 100" : tr("Belum terukur", "Not measured")));
+          card.appendChild(top);
+          if (measured) {
+            var bar = text("div", "bar");
+            bar.setAttribute("role", "meter");
+            bar.setAttribute("aria-label", labels[reading.key] || reading.key);
+            bar.setAttribute("aria-valuemin", "0");
+            bar.setAttribute("aria-valuemax", "100");
+            bar.setAttribute("aria-valuenow", String(score));
+            var fill = document.createElement("div");
+            fill.style.width = score + "%";
+            bar.appendChild(fill);
+            card.appendChild(bar);
+            var detail = document.createElement("details");
+            detail.className = "bw-metaline";
+            detail.appendChild(text("summary", null, tr("Terukur · Foto depan", "Measured · Front photo")));
+            detail.appendChild(text("p", null, reading.value.toFixed(2) + tr(" unit kontras", " contrast units") + " · " + reading.samplePixels.toLocaleString(LANG === "en" ? "en-US" : "id-ID") + tr(" piksel", " pixels")));
+            detail.appendChild(text("p", null, tr("Area sampel yang dapat dibaca", "Usable sample area") + " · " + Math.round(reading.coverage * 100) + "%"));
+            card.appendChild(detail);
+          } else card.appendChild(text("p", "bw-metaline", reasons[reading.reason] || reasons.invalid_signal));
+          block.appendChild(card);
+        });
+        if (!readings.length) block.appendChild(text("p", "bw-note", tr(
+          "Laporan lama memakai skor perkiraan. Pindai ulang untuk melihat pengukuran visual dan kualitas sampelnya.",
+          "This older report used estimated scores. Scan again for visual measurements and sample-quality information.")));
+        block.appendChild(text("p", "bw-note", tr(
+          "Hidrasi dan elastisitas tidak diukur oleh kamera ini. Skala visual ini masih sementara dan belum tervalidasi. Pencahayaan dan penghalusan kamera dapat meningkatkan skor.",
+          "Hydration and elasticity are not measured by this camera. This visual scale is provisional and has not been validated. Lighting and camera smoothing can raise scores.")));
       }
 
       function renderSkinTab(p, r) {
@@ -1934,13 +1972,13 @@
         var m = r.skinMetrics;
         var top = section(p);
         var head = text("div", "bw-skinhero");
-        if (m) head.appendChild(dial(m.overall));
+
         var words = document.createElement("div");
         words.appendChild(text("h4", null, capital(skinTypeWord(r)) || tr("Kulit", "Skin")));
         words.appendChild(text("p", "bw-metaline", (LANG === "en"
           ? "Estimated from " + (fromSides ? "3 photos · each cheek from the side photo facing it" : "one front photo")
           : "Perkiraan dari " + (fromSides ? "3 foto · tiap pipi dari foto samping yang menghadapnya" : "satu foto depan"))));
-        if (m) words.appendChild(text("p", "bw-metaline", tr("Skor kulit ", "Skin score: ") + scoreBand(m.overall)));
+
         head.appendChild(words);
         top.appendChild(head);
 
@@ -1989,7 +2027,7 @@
         }
 
         if (detail.length) {
-          var areas = section(p, tr("Per area", "By area"));
+          var areas = section(p, tr("Perkiraan visual per area", "Visual estimates by area"));
           var legend = text("div", "bw-legend");
           [["#5BB98B", tr("baik", "good")], ["#E3A950", tr("sedikit", "slight")], ["#D8687A", tr("jelas", "marked")]].forEach(function (x) {
             var item = document.createElement("span");
@@ -2010,23 +2048,7 @@
           });
         }
 
-        if (m) {
-          var scores = section(p, tr("Skor kulit", "Skin scores"));
-          [
-            [tr("Hidrasi", "Hydration"), m.hydration],
-            [tr("Elastisitas", "Elasticity"), m.elasticity],
-            [tr("Pigmentasi", "Pigmentation"), m.pigmentation],
-            [tr("Tekstur", "Texture"), m.texture],
-            [tr("Pori-pori", "Pores"), m.pores],
-          ].forEach(function (x) {
-            var row = el('<div class="bw-score"><div class="top"><span></span><span></span></div><div class="bar"><div></div></div></div>');
-            var spans = row.querySelectorAll(".top span");
-            spans[0].textContent = x[0];
-            spans[1].textContent = Math.round(x[1]) + " · " + scoreBand(x[1]);
-            row.querySelector(".bar div").style.width = Math.max(2, Math.round(x[1])) + "%";
-            scores.appendChild(row);
-          });
-        }
+        renderMeasurements(p, m);
         if (s.caveat) p.appendChild(text("p", "bw-caveat", s.caveat));
       }
 
@@ -2082,69 +2104,91 @@
         body.appendChild(row);
         body.scrollTop = body.scrollHeight;
       }
+      function productCard(p) {
+        var card = el(
+          '<div class="bw-pcard">' +
+            '<div class="bw-pimg"></div>' +
+            '<div class="bw-pinfo">' +
+              '<div class="bw-pbrand"></div>' +
+              '<div class="bw-pname"></div>' +
+            "</div>" +
+          "</div>"
+        );
+        var media = card.querySelector(".bw-pimg");
+        var info = card.querySelector(".bw-pinfo");
+        var hex = safeHex(p.colorHex);
+        function placeholder() {
+          media.innerHTML = "";
+          // A shade product without a photo shows its own colour instead of the generic icon.
+          if (hex) media.style.background = hex;
+          else media.appendChild(el('<span class="bw-ph">&#10022;</span>'));
+        }
+        if (typeof p.imageUrl === "string" && /^https?:\/\//.test(p.imageUrl)) {
+          var img = document.createElement("img");
+          img.alt = p.name || "";
+          img.loading = "lazy";
+          img.onerror = placeholder;
+          img.src = p.imageUrl;
+          media.appendChild(img);
+        } else {
+          placeholder();
+        }
+        var price = Number(p.price);
+        var listed = Number(p.listedPrice);
+        if (listed > price && price > 0) {
+          media.appendChild(text("span", "bw-pbadge", "-" + Math.round((1 - price / listed) * 100) + "%"));
+        }
+
+        card.querySelector(".bw-pbrand").textContent = p.brand || "";
+        card.querySelector(".bw-pname").textContent = p.name || "";
+        card.querySelector(".bw-pname").title = p.name || "";
+        if (typeof p.rating === "number" && p.rating > 0) {
+          var rate = text("div", "bw-prate", "");
+          rate.appendChild(text("b", "", "\u2605 " + p.rating.toFixed(1)));
+          if (p.totalReview) rate.appendChild(document.createTextNode(" (" + Number(p.totalReview).toLocaleString("id-ID") + ")"));
+          info.appendChild(rate);
+        }
+        var palette = (Array.isArray(p.colorPalette) ? p.colorPalette : []).map(safeHex).filter(Boolean);
+        if (palette.length > 1) {
+          var sw = text("div", "bw-pswatch", "");
+          palette.slice(0, 5).forEach(function (c) {
+            var dot = document.createElement("i");
+            dot.style.background = c;
+            sw.appendChild(dot);
+          });
+          if (palette.length > 5) sw.appendChild(text("span", "", "+" + (palette.length - 5)));
+          info.appendChild(sw);
+        }
+        var details = text("div", "bw-pdetails");
+        var shade = text("div", "bw-pdetail");
+        shade.appendChild(text("small", null, tr("Warna terbaik", "Best color")));
+        var shadeValue = text("span", "bw-pvalue");
+        if (hex) {
+          var dot = text("i", "bw-pdot");
+          dot.style.backgroundColor = hex;
+          shadeValue.appendChild(dot);
+        }
+        shadeValue.appendChild(document.createTextNode(p.colorName || hex || tr("Belum tersedia", "Not available")));
+        shade.appendChild(shadeValue);
+        details.appendChild(shade);
+        var size = text("div", "bw-pdetail");
+        size.appendChild(text("small", null, tr("Ukuran", "Size")));
+        size.appendChild(text("span", "bw-pvalue", p.sizeLabel || tr("Belum tersedia", "Not available")));
+        details.appendChild(size);
+        info.appendChild(details);
+        var priceRow = text("div", "bw-pprice", "");
+        priceRow.appendChild(text("b", "", rupiah(p.price)));
+        if (listed > price && price > 0) priceRow.appendChild(text("s", "", rupiah(listed)));
+        info.appendChild(priceRow);
+        return card;
+      }
+
       function addProducts(products) {
         if (!products || !products.length) return;
         var row = el('<div class="bw-row bot bw-prow"><div class="bw-prods"></div></div>');
         var track = row.firstChild;
         products.slice(0, 6).forEach(function (p) {
-          var card = el(
-            '<div class="bw-pcard">' +
-              '<div class="bw-pimg"></div>' +
-              '<div class="bw-pinfo">' +
-                '<div class="bw-pbrand"></div>' +
-                '<div class="bw-pname"></div>' +
-              "</div>" +
-            "</div>"
-          );
-          var media = card.querySelector(".bw-pimg");
-          var info = card.querySelector(".bw-pinfo");
-          var hex = safeHex(p.colorHex);
-          function placeholder() {
-            media.innerHTML = "";
-            // A shade product without a photo shows its own colour instead of the generic icon.
-            if (hex) media.style.background = hex;
-            else media.appendChild(el('<span class="bw-ph">&#10022;</span>'));
-          }
-          if (typeof p.imageUrl === "string" && /^https?:\/\//.test(p.imageUrl)) {
-            var img = document.createElement("img");
-            img.alt = p.name || "";
-            img.loading = "lazy";
-            img.onerror = placeholder;
-            img.src = p.imageUrl;
-            media.appendChild(img);
-          } else {
-            placeholder();
-          }
-          var price = Number(p.price);
-          var listed = Number(p.listedPrice);
-          if (listed > price && price > 0) {
-            media.appendChild(text("span", "bw-pbadge", "-" + Math.round((1 - price / listed) * 100) + "%"));
-          }
-
-          card.querySelector(".bw-pbrand").textContent = p.brand || "";
-          card.querySelector(".bw-pname").textContent = (p.colorName ? p.colorName + " · " : "") + (p.name || "");
-          if (typeof p.rating === "number" && p.rating > 0) {
-            var rate = text("div", "bw-prate", "");
-            rate.appendChild(text("b", "", "\u2605 " + p.rating.toFixed(1)));
-            if (p.totalReview) rate.appendChild(document.createTextNode(" (" + Number(p.totalReview).toLocaleString("id-ID") + ")"));
-            info.appendChild(rate);
-          }
-          var palette = (Array.isArray(p.colorPalette) ? p.colorPalette : []).map(safeHex).filter(Boolean);
-          if (palette.length > 1) {
-            var sw = text("div", "bw-pswatch", "");
-            palette.slice(0, 5).forEach(function (c) {
-              var dot = document.createElement("i");
-              dot.style.background = c;
-              sw.appendChild(dot);
-            });
-            if (palette.length > 5) sw.appendChild(text("span", "", "+" + (palette.length - 5)));
-            info.appendChild(sw);
-          }
-          var priceRow = text("div", "bw-pprice", "");
-          priceRow.appendChild(text("b", "", rupiah(p.price)));
-          if (listed > price && price > 0) priceRow.appendChild(text("s", "", rupiah(listed)));
-          info.appendChild(priceRow);
-          track.appendChild(card);
+          track.appendChild(productCard(p));
         });
         body.appendChild(row);
         body.scrollTop = body.scrollHeight;
@@ -2191,6 +2235,8 @@
         }
       });
 
+      window.addEventListener("pagehide", stopCamera);
+
       function openPanel() { panel.hidden = false; }
       function closePanel() { panel.hidden = true; showChatView(); }
       launcher.addEventListener("click", function () {
@@ -2208,7 +2254,7 @@
         var btn = text("button", "bw-scancta");
         btn.setAttribute("type", "button");
         var img = document.createElement("img");
-        img.src = API_BASE + "/face_scan.png";
+        img.src = API_BASE + "/assets/chat/face-scan.png";
         img.alt = "";
         img.loading = "lazy";
         btn.appendChild(img);
@@ -2223,6 +2269,7 @@
         addScanCta();
       }
       greet();
+      if (INLINE) openPanel();
 
       // Public API, same shape as Ganes' window.GanesWidget.
       window.BeautyWidget = {

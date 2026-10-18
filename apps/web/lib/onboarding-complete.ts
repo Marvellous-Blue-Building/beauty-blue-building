@@ -1,13 +1,20 @@
 import type { QuizAnswers } from "@/types/quiz";
-import type { ScanMetrics } from "@/types/scan";
+import type { ScanMetrics, ScanReport } from "@/types/scan";
 
 /**
- * A scan counts as finished only once the engine returned real metrics for it.
+ * A scan counts as finished after a completed engine report, even when
+ * individual measurements are unavailable.
  * Used to gate persistence: a first-time Google sign-in must not write a
  * scan_results row for someone who never completed a scan.
  */
 export function isScanComplete(scan: ScanMetrics | null | undefined): boolean {
-  return !!scan && typeof scan.hydration === "number";
+  if (!scan) return false;
+  const report = scan as Partial<ScanReport>;
+  if ((report.scoringVersion ?? 0) >= 3) {
+    return report.status === "SUCCESS" && typeof report.scanId === "string" &&
+      !!report.scanId && Array.isArray(report.measurements) && report.measurements.length > 0;
+  }
+  return typeof scan.hydration === "number" && Number.isFinite(scan.hydration);
 }
 
 /**

@@ -86,6 +86,9 @@ const METRIC_KEYWORDS: [keyof ScanMetrics, string[]][] = [
 const METRIC_BOOST_THRESHOLD = 70;
 
 export function beautyScanBoostKeywords(report: BeautyScanReport): string[] {
+  // Uncalibrated image estimates must not trigger ingredient recommendations.
+  // User-stated concerns and preferences still drive the normal catalog search.
+  if ((report.skinMetrics.scoringVersion ?? 1) >= 3) return [];
   const keywords = [...(SKIN_TYPE_KEYWORDS[report.skin.analysis.key] ?? [])];
   for (const [metric, words] of METRIC_KEYWORDS) {
     if ((report.skinMetrics[metric] ?? 100) < METRIC_BOOST_THRESHOLD) keywords.push(...words);
@@ -106,6 +109,9 @@ export function beautyScanGuidance(report: BeautyScanReport): string {
   parts.push(`tipe kulit ${report.skin.analysis.summary.replace(/^Kulit\s+/i, "").toLowerCase()} (perkiraan)`);
   const lips = report.colour.palette?.categories.find((c) => c.id === "lip");
   if (season && lips) parts.push(`warna lipstik yang cocok: ${lips.swatches.slice(0, 3).map((s) => s.name).join(", ")}`);
+  if ((report.skinMetrics.scoringVersion ?? 1) >= 3) parts.push(
+    "pengukuran hanya kontras visual foto; hidrasi, elastisitas dan skor kesehatan tidak tersedia; jangan menyimpulkan kondisi kulit atau memilih bahan aktif dari angka kontras; tanyakan keluhan pengguna"
+  );
   return `hasil pindai wajah pengunjung: ${parts.join("; ")}`;
 }
 
@@ -197,6 +203,11 @@ export function answerFromBeautyScan(userText: string, report: BeautyScanReport,
 
   const askedSkinType = /(tipe|jenis) kulit/.test(text) ? /\b(apa|gimana|bagaimana|termasuk)\b/.test(text) : /skin type/.test(text) && /\b(what|which|my)\b/.test(text);
   if (askedSkinType && !SKIN_PRODUCT_WORDS.test(text)) {
+    if (report.skin.analysis.key === "unknown") return {
+      text: en ? "There isn't enough readable skin in this scan to estimate your skin type. Try another scan with your face unobstructed and soft, even light. You can also tell me how your skin usually feels."
+        : "Area kulit yang terbaca belum cukup untuk memperkirakan tipe kulit. Coba pindai ulang dengan wajah terlihat dan cahaya lembut merata. Kamu juga bisa ceritakan kondisi kulitmu sehari-hari.",
+      productIds: [],
+    };
     const summary = report.skin.analysis.summary.toLowerCase();
     return {
       text: en

@@ -1,3 +1,13 @@
+# Skin scanning — version 3 measurement contract
+
+The current engine returns **visual image measurements**, not a 0–100 skin-health grade. Hydration, elasticity and the legacy score fields are null. Missing areas, insufficient usable pixels, low original resolution and clipped/non-finite samples are explicitly unavailable with reasons. The widget, app report and PDF show the evidence and sample coverage; coverage is not confidence.
+
+See [measurement integrity and validation plan](../../docs/scan-measurement-validation.md) for the units, eligibility gates, compatibility and the real-world work required before accuracy claims. Run `.venv/bin/python -m unittest discover -s tests -p 'test_*.py'` for the integrity regressions. Deploy the matching-service nullable schema with this version.
+
+The material below documents the original v2 setup and historical payloads. Its 0–100 score mapping is **retired**, not the current API behavior.
+
+---
+
 # skin-scanning
 
 FastAPI service that does **real** face detection and skin-metric computation

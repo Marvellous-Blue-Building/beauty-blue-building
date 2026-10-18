@@ -55,7 +55,7 @@ def compute_flagged_zones(
     face: AlignedFace,
     signals: SkinSignals,
     zones: dict[str, np.ndarray],
-    raw: dict[str, float],
+    raw: dict[str, float | None],
 ) -> list[FlaggedZone]:
     # key -> (concern 0-1, canonical-frame mask the marker goes on)
     found: dict[str, tuple[float, np.ndarray]] = {}
@@ -87,7 +87,7 @@ def compute_flagged_zones(
         )
 
     cheeks = {side: usable[f"{side}_cheek"] for side in _SIDES if f"{side}_cheek" in usable}
-    if cheeks:
+    if cheeks and raw.get("cheek_texture") is not None:
         a_star = signals.lab[..., 1]
         skin_a = np.median(a_star[signals.measurable])
         redness = {side: np.percentile(a_star[m], 90) - skin_a for side, m in cheeks.items()}
@@ -95,11 +95,12 @@ def compute_flagged_zones(
         found["cheek_redness"] = (_ramp(float(redness[worst]), 5, 15), cheeks[worst])
 
         texture = {side: spread(signals.mid, m) for side, m in cheeks.items()}
-        worst = max(texture, key=texture.get)
+        texture = {side: value for side, value in texture.items() if value is not None}
+        worst = max(texture, key=texture.get) if texture else next(iter(cheeks))
         _, good, poor = REFERENCE["texture"]
         found["cheek_texture"] = (_ramp(raw["cheek_texture"], good, poor), cheeks[worst])
 
-    if "nose" in zones:
+    if "nose" in zones and raw.get("nose_pores") is not None:
         _, good, poor = REFERENCE["pores"]
         found["nose_pores"] = (_ramp(raw["nose_pores"], good, poor), zones["nose"])
 

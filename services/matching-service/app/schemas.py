@@ -53,12 +53,12 @@ class QuizAnswers(BaseModel):
 
 
 class ScanMetrics(BaseModel):
-    hydration: float
-    elasticity: float
-    pigmentation: float
-    texture: float
-    pores: float
-    overall: float
+    hydration: float | None = None
+    elasticity: float | None = None
+    pigmentation: float | None = None
+    texture: float | None = None
+    pores: float | None = None
+    overall: float | None = None
 
 
 class InciIngredient(BaseModel):

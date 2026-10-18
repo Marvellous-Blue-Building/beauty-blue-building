@@ -58,6 +58,7 @@ KERING_AT_MOST, NORMAL_AT_MOST, KOMBINASI_AT_MOST = -3, 1, 4
 SENSITIVE_AT_LEAST, SENSITIVITY_MAX = 4, 6
 
 TYPE_LABEL = {
+    "unknown": "Tipe kulit belum dapat diperkirakan",
     "normal": "Kulit Normal", "kering": "Kulit Kering", "berminyak": "Kulit Berminyak",
     "sensitif": "Kulit Sensitif", "kombinasi": "Kulit Kombinasi",
 }
@@ -336,9 +337,12 @@ def analyse(front: FaceFrame, sides: dict[str, FaceFrame] | None = None) -> dict
             regions[region] = reading
             source[region] = pose
     verdict = _classify(regions, _flush(front_regions))
+    # Missing areas must not vote as "no shine / no pores" and imply normal skin.
+    if any(regions[name] is None for name in REGIONS):
+        verdict = {"type": "unknown", "oilPoints": None, "sensitivityPoints": None, "flush": None}
 
     def score(r, key):
-        return round(float(r[key]), 2) if r else 0.0
+        return round(float(r[key]), 2) if r is not None else None
 
     from_sides = sorted({p for p in source.values() if p != "front"})
     return {

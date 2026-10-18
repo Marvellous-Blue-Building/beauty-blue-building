@@ -101,6 +101,7 @@ interface ShadeRow {
   parent_sku: string | null;
   color_variant: string;
   variant_color_name: string | null;
+  size_label: string | null;
 }
 
 /** Which catalog rows can stand for each palette category. The catalog
@@ -166,6 +167,7 @@ function closest(rows: { row: ShadeRow; lab: Lab }[], targets: { swatch: BeautyS
       category: row.category,
       colorHex: row.color_variant,
       colorName: row.variant_color_name,
+      sizeLabel: row.size_label,
       deltaE: Math.round(distance * 10) / 10,
       swatchName: best.swatch.name,
       swatchHex: best.swatch.hex,
@@ -184,7 +186,7 @@ export async function matchCatalogShades(report: BeautyScanReport): Promise<Shad
   if (palette.length === 0 && !skinHex) return [];
 
   const { rows } = await pool.query<ShadeRow>(
-    `SELECT id, name, brand, price, image_url, category, parent_sku, color_variant, variant_color_name
+    `SELECT id, name, brand, price, image_url, category, parent_sku, color_variant, variant_color_name, size_label
      FROM products
      WHERE color_variant IS NOT NULL AND stock_quantity > 0 AND category = ANY($1)`,
     [SHADE_CATEGORIES]

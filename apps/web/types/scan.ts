@@ -1,10 +1,10 @@
 export interface ScanMetrics {
-  hydration: number;
-  elasticity: number;
-  pigmentation: number;
-  texture: number;
-  pores: number;
-  overall: number;
+  hydration: number | null;
+  elasticity: number | null;
+  pigmentation: number | null;
+  texture: number | null;
+  pores: number | null;
+  overall: number | null;
 }
 
 export type FlaggedZoneSeverity = "low" | "medium" | "high";
@@ -36,7 +36,22 @@ export interface BeautySummary {
   skinTypeKey: string | null;
 }
 
+export interface SkinMeasurement {
+  key: string;
+  value: number | null;
+  unit: "log_contrast";
+  status: "measured" | "unavailable";
+  reason: string | null;
+  source: "front";
+  regions: string[];
+  samplePixels: number;
+  coverage: number;
+}
+
 export interface ScanReport extends ScanMetrics {
+  measurementVersion?: string;
+  measurementStatus?: "complete" | "partial" | "unavailable";
+  measurements?: SkinMeasurement[];
   /** Scoring model version; scores from different versions aren't on the
    * same scale. Absent means version 1. */
   scoringVersion?: number;

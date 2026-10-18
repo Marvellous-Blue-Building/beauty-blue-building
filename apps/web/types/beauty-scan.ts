@@ -112,12 +112,12 @@ export interface BeautySkinRegion {
   measured: boolean;
   /** Which photo the region was read from — each cheek from the side photo facing it. */
   source: BeautyPoseKey;
-  bersinar: number;
-  warna_kulit_merata: number;
-  pori_besar: number;
-  noda_hitam: number;
-  jerawat: number;
-  garis_halus: number;
+  bersinar: number | null;
+  warna_kulit_merata: number | null;
+  pori_besar: number | null;
+  noda_hitam: number | null;
+  jerawat: number | null;
+  garis_halus: number | null;
 }
 
 export interface BeautySkin {
@@ -146,6 +146,8 @@ export interface ShadeMatch {
   category: string | null;
   colorHex: string;
   colorName: string | null;
+  /** Optional for scan reports saved before variant sizes were included. */
+  sizeLabel?: string | null;
   deltaE: number;
   /** The palette swatch (or, for base makeup, the measured skin) it is closest to. */
   swatchName: string;
