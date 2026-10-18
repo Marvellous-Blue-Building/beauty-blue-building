@@ -954,7 +954,7 @@
       },
       "marketing": {
         "title": "Strategi Marketing — status per kanal",
-        "intro": "Wireframe aslinya menampilkan diagnosis iROAS/CAC per kanal iklan (TikTok Ads, Meta Ads, Influencer, dst) dan alokasi budget MMM. Project ini hanya punya satu kanal yang benar-benar bisa diukur: kode promo yang ditempel di event (Fase 2). Sisanya butuh integrasi API iklan dan data penjualan per transaksi yang belum ada — ditandai jujur di bawah, bukan diisi angka contoh.",
+        "intro": "Lihat kanal marketing mana yang beneran mendorong hasil. Sekarang ini attribution lewat kode promo per event — satu-satunya kanal yang didukung data transaksi real saat ini. ROAS/CAC per kanal iklan, alokasi budget Marketing Mix Modeling, dan incrementality testing ada di roadmap begitu integrasi platform iklan tersedia.",
         "statusLive": "Terukur",
         "statusPlanned": "Belum tersedia",
         "measurableCard": {

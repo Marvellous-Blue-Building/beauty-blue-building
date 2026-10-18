@@ -954,7 +954,7 @@
       },
       "marketing": {
         "title": "Marketing Strategy — status per channel",
-        "intro": "The original wireframe shows an iROAS/CAC diagnosis per ad channel (TikTok Ads, Meta Ads, Influencer, etc.) and MMM budget allocation. This project only has one channel that's genuinely measurable: the promo code attached to an event (Phase 2). The rest needs ad-API integrations and per-transaction sales data that don't exist — flagged honestly below, not filled in with sample numbers.",
+        "intro": "See which marketing channels are actually driving results. Right now that's promo-code attribution per event — the one channel real transaction data supports today. Per-channel ad ROAS/CAC, Marketing Mix Modeling budget allocation, and incrementality testing are on the roadmap as ad-platform integrations come online.",
         "statusLive": "Measurable",
         "statusPlanned": "Not available yet",
         "measurableCard": {
