@@ -1015,7 +1015,7 @@
     "hero": {
       "eyebrow": "AI skin & beauty advisor",
       "title": "Your skin, decoded in three poses",
-      "subtitle": "One camera scan reads your skin, colour season and face shape — then an AI advisor matches you with products from a real catalog and builds your routine.",
+      "subtitle": "One camera scan reads your skin, colour season and face shape. An AI advisor then matches you with products from a real catalog and builds your routine.",
       "ctaPrimary": "Live Demo",
       "ctaSecondary": "For retailers",
       "chipSeason": "Colour season",
@@ -1071,7 +1071,7 @@
       "eyebrow": "For retailers",
       "title": "Add a beauty advisor to your store with one line",
       "subtitle": "The widget runs inside your own website and talks to the same AI pipeline as the main app.",
-      "b1": "Beauty AI Advisor gives every visitor a floating chat and a hands-free 3-pose scan",
+      "b1": "Beauty AI Advisor gives every visitor a floating chat and scan for skin analysis, the best color recommendations, and product picks",
       "b2": "AI Sales Insight answers sales data questions in plain language with a concrete strategy, not just a chart",
       "b3": "Forecasting & Marketing Strategy covers demand-signal forecasting, event planning, and marketing channel attribution in one dashboard",
       "snippetLabel": "Paste before '</body>'",

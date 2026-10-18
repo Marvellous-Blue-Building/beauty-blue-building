@@ -1015,7 +1015,7 @@
     "hero": {
       "eyebrow": "AI skin & beauty advisor",
       "title": "Kulitmu, terbaca dalam tiga pose",
-      "subtitle": "Satu kali scan kamera membaca kondisi kulit, colour season, dan bentuk wajahmu — lalu AI advisor mencocokkan produk dari katalog nyata dan menyusun rutinitasmu.",
+      "subtitle": "Satu kali scan kamera membaca kondisi kulit, colour season, dan bentuk wajahmu. AI advisor lalu mencocokkan produk dari katalog nyata dan menyusun rutinitasmu.",
       "ctaPrimary": "Live Demo",
       "ctaSecondary": "Untuk retailer",
       "chipSeason": "Colour season",
@@ -1071,7 +1071,7 @@
       "eyebrow": "Untuk retailer",
       "title": "Pasang beauty advisor di tokomu dengan satu baris",
       "subtitle": "Widget berjalan di dalam website-mu sendiri dan memakai pipeline AI yang sama dengan aplikasi utama.",
-      "b1": "Beauty AI Advisor kasih tiap pengunjung chat melayang dan scan 3 pose hands-free",
+      "b1": "Beauty AI Advisor kasih tiap pengunjung chat melayang dan scan buat skin analysis, rekomendasi warna terbaik, dan pilihan produk",
       "b2": "AI Sales Insight jawab pertanyaan soal data penjualan pakai bahasa biasa dan kasih strategi konkret, bukan cuma grafik",
       "b3": "Forecasting & Marketing Strategy nyakup forecasting demand signal, perencanaan event, dan attribution kanal marketing dalam satu dashboard",
       "snippetLabel": "Tempel sebelum '</body>'",
