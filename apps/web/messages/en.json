@@ -1010,19 +1010,21 @@
       "about": "About Us",
       "contact": "Contact Us",
       "login": "Log In",
-      "tryScan": "See the customer experience"
+      "tryScan": "See the customer experience",
+      "salesIntel": "Sales Intelligence",
+      "forecasting": "Forecasting"
     },
     "hero": {
       "eyebrow": "For beauty brands & sellers",
-      "title": "Run your beauty brand with AI",
+      "title": "GlowOps runs your beauty brand with AI",
       "subtitle": "Sales Intelligence explains what happened and why. Demand Signal forecasting shows what's next. A personalized Beauty Advisor gives every customer their own skin and color analysis, matched down to the eyeshadow shade.",
       "ctaPrimary": "See the customer experience",
       "ctaSecondary": "Get started",
-      "chipSeason": "Colour season",
-      "chipFace": "Face shape",
-      "chipSkin": "Skin type",
       "shotAlt": "GlowOps tenant dashboard",
-      "phoneAlt": "Three-pose skin scan screen"
+      "phoneAlt": "Three-pose skin scan screen",
+      "chipSales": "Sales Intelligence",
+      "chipDemand": "Demand Signal",
+      "chipAdvisor": "Beauty Advisor"
     },
     "pillars": {
       "eyebrow": "The 3 pillars",
@@ -1038,6 +1040,12 @@
       "p3": {
         "name": "Personalized Beauty Advisor",
         "body": "A white-labeled AI advisor for your own customers. Skin analysis and color analysis lead straight to the best eyeshadow, lipstick, blush, and foundation shade for them, plus a makeup trend recommendation based on their face shape."
+      },
+      "shades": {
+        "eyeshadow": "Eye shadow",
+        "lipstick": "Lipstick",
+        "blush": "Blush on",
+        "base": "Foundation & powder shade"
       }
     },
     "facts": {
@@ -1049,7 +1057,7 @@
     "features": {
       "eyebrow": "Personalized Beauty Advisor",
       "title": "Give every customer their own Beauty Advisor",
-      "subtitle": "Skin analysis and color analysis lead straight to the best shade for every category, on your own store. Built on real computer vision and a real product catalog, no mocked answers.",
+      "subtitle": "This is what your customers get, on your own store and under your brand. Skin analysis and color analysis lead straight to their best shade in every category, from your real catalog.",
       "scan": {
         "title": "Skin analysis & color analysis",
         "body": "Front, right and left poses. Reads hydration, acne and pigmentation, plus colour season, face shape and skin type.",
@@ -1067,6 +1075,25 @@
       "progress": {
         "title": "Progress tracker",
         "body": "Re-scan over time and compare results, with a downloadable PDF report for each scan."
+      },
+      "shadesTitle": "Their best shade, category by category",
+      "shades": {
+        "eyeshadow": {
+          "name": "Eye shadow",
+          "body": "Shades from their colour season's palette."
+        },
+        "lipstick": {
+          "name": "Lipstick",
+          "body": "Matched to their season and undertone."
+        },
+        "blush": {
+          "name": "Blush on",
+          "body": "Tones that flatter their natural colouring."
+        },
+        "base": {
+          "name": "Foundation & powder",
+          "body": "The catalog shades closest to their skin tone."
+        }
       }
     },
     "salesIntel": {
@@ -1081,7 +1108,20 @@
       "title": "See what's about to move before it happens",
       "subtitle": "Real-time demand signal per SKU, event planning with deadlines, and an AI-generated insight the moment you open the tab.",
       "shotAlt": "Forecasting dashboard with today's top insight",
-      "demoNote": "Sales figures in this screenshot use sample data."
+      "demoNote": "Sales figures in this screenshot use sample data.",
+      "b1": {
+        "title": "Demand signal per SKU",
+        "body": "A live signal from carts and chats for every product, with alerts when one starts to rise, surge or fade."
+      },
+      "b2": {
+        "title": "Event planner with deadlines",
+        "body": "Promos and campaigns on one timeline, with the milestone deadlines leading up to each event."
+      },
+      "b3": {
+        "title": "Daily insight",
+        "body": "An AI-written top insight waiting at the top of Forecasting, refreshed every day."
+      },
+      "eventsAlt": "Event and promo planner timeline"
     },
     "how": {
       "title": "How it works",
@@ -1096,14 +1136,16 @@
       "s3": {
         "title": "Get matched",
         "body": "Receive product picks, shades for your season and a routine. Then keep chatting with the advisor."
-      }
+      },
+      "eyebrow": "For your customers"
     },
     "retailers": {
       "eyebrow": "Get started",
-      "title": "Add a beauty advisor to your store with one line",
-      "subtitle": "The widget runs inside your own website and talks to the same AI pipeline as the main app.",
+      "title": "Get GlowOps running for your brand",
+      "subtitle": "Sales Intelligence and Forecasting live in your dashboard. One script tag puts the Beauty Advisor on your store.",
       "snippetLabel": "Paste before '</body>'",
-      "cta": "Open the dashboard"
+      "cta": "Open the dashboard",
+      "preview": "See the customer experience"
     },
     "faq": {
       "title": "Frequently asked questions",
