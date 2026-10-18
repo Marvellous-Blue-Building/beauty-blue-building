@@ -2208,7 +2208,7 @@
         var btn = text("button", "bw-scancta");
         btn.setAttribute("type", "button");
         var img = document.createElement("img");
-        img.src = API_BASE + "/face_scan.png";
+        img.src = API_BASE + "/assets/chat/face_scan.png";
         img.alt = "";
         img.loading = "lazy";
         btn.appendChild(img);

@@ -1683,7 +1683,7 @@ function SimulatorSection() {
                 className="ml-9 flex w-[150px] flex-col overflow-hidden rounded-[12px] border border-white/80 bg-white/70 text-left transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- local scan illustration, fixed size */}
-                <img src="/face_scan.png" alt={t("skinTool")} className="h-auto w-full object-cover" />
+                <img src="/assets/chat/face_scan.png" alt={t("skinTool")} className="h-auto w-full object-cover" />
                 <span className="whitespace-nowrap px-3 py-2 text-center text-xs font-medium text-neutral-700">{t("scanChip")}</span>
               </button>
             </div>
@@ -1699,7 +1699,7 @@ function SimulatorSection() {
                 {m.text?.includes("[Skin Scanning Analysis Tool]") ? (
                   <div className="flex flex-col items-center gap-2">
                     {/* eslint-disable-next-line @next/next/no-img-element -- static asset, fixed small size */}
-                    <img src="/face_scan.png" alt={t("skinTool")} className="h-auto w-[100px] rounded-[10px] object-cover shadow-sm" />
+                    <img src="/assets/chat/face_scan.png" alt={t("skinTool")} className="h-auto w-[100px] rounded-[10px] object-cover shadow-sm" />
                     <span className="text-[11px] font-medium text-neutral-500">{t("skinTool")}</span>
                   </div>
                 ) : m.text?.includes("[Track Your Progress]") ? (
