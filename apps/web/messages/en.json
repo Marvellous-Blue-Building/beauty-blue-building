@@ -586,7 +586,7 @@
     },
     "header": {
       "greeting": "Hi, Admin",
-      "welcome": "Welcome back to AI Beauty Adviser 👋",
+      "welcome": "Welcome back to AI Beauty Advisor 👋",
       "searchProducts": "Search products",
       "alerts": "{count} demand-signal alerts",
       "noAlerts": "No demand-signal alerts",
@@ -596,7 +596,7 @@
       "closeMenu": "Close menu"
     },
     "sidebar": {
-      "appName": "AI Beauty Adviser",
+      "appName": "AI Beauty Advisor",
       "tenantDashboard": "Tenant Dashboard",
       "logout": "Log out",
       "searchPlaceholder": "Search products...",
@@ -998,7 +998,7 @@
       "chipSeason": "Colour season",
       "chipFace": "Face shape",
       "chipSkin": "Skin type",
-      "shotAlt": "AI Beauty Adviser tenant dashboard",
+      "shotAlt": "AI Beauty Advisor tenant dashboard",
       "phoneAlt": "Three-pose skin scan screen"
     },
     "facts": {
@@ -1078,7 +1078,7 @@
       "secondary": "Log in to dashboard"
     },
     "footer": {
-      "rights": "AI Beauty Adviser"
+      "rights": "AI Beauty Advisor"
     }
   }
 }

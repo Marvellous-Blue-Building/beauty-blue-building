@@ -586,7 +586,7 @@
     },
     "header": {
       "greeting": "Hi, Admin",
-      "welcome": "Selamat datang kembali di AI Beauty Adviser 👋",
+      "welcome": "Selamat datang kembali di AI Beauty Advisor 👋",
       "searchProducts": "Cari produk",
       "alerts": "{count} alert demand signal",
       "noAlerts": "Tidak ada alert demand signal",
@@ -596,7 +596,7 @@
       "closeMenu": "Tutup menu"
     },
     "sidebar": {
-      "appName": "AI Beauty Adviser",
+      "appName": "AI Beauty Advisor",
       "tenantDashboard": "Tenant Dashboard",
       "logout": "Keluar",
       "searchPlaceholder": "Cari produk...",
@@ -998,7 +998,7 @@
       "chipSeason": "Colour season",
       "chipFace": "Bentuk wajah",
       "chipSkin": "Jenis kulit",
-      "shotAlt": "Dashboard tenant AI Beauty Adviser",
+      "shotAlt": "Dashboard tenant AI Beauty Advisor",
       "phoneAlt": "Layar skin scan tiga pose"
     },
     "facts": {
@@ -1078,7 +1078,7 @@
       "secondary": "Masuk ke dashboard"
     },
     "footer": {
-      "rights": "AI Beauty Adviser"
+      "rights": "AI Beauty Advisor"
     }
   }
 }
