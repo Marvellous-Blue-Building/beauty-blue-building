@@ -279,8 +279,8 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
               <ul className="mt-6 flex flex-col gap-3">
                 {[
                   { icon: <IconChat size={18} />, text: t("retailers.b1") },
-                  { icon: <IconChart size={18} />, text: t("retailers.b2") },
-                  { icon: <IconHistory size={18} />, text: t("retailers.b3") },
+                  { icon: <IconSparkle size={18} />, text: t("retailers.b2") },
+                  { icon: <IconTrend size={18} />, text: t("retailers.b3") },
                 ].map((b) => (
                   <li key={b.text} className="flex items-start gap-3 text-[15px] text-neutral-700">
                     <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-admin-accent/12 text-admin-accent-strong">{b.icon}</span>
