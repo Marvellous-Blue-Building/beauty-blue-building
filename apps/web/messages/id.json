@@ -572,7 +572,7 @@
   "admin": {
     "login": {
       "title": "Admin Dashboard",
-      "passwordPlaceholder": "Masukkan password",
+      "passwordPlaceholder": "Password demo: beauty-admin-2026",
       "submit": "Masuk",
       "wrongPassword": "Password salah. Coba lagi.",
       "welcome": "Selamat datang kembali",
