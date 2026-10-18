@@ -77,6 +77,16 @@ async function adminShots(browser, locale) {
   await settle(page, 2500);
   await shot(page, locale, "desktop-admin-forecasting");
 
+  // Event & Promo Planner → its timeline (the default sub-view), for the landing's Forecasting section.
+  await page.getByRole("button", { name: "Event & Promo Planner", exact: true }).click(); // same label in EN and ID
+  await settle(page, 2000);
+  // Just the timeline card: the page header above it holds the Gemini-backed daily insight,
+  // which needs credentials this capture may not have.
+  const timeline = page.locator("main .glass-card", { has: page.locator(".relative.h-9") }).first();
+  mkdirSync(join(OUT, locale), { recursive: true });
+  await timeline.screenshot({ path: join(OUT, locale, "desktop-admin-events.jpg"), type: "jpeg", quality: 82 });
+  console.log("  saved", `public/landing/${locale}/desktop-admin-events.jpg`);
+
   await nav("insight").click();
   await settle(page, 1000);
   const suggestion = locale === "en" ? "Why did sales during the 9.9 event decline?" : "Kenapa penjualan di event 9.9 menurun?";
