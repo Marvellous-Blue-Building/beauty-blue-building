@@ -976,5 +976,109 @@
         }
       }
     }
+  },
+  "landing": {
+    "nav": {
+      "features": "Fitur",
+      "how": "Cara kerja",
+      "retailers": "Untuk retailer",
+      "faq": "FAQ",
+      "pricing": "Harga",
+      "about": "Tentang Kami",
+      "contact": "Kontak",
+      "login": "Masuk",
+      "tryScan": "Coba Skin Scan"
+    },
+    "hero": {
+      "eyebrow": "AI skin & beauty advisor",
+      "title": "Kulitmu, terbaca dalam tiga pose",
+      "subtitle": "Satu kali scan kamera membaca kondisi kulit, colour season, dan bentuk wajahmu — lalu AI advisor mencocokkan produk dari katalog nyata dan menyusun rutinitasmu.",
+      "ctaPrimary": "Coba Skin Scan",
+      "ctaSecondary": "Untuk retailer",
+      "chipSeason": "Colour season",
+      "chipFace": "Bentuk wajah",
+      "chipSkin": "Jenis kulit",
+      "shotAlt": "Dashboard tenant AI Beauty Adviser",
+      "phoneAlt": "Layar skin scan tiga pose"
+    },
+    "facts": {
+      "products": "produk di katalog",
+      "poses": "pose per scan",
+      "languages": "bahasa: Inggris & Indonesia",
+      "script": "baris script untuk dipasang di toko mana pun"
+    },
+    "features": {
+      "title": "Dari scan sampai checkout",
+      "subtitle": "Dibangun di atas computer vision dan katalog produk nyata — bukan jawaban tiruan.",
+      "scan": {
+        "title": "Skin & beauty scan",
+        "body": "Pose depan, kanan, dan kiri. Membaca hidrasi, jerawat, dan pigmentasi, plus colour season, bentuk wajah, dan jenis kulit.",
+        "alt": "Layar awal skin scan dengan langkah tiga pose"
+      },
+      "chat": {
+        "title": "Chat AI advisor",
+        "body": "Tanya dengan bahasa sehari-hari — advisor merekomendasikan produk dari katalog lengkap dengan harga, berdasarkan hasil scan-mu.",
+        "alt": "Chat AI advisor merekomendasikan serum di website toko"
+      },
+      "routine": {
+        "title": "Rutinitas & pencocokan produk",
+        "body": "Hasil scan dan kuis dicocokkan dengan katalog menjadi rutinitas pagi dan malam yang bisa langsung dibeli."
+      },
+      "progress": {
+        "title": "Progress tracker",
+        "body": "Scan ulang dari waktu ke waktu dan bandingkan hasilnya, lengkap dengan report PDF untuk tiap scan."
+      }
+    },
+    "how": {
+      "title": "Cara kerja",
+      "s1": {
+        "title": "Scan",
+        "body": "Ikuti panduan di layar untuk tiga pose singkat dengan cahaya yang cukup."
+      },
+      "s2": {
+        "title": "Analisis",
+        "body": "Titik wajah dan analisis warna mengubah foto menjadi profil kulit dan kecantikan."
+      },
+      "s3": {
+        "title": "Dapatkan rekomendasi",
+        "body": "Terima pilihan produk, shade sesuai season-mu, dan rutinitas — lalu lanjutkan chat dengan advisor."
+      }
+    },
+    "retailers": {
+      "eyebrow": "Untuk retailer",
+      "title": "Pasang beauty advisor di tokomu dengan satu baris",
+      "subtitle": "Widget berjalan di dalam website-mu sendiri dan memakai pipeline AI yang sama dengan aplikasi utama.",
+      "b1": "Chat melayang + scan 3 pose hands-free untuk setiap pengunjung",
+      "b2": "Dashboard tenant: overview, katalog, trend boost, dan forecasting permintaan",
+      "b3": "Riwayat lengkap percakapan pengunjung widget",
+      "snippetLabel": "Tempel sebelum '</body>'",
+      "cta": "Buka dashboard",
+      "widgetAlt": "Widget AI advisor terbuka di toko contoh",
+      "forecastAlt": "Dashboard forecasting dengan chart demand signal",
+      "convAlt": "Riwayat percakapan pengunjung widget",
+      "demoNote": "Screenshot dashboard memakai data demo."
+    },
+    "faq": {
+      "title": "Pertanyaan yang sering diajukan",
+      "q1": "Apa saja yang diukur oleh scan?",
+      "a1": "Skor hidrasi, jerawat, dan pigmentasi, plus colour season (dengan undertone), bentuk wajah, dan jenis kulit — semuanya dari satu scan tiga pose.",
+      "q2": "Apakah foto saya disimpan?",
+      "a2": "Kalau kamu login, foto scan disimpan di akunmu bersama hasilnya supaya Progress Tracker dan report PDF bisa menampilkannya. Scan lewat widget toko hanya menyimpan hasil analisis untuk sesi tersebut, tanpa foto.",
+      "q3": "Apakah perlu punya akun?",
+      "a3": "Kamu bisa langsung mulai scan. Untuk menyimpan rutinitas, keranjang, produk favorit, dan riwayat progress, perlu login dengan Google.",
+      "q4": "Bahasa apa saja yang didukung?",
+      "a4": "Inggris dan Indonesia, baik untuk aplikasi maupun jawaban advisor.",
+      "q5": "Bagaimana cara memasang widget di toko saya?",
+      "a5": "Tempel satu tag '<script>' sebelum '</body>' di website-mu. Widget muncul sebagai tombol melayang; tidak ada bagian lain dari website-mu yang berubah."
+    },
+    "cta": {
+      "title": "Lihat apa kata kulitmu",
+      "subtitle": "Cukup tiga pose dan sekitar satu menit.",
+      "primary": "Mulai Skin Scan",
+      "secondary": "Masuk ke dashboard"
+    },
+    "footer": {
+      "rights": "AI Beauty Adviser"
+    }
   }
 }
