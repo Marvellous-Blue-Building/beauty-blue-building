@@ -6,7 +6,8 @@
 #   --use-file-for-fake-video-capture.
 #
 # A face-centred horizontal gain evens out side lighting — the scan's front
-# photo is (rightly) refused when one side of the face is much darker.
+# photo is (rightly) refused when one side of the face is much darker. The
+# gain fades out towards white so already-bright skin and wall don't clip.
 #
 # usage: npm run camera -- <input.mp4>
 set -euo pipefail
@@ -15,7 +16,9 @@ OUT_DIR="$(cd "$(dirname "$0")/.." && pwd)/.camera"
 mkdir -p "$OUT_DIR"
 cd "$OUT_DIR"
 
-V="crop=1440:1080,scale=960:720,fps=24,format=yuv420p"
+# The 4:3 crop starts at x=200 (not the centred 240) so her nose sits on the
+# frame's vertical centre line, i.e. in the middle of the scan oval.
+V="crop=1440:1080:200:0,scale=960:720,fps=24,format=yuv420p"
 ffmpeg -v error -y -ss 0   -t 3.5 -i "$IN" -vf "$V" -an seg1_front.mp4
 ffmpeg -v error -y -ss 3.5 -t 3   -i "$IN" -vf "$V" -an seg2_right.mp4
 ffmpeg -v error -y -i seg2_right.mp4 -vf reverse -an seg3_rback.mp4
@@ -25,7 +28,7 @@ ffmpeg -v error -y -i seg5_left.mp4 -vf reverse -an seg6_lback.mp4
 printf "file '%s'\n" seg1_front.mp4 seg2_right.mp4 seg3_rback.mp4 seg4_front.mp4 seg5_left.mp4 seg6_lback.mp4 > list.txt
 ffmpeg -v error -y -f concat -safe 0 -i list.txt -c:v libx264 -pix_fmt yuv420p -crf 16 face-cam.mp4
 ffmpeg -v error -y -i face-cam.mp4 \
-  -vf "format=yuv420p,geq=lum='clip(lum(X,Y)*clip(exp(2.9*(0.5-X/W)),0.7,1.45),0,255)':cb='cb(X,Y)':cr='cr(X,Y)'" \
+  -vf "format=yuv420p,geq=lum='clip(lum(X,Y)*(1+(clip(exp(2.9*(0.5-X/W)),0.7,1.45)-1)*(1-lum(X,Y)/255)),0,255)':cb='cb(X,Y)':cr='cr(X,Y)'" \
   -c:v libx264 -crf 16 -pix_fmt yuv420p face-cam-lit.mp4
 ffmpeg -v error -y -i face-cam-lit.mp4 -pix_fmt yuv420p face-cam.y4m
 rm -f seg*.mp4 list.txt
