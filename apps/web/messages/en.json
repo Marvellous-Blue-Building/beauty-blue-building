@@ -681,7 +681,7 @@
     "marketing": {
       "title": "Trend Boost",
       "cardTitle": "Trend / Merchandising Boost",
-      "cardSubtitle": "Keywords here help boost product ranking in chat recommendations (ranking-only, never an absolute requirement) — active immediately, no code changes needed.",
+      "cardSubtitle": "Keywords here help boost product ranking in chat recommendations (ranking-only, never an absolute requirement) — active immediately, no code changes needed. Weight (1-5) sets how strongly: it's how many times the keyword counts as a ranking signal, so 5 pushes matching products higher than 1.",
       "keywordPlaceholder": "e.g. glass skin, bold red lip",
       "weightOption": "Weight {w}",
       "addButton": "Add",
