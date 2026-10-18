@@ -17,8 +17,12 @@ mkdir -p "$OUT_DIR"
 cd "$OUT_DIR"
 
 # The 4:3 crop starts at x=200 (not the centred 240) so her nose sits on the
-# frame's vertical centre line, i.e. in the middle of the scan oval.
-V="crop=1440:1080:200:0,scale=960:720,fps=24,format=yuv420p"
+# frame's vertical centre line, and is lowered 80px so her face fills the scan
+# oval top to chin. The gap it leaves at the top is blurred wall (from the
+# hair-free left edge), feathered into the frame so there's no seam.
+V="split[s][w];[w]crop=400:120:0:0,scale=1440:1080,gblur=sigma=30[bg];\
+[s]crop=1440:1000:200:0,format=yuva420p,geq=lum='lum(X,Y)':cb='cb(X,Y)':cr='cr(X,Y)':a='255*clip(Y/70,0,1)'[f];\
+[bg][f]overlay=0:80,scale=960:720,fps=24,format=yuv420p"
 ffmpeg -v error -y -ss 0   -t 3.5 -i "$IN" -vf "$V" -an seg1_front.mp4
 ffmpeg -v error -y -ss 3.5 -t 3   -i "$IN" -vf "$V" -an seg2_right.mp4
 ffmpeg -v error -y -i seg2_right.mp4 -vf reverse -an seg3_rback.mp4
