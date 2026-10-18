@@ -1011,19 +1011,21 @@
       "about": "Tentang Kami",
       "contact": "Kontak",
       "login": "Masuk",
-      "tryScan": "Lihat sisi customer"
+      "tryScan": "Lihat sisi customer",
+      "salesIntel": "Sales Intelligence",
+      "forecasting": "Forecasting"
     },
     "hero": {
       "eyebrow": "Buat brand beauty & seller",
-      "title": "Jalankan brand beauty-mu pakai AI",
+      "title": "GlowOps jalanin brand beauty-mu pakai AI",
       "subtitle": "Sales Intelligence jelasin apa yang terjadi dan kenapa. Forecasting Demand Signal nunjukin apa yang bakal datang. Beauty Advisor personalisasi kasih tiap customer analisis kulit dan warna sendiri, sampai ke shade eyeshadow yang pas.",
       "ctaPrimary": "Lihat sisi customer",
       "ctaSecondary": "Mulai sekarang",
-      "chipSeason": "Colour season",
-      "chipFace": "Bentuk wajah",
-      "chipSkin": "Jenis kulit",
       "shotAlt": "Dashboard tenant GlowOps",
-      "phoneAlt": "Layar skin scan tiga pose"
+      "phoneAlt": "Skin scan tiga pose yang sedang berjalan, dengan wajah demo buatan AI",
+      "chipSales": "Sales Intelligence",
+      "chipDemand": "Demand Signal",
+      "chipAdvisor": "Beauty Advisor"
     },
     "pillars": {
       "eyebrow": "3 pilar utama",
@@ -1039,6 +1041,12 @@
       "p3": {
         "name": "Personalized Beauty Advisor",
         "body": "AI advisor berlabel brand kamu sendiri buat customer-mu. Skin analysis dan color analysis langsung ngarah ke eyeshadow, lipstick, blush, dan shade foundation terbaik buat mereka, plus rekomendasi tren makeup berdasarkan hasil bentuk wajah."
+      },
+      "shades": {
+        "eyeshadow": "Eyeshadow",
+        "lipstick": "Lipstik",
+        "blush": "Blush on",
+        "base": "Shade foundation & bedak"
       }
     },
     "facts": {
@@ -1050,11 +1058,12 @@
     "features": {
       "eyebrow": "Personalized Beauty Advisor",
       "title": "Kasih tiap customer Beauty Advisor mereka sendiri",
-      "subtitle": "Skin analysis dan color analysis langsung ngarah ke shade terbaik di tiap kategori, di toko kamu sendiri. Dibangun di atas computer vision dan katalog produk nyata, bukan jawaban tiruan.",
+      "subtitle": "Inilah yang didapat customer-mu, di toko kamu sendiri dan dengan brand kamu. Skin analysis dan color analysis langsung ngarah ke shade terbaik mereka di tiap kategori, dari katalog asli kamu.",
       "scan": {
         "title": "Skin analysis & color analysis",
         "body": "Pose depan, kanan, dan kiri. Membaca hidrasi, jerawat, dan pigmentasi, plus colour season, bentuk wajah, dan jenis kulit.",
-        "alt": "Layar awal skin scan dengan langkah tiga pose"
+        "alt": "Skin scan yang sedang berjalan pada wajah demo buatan AI",
+        "aiNote": "Wajah demo dibuat dengan AI."
       },
       "chat": {
         "title": "Rekomendasi warna terbaik",
@@ -1068,6 +1077,25 @@
       "progress": {
         "title": "Progress tracker",
         "body": "Scan ulang dari waktu ke waktu dan bandingkan hasilnya, lengkap dengan report PDF untuk tiap scan."
+      },
+      "shadesTitle": "Shade terbaik mereka, per kategori",
+      "shades": {
+        "eyeshadow": {
+          "name": "Eyeshadow",
+          "body": "Shade dari palet colour season mereka."
+        },
+        "lipstick": {
+          "name": "Lipstik",
+          "body": "Dicocokkan dengan season dan undertone mereka."
+        },
+        "blush": {
+          "name": "Blush on",
+          "body": "Warna yang menyatu dengan warna alami mereka."
+        },
+        "base": {
+          "name": "Foundation & bedak",
+          "body": "Shade katalog yang paling dekat dengan warna kulit mereka."
+        }
       }
     },
     "salesIntel": {
@@ -1082,7 +1110,20 @@
       "title": "Lihat apa yang bakal bergerak sebelum beneran terjadi",
       "subtitle": "Demand signal real-time per SKU, perencanaan event dengan deadline, dan insight AI begitu kamu buka tab-nya.",
       "shotAlt": "Dashboard forecasting dengan insight utama hari ini",
-      "demoNote": "Angka penjualan di screenshot ini memakai data sampel."
+      "demoNote": "Angka penjualan di screenshot ini memakai data sampel.",
+      "b1": {
+        "title": "Demand signal per SKU",
+        "body": "Sinyal live dari keranjang dan chat untuk tiap produk, dengan alert saat produk mulai naik, melonjak, atau meredup."
+      },
+      "b2": {
+        "title": "Planner event dengan deadline",
+        "body": "Promo dan kampanye dalam satu timeline, lengkap dengan deadline milestone menjelang tiap event."
+      },
+      "b3": {
+        "title": "Insight harian",
+        "body": "Insight utama hasil AI langsung ada di bagian atas Forecasting, diperbarui tiap hari."
+      },
+      "eventsAlt": "Timeline planner event dan promo"
     },
     "how": {
       "title": "Cara kerja",
@@ -1097,14 +1138,16 @@
       "s3": {
         "title": "Dapatkan rekomendasi",
         "body": "Terima pilihan produk, shade sesuai season-mu, dan rutinitas. Lalu lanjutkan chat dengan advisor."
-      }
+      },
+      "eyebrow": "Untuk customer-mu"
     },
     "retailers": {
       "eyebrow": "Mulai sekarang",
-      "title": "Pasang beauty advisor di tokomu dengan satu baris",
-      "subtitle": "Widget berjalan di dalam website-mu sendiri dan memakai pipeline AI yang sama dengan aplikasi utama.",
+      "title": "Mulai jalankan GlowOps untuk brand-mu",
+      "subtitle": "Sales Intelligence dan Forecasting ada di dashboard kamu. Satu tag script memasang Beauty Advisor di toko kamu.",
       "snippetLabel": "Tempel sebelum '</body>'",
-      "cta": "Buka dashboard"
+      "cta": "Buka dashboard",
+      "preview": "Lihat sisi customer"
     },
     "faq": {
       "title": "Pertanyaan yang sering diajukan",

@@ -1452,12 +1452,13 @@ function MarketingTab({
  * Reuses the same Vera Intelligence backend as the full chat section. */
 function DailyInsightCard({ onOpenInsight }: { onOpenInsight: () => void }) {
   const t = useTranslations("admin.insight");
+  const locale = useLocale();
   const [text, setText] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   function load(refresh = false) {
     setLoading(true);
-    fetch(`/api/admin/insight/summary${refresh ? "?refresh=1" : ""}`)
+    fetch(`/api/admin/insight/summary?lang=${locale}${refresh ? "&refresh=1" : ""}`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d: { text: string }) => setText(d.text))
       .catch(() => setText(t("error")))

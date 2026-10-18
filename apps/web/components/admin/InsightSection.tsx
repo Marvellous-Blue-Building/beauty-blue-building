@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { GlassCard } from "./glass";
 import { IconSparkle } from "./icons";
 
@@ -18,6 +18,7 @@ interface InsightMessage {
  */
 export function InsightSection() {
   const t = useTranslations("admin.insight");
+  const locale = useLocale();
   const [messages, setMessages] = useState<InsightMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,7 +39,7 @@ export function InsightSection() {
       const res = await fetch("/api/admin/insight", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: question, conversationContext: history }),
+        body: JSON.stringify({ message: question, conversationContext: history, language: locale }),
       });
       const data = (await res.json()) as { reply?: string; error?: string };
       setMessages((m) => [...m, { role: "assistant", text: res.ok && data.reply ? data.reply : t("error") }]);

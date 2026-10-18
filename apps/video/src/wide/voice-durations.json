@@ -1,0 +1,86 @@
+{
+  "i1": {
+    "seconds": 3.669,
+    "hash": "ddd007b316f1"
+  },
+  "i2": {
+    "seconds": 8.406,
+    "hash": "6a1e62648adb"
+  },
+  "a_store": {
+    "seconds": 8.731,
+    "hash": "d50237439007"
+  },
+  "a_open": {
+    "seconds": 2.926,
+    "hash": "912f697d7c4f"
+  },
+  "a_guide": {
+    "seconds": 5.016,
+    "hash": "73d04bede800"
+  },
+  "a_poses": {
+    "seconds": 6.316,
+    "hash": "cf6f6bb1a0fc"
+  },
+  "a_analyse": {
+    "seconds": 3.437,
+    "hash": "cc407b6cb36d"
+  },
+  "a_report": {
+    "seconds": 4.087,
+    "hash": "3e09a798b3b5"
+  },
+  "a_shape": {
+    "seconds": 3.019,
+    "hash": "946e21c7e109"
+  },
+  "a_skin": {
+    "seconds": 5.341,
+    "hash": "f4abbd6fea20"
+  },
+  "a_chat": {
+    "seconds": 7.198,
+    "hash": "9730c6f70eee"
+  },
+  "a_serum": {
+    "seconds": 6.13,
+    "hash": "c04e980953a7"
+  },
+  "s1": {
+    "seconds": 7.848,
+    "hash": "3f537c0efcdc"
+  },
+  "s2": {
+    "seconds": 10.588,
+    "hash": "f63dbec4e609"
+  },
+  "s3": {
+    "seconds": 5.619,
+    "hash": "f83a7dd4d5b8"
+  },
+  "f1": {
+    "seconds": 8.591,
+    "hash": "ace8b0cd2a32"
+  },
+  "f2": {
+    "seconds": 5.619,
+    "hash": "818999c4e664"
+  },
+  "f3": {
+    "seconds": 5.991,
+    "hash": "4eb783277931"
+  },
+  "f4": {
+    "seconds": 4.18,
+    "hash": "ea11d971a852"
+  },
+  "o1": {
+    "seconds": 6.873,
+    "hash": "99e04b059972"
+  },
+  "o2": {
+    "seconds": 1.765,
+    "hash": "0b42271cec7e"
+  }
+}

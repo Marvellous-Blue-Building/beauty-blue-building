@@ -35,6 +35,8 @@ class InsightRequest(BaseModel):
     # only over what's given here, never invents numbers.
     dataContext: str = ""
     conversationContext: list[str] = []
+    # Reply language — the admin dashboard's UI locale ("id" | "en").
+    language: str = "id"
 
 
 class InsightResponse(BaseModel):

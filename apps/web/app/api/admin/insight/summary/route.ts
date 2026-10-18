@@ -8,20 +8,22 @@ const SUMMARY_PROMPT =
   "Berikan satu insight paling penting yang perlu diperhatikan tenant hari ini dari data penjualan, event, dan alert yang ada — singkat (maksimal 3 kalimat), langsung ke poin, tanpa basa-basi pembuka.";
 
 /** Forecasting section's top-of-page insight card — refreshed at most once
- * a day (see insight-summary-cache.ts); pass ?refresh=1 to force it now. */
+ * a day per language (see insight-summary-cache.ts); ?lang=en|id picks the
+ * reply language, ?refresh=1 forces a regeneration now. */
 export async function GET(req: NextRequest) {
   if (!(await isAdminRequest())) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const forceRefresh = req.nextUrl.searchParams.get("refresh") === "1";
+  const language = req.nextUrl.searchParams.get("lang") === "en" ? "en" : "id";
   if (!forceRefresh) {
-    const cached = getCachedSummary();
+    const cached = getCachedSummary(language);
     if (cached) return NextResponse.json(cached);
   }
 
   try {
     const dataContext = await buildInsightContext();
-    const text = await generateInsightReply(SUMMARY_PROMPT, dataContext);
-    const summary = setCachedSummary(text);
+    const text = await generateInsightReply(SUMMARY_PROMPT, dataContext, [], language);
+    const summary = setCachedSummary(language, text);
     return NextResponse.json(summary);
   } catch (exc) {
     console.error("admin insight summary failed:", exc);

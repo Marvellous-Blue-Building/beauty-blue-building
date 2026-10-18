@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
   const body = (await req.json().catch(() => null)) as {
     message?: string;
     conversationContext?: string[];
+    language?: string;
   } | null;
 
   const text = body?.message?.trim();
@@ -19,7 +20,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const dataContext = await buildInsightContext();
-    const reply = await generateInsightReply(text, dataContext, body?.conversationContext ?? []);
+    const language = body?.language === "en" ? "en" : "id";
+    const reply = await generateInsightReply(text, dataContext, body?.conversationContext ?? [], language);
     return NextResponse.json({ reply });
   } catch (exc) {
     console.error("admin insight failed:", exc);

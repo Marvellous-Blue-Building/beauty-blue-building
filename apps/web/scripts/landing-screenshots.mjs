@@ -11,7 +11,7 @@
  * Playwright browser download is needed.
  */
 import { chromium } from "playwright";
-import { mkdirSync } from "fs";
+import { existsSync, mkdirSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
@@ -19,6 +19,11 @@ const BASE_URL = process.env.BASE_URL ?? "http://localhost:3002";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const OUT = join(dirname(fileURLToPath(import.meta.url)), "..", "public", "landing");
 const LOCALES = ["en", "id"];
+// The promo video's fake camera (apps/video: `npm run camera`) — an AI-generated face turning
+// through the three poses. When present, the scan shot shows the live viewfinder with it.
+const FAKE_CAMERA = process.env.FAKE_CAMERA ?? join(dirname(fileURLToPath(import.meta.url)), "..", "..", "video", ".camera", "face-cam.y4m");
+const HAS_CAMERA = existsSync(FAKE_CAMERA);
+const RIGHT_SAVED = { en: "Right side saved", id: "Sisi kanan tersimpan" }; // messages scan.capturedRight
 
 const MOBILE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true };
 const DESKTOP = { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 };
@@ -43,17 +48,30 @@ async function shot(page, locale, name, clip) {
 }
 
 async function mobileShots(browser, locale) {
-  const ctx = await browser.newContext({ ...MOBILE, locale });
+  const ctx = await browser.newContext({ ...MOBILE, locale, permissions: HAS_CAMERA ? ["camera"] : [] });
   const page = await ctx.newPage();
-  // Headless Chrome has no camera, so the scan viewfinder shows a "can't access
-  // camera" notice — capture only the intro + 3-pose stepper above it.
-  for (const [path, name, clip] of [
-    ["/welcome", "mobile-welcome"],
-    ["/scan", "mobile-scan", { x: 0, y: 0, width: 390, height: 590 }],
-  ]) {
-    await page.goto(`${BASE_URL}${prefix(locale)}${path}`);
+  await page.goto(`${BASE_URL}${prefix(locale)}/welcome`);
+  await settle(page);
+  await shot(page, locale, "mobile-welcome");
+
+  await page.goto(`${BASE_URL}${prefix(locale)}/scan`);
+  if (HAS_CAMERA) {
+    // Wait until the front and right photos are taken, then until the face is back facing the
+    // camera (the page's own head-turn readout under ~6°): mid-scan, face mesh and live checks
+    // on it. Crop just below the viewfinder.
+    await page.getByText(RIGHT_SAVED[locale]).first().waitFor({ timeout: 60000 });
+    await page.waitForTimeout(1600); // let the "saved" toast clear
+    await page.waitForFunction(() => {
+      const m = document.body.innerText.match(/(?:Head turn|Sudut toleh)\s*(-?\d+)\s*°/);
+      return m && Math.abs(Number(m[1])) <= 6;
+    }, null, { timeout: 30000, polling: 100 });
+    await page.addStyleTag({ content: HIDE_DEV_UI });
+    await shot(page, locale, "mobile-scan", { x: 0, y: 0, width: 390, height: 812 });
+  } else {
+    // Without a camera the viewfinder shows a "can't access camera" notice — capture only the
+    // intro + 3-pose stepper above it.
     await settle(page);
-    await shot(page, locale, name, clip);
+    await shot(page, locale, "mobile-scan", { x: 0, y: 0, width: 390, height: 590 });
   }
   await ctx.close();
 }
@@ -76,6 +94,16 @@ async function adminShots(browser, locale) {
   await nav("forecasting").click();
   await settle(page, 2500);
   await shot(page, locale, "desktop-admin-forecasting");
+
+  // Event & Promo Planner → its timeline (the default sub-view), for the landing's Forecasting section.
+  await page.getByRole("button", { name: "Event & Promo Planner", exact: true }).click(); // same label in EN and ID
+  await settle(page, 2000);
+  // Just the timeline card: the page header above it holds the Gemini-backed daily insight,
+  // which needs credentials this capture may not have.
+  const timeline = page.locator("main .glass-card", { has: page.locator(".relative.h-9") }).first();
+  mkdirSync(join(OUT, locale), { recursive: true });
+  await timeline.screenshot({ path: join(OUT, locale, "desktop-admin-events.jpg"), type: "jpeg", quality: 82 });
+  console.log("  saved", `public/landing/${locale}/desktop-admin-events.jpg`);
 
   await nav("insight").click();
   await settle(page, 1000);
@@ -116,7 +144,11 @@ async function widgetShot(browser) {
   await ctx.close();
 }
 
-const browser = await chromium.launch({ channel: "chrome" });
+const browser = await chromium.launch({
+  channel: "chrome",
+  args: HAS_CAMERA ? ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream", `--use-file-for-fake-video-capture=${FAKE_CAMERA}`] : [],
+});
+console.log(HAS_CAMERA ? `fake camera: ${FAKE_CAMERA}` : "no fake camera — scan shot without the viewfinder");
 try {
   for (const locale of LOCALES) {
     console.log(`[${locale}]`);

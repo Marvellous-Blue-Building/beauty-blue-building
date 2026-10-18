@@ -1,0 +1,30 @@
+{
+  "voice": { "name": "Jessica", "id": "cgSgspJ2msm6clMCkdW9", "model": "eleven_multilingual_v2" },
+  "lines": [
+    { "id": "i1", "text": "Meet Glow Ops: the AI platform that runs your beauty brand." },
+    { "id": "i2", "text": "Three pillars, one place. A Personalized Beauty Advisor for your shoppers. Sales Intelligence, and Forecasting and Demand Signal, for your team." },
+
+    { "id": "a_store", "text": "Pillar one: the Personalized Beauty Advisor. This is Rupa, a demo beauty store. One line of code adds the advisor." },
+    { "id": "a_open", "text": "Meet Vera, the store's AI beauty advisor." },
+    { "id": "a_guide", "text": "Shoppers tap Scan for a quick, three-pose face scan. No app to install." },
+    { "id": "a_poses", "text": "Face the camera. Turn right. Turn left. Each photo is taken hands-free, the moment the pose is right." },
+    { "id": "a_analyse", "text": "In seconds, AI reads her colours, face shape and skin." },
+    { "id": "a_report", "text": "Her colour season is called out, True Summer, with the palette that flatters her." },
+    { "id": "a_shape", "text": "Her face shape, with the makeup looks that suit it best." },
+    { "id": "a_skin", "text": "And a skin reading, area by area: hydration, texture, pores." },
+    { "id": "a_chat", "text": "Then she simply asks for a lipstick, and real shades from the catalog appear, matched to her season, with real prices." },
+    { "id": "a_serum", "text": "Ask anything, like a hydrating serum. Product cards show up in seconds, ready to shop." },
+
+    { "id": "s1", "text": "Pillar two: Sales Intelligence. Inside the Glow Ops dashboard, your team asks about sales in plain language." },
+    { "id": "s2", "text": "Why did the nine-nine sale drop? It finds the real cause in your own data: the ad budget was cut by sixty percent. Twenty-three units sold, against eighty-seven at eight-eight." },
+    { "id": "s3", "text": "Ask what to do for eleven-eleven, and you get concrete steps, grounded in what actually worked at ten-ten." },
+
+    { "id": "f1", "text": "Pillar three: Forecasting and Demand Signal. It opens with today's top insight, written by AI from your data." },
+    { "id": "f2", "text": "Demand signals for every product are tracked against a forecast baseline, so you catch a surge early." },
+    { "id": "f3", "text": "The event and promo planner puts every campaign on one timeline, with deadlines and results for each." },
+    { "id": "f4", "text": "And promo-code attribution shows which campaigns actually bring shoppers in." },
+
+    { "id": "o1", "text": "Glow Ops. Sales Intelligence, Forecasting and Demand Signal, and a Personalized Beauty Advisor, all in one place." },
+    { "id": "o2", "text": "Run your beauty brand with AI." }
+  ]
+}

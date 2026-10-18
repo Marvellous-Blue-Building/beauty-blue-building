@@ -12,13 +12,13 @@ passes in as `data_context`. Never invents numbers.
 
 from google.genai import types
 
-from app.gemini import GEMINI_MODEL, get_client
+from app.gemini import GEMINI_MODEL, LANGUAGE_RULE, get_client
 
 SYSTEM_PROMPT = (
     "You are Vera Intelligence, a retail analytics strategist embedded in a "
     "beauty brand's tenant dashboard. You answer the brand's own team "
     "(not shoppers) about their sales, events/promos, and demand-signal "
-    "alerts. Always respond in Bahasa Indonesia. "
+    "alerts. {language_rule} "
     "Base every claim strictly on the DATA block you're given below — "
     "cite concrete numbers, dates, and event names from it. If the data "
     "doesn't cover something the question asks about, say so plainly "
@@ -35,10 +35,16 @@ SYSTEM_PROMPT = (
 )
 
 
+def system_prompt(language: str = "id") -> str:
+    # The admin dashboard passes its UI locale; Indonesian stays the default.
+    return SYSTEM_PROMPT.format(language_rule=LANGUAGE_RULE.get(language, LANGUAGE_RULE["id"]))
+
+
 def generate_insight_reply(
     user_text: str,
     data_context: str = "",
     conversation_context: list[str] | None = None,
+    language: str = "id",
 ) -> str:
     client = get_client()
 
@@ -53,7 +59,7 @@ def generate_insight_reply(
         model=GEMINI_MODEL,
         contents=f"{context_block}Question: {user_text}",
         config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT,
+            system_instruction=system_prompt(language),
             temperature=0.4,
             top_p=0.9,
             max_output_tokens=1400,

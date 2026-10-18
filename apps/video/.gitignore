@@ -6,3 +6,6 @@ public/images/
 .camera/
 .recording/
 .DS_Store
+.env
+.voice/
+public/voice/

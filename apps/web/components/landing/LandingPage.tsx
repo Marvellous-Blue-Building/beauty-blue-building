@@ -69,9 +69,11 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
   const shots = `/landing/${locale === "id" ? "id" : "en"}`;
   const nf = (n: number) => n.toLocaleString(locale === "id" ? "id-ID" : "en-US");
 
+  // Seller order: the two dashboard pillars, then the customer-facing advisor.
   const anchors = [
+    { href: "#sales-intel", label: t("nav.salesIntel") },
+    { href: "#demand-signal", label: t("nav.forecasting") },
     { href: "#features", label: t("nav.features") },
-    { href: "#how", label: t("nav.how") },
     { href: "#retailers", label: t("nav.retailers") },
     { href: "#faq", label: t("nav.faq") },
   ];
@@ -90,6 +92,14 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
     { n: "02", icon: <IconSparkle size={22} />, title: t("how.s2.title"), body: t("how.s2.body") },
     { n: "03", icon: <IconBox size={22} />, title: t("how.s3.title"), body: t("how.s3.body") },
   ];
+
+  // Pillar 3's four shade categories; the swatches are decorative, not a customer's result.
+  const shadeKeys = [
+    { key: "eyeshadow", swatches: ["#c98b9c", "#8e5a6e", "#d9b8a8"] },
+    { key: "lipstick", swatches: ["#c4566f", "#a63f58", "#e08a96"] },
+    { key: "blush", swatches: ["#f0a8a8", "#e28a8f", "#f6c6bd"] },
+    { key: "base", swatches: ["#f1d3bd", "#e3b796", "#c99772"] },
+  ] as const;
 
   const faqs = [1, 2, 3, 4, 5].map((i) => ({ q: t(`faq.q${i}`), a: t(`faq.a${i}`) }));
 
@@ -120,7 +130,7 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
               </a>
             ))}
             {placeholders.map((label) => (
-              <span key={label} className="hidden cursor-default px-3 py-2 text-sm text-admin-nav-ink/70 xl:inline">
+              <span key={label} className="hidden cursor-default px-3 py-2 text-sm text-admin-nav-ink/70 2xl:inline">
                 {label}
               </span>
             ))}
@@ -184,10 +194,10 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
               <Shot src={`${shots}/desktop-admin-overview.jpg`} alt={t("hero.shotAlt")} width={2880} height={1800} priority className="h-auto w-full" />
             </BrowserFrame>
             <PhoneFrame className="absolute -bottom-2 left-0 w-[34%] min-w-[130px] max-w-[210px]">
-              <Shot src={`${shots}/mobile-scan.jpg`} alt={t("hero.phoneAlt")} width={780} height={1180} priority className="h-auto w-full" />
+              <Shot src={`${shots}/mobile-scan.jpg`} alt={t("hero.phoneAlt")} width={780} height={1624} priority className="h-auto w-full" />
             </PhoneFrame>
             <div className="absolute -top-5 right-4 hidden flex-col items-end gap-2 sm:flex">
-              {[t("hero.chipSeason"), t("hero.chipFace"), t("hero.chipSkin")].map((c, i) => (
+              {[t("hero.chipSales"), t("hero.chipDemand"), t("hero.chipAdvisor")].map((c, i) => (
                 <span key={c} className="glass-panel flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-medium text-neutral-700" style={{ marginRight: i * 18 }}>
                   <span className="h-2 w-2 rounded-full bg-admin-accent" />
                   {c}
@@ -202,15 +212,26 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
           <SectionTitle id="pillars" eyebrow={t("pillars.eyebrow")} title={t("pillars.title")} />
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {[
-              { icon: <IconSparkle size={20} />, name: t("pillars.p1.name"), body: t("pillars.p1.body") },
-              { icon: <IconTrend size={20} />, name: t("pillars.p2.name"), body: t("pillars.p2.body") },
-              { icon: <IconChat size={20} />, name: t("pillars.p3.name"), body: t("pillars.p3.body") },
+              { n: "1", href: "#sales-intel", icon: <IconSparkle size={20} />, name: t("pillars.p1.name"), body: t("pillars.p1.body") },
+              { n: "2", href: "#demand-signal", icon: <IconTrend size={20} />, name: t("pillars.p2.name"), body: t("pillars.p2.body") },
+              { n: "3", href: "#features", icon: <IconChat size={20} />, name: t("pillars.p3.name"), body: t("pillars.p3.body"), shades: true },
             ].map((p) => (
-              <article key={p.name} className="glass-card rounded-[24px] p-6 sm:p-7">
+              <a key={p.name} href={p.href} className="glass-card group relative flex flex-col rounded-[24px] p-6 transition hover:-translate-y-0.5 sm:p-7">
+                <span className="absolute right-6 top-6 text-3xl font-semibold text-admin-accent/25">{p.n}</span>
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-admin-accent text-white shadow-[0_8px_20px_-8px_rgb(210_98_135/0.7)]">{p.icon}</span>
                 <h3 className="mt-4 text-lg font-semibold text-neutral-700">{p.name}</h3>
                 <p className="mt-2 text-[14.5px] leading-relaxed text-neutral-500">{p.body}</p>
-              </article>
+                {p.shades && (
+                  <div className="mt-4 flex flex-wrap gap-1.5">
+                    {shadeKeys.map((sk) => (
+                      <span key={sk.key} className="glass-inset inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs text-neutral-700">
+                        <span className="h-2 w-2 rounded-full" style={{ background: sk.swatches[0] }} />
+                        {t(`pillars.shades.${sk.key}`)}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </a>
             ))}
           </div>
         </section>
@@ -225,22 +246,95 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
           ))}
         </section>
 
+        {/* Sales Intelligence */}
+        <section aria-labelledby="sales-intel" className="scroll-mt-28 pb-24">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-admin-accent-strong">{t("salesIntel.eyebrow")}</div>
+              <h2 id="sales-intel" className="mt-2 text-3xl font-semibold tracking-tight text-neutral-700 sm:text-4xl">
+                {t("salesIntel.title")}
+              </h2>
+              <p className="mt-3 text-base leading-relaxed text-neutral-500">{t("salesIntel.subtitle")}</p>
+              <div className="glass-inset mt-6 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm text-neutral-700">
+                <IconChat size={16} className="shrink-0 text-admin-accent-strong" />
+                {t("salesIntel.sampleQ")}
+              </div>
+            </div>
+            <BrowserFrame>
+              <Shot src={`${shots}/desktop-admin-insight.jpg`} alt={t("salesIntel.shotAlt")} width={2880} height={1800} className="h-auto w-full" />
+            </BrowserFrame>
+          </div>
+        </section>
+
+        {/* Forecasting & Demand Signal */}
+        <section aria-labelledby="demand-signal" className="scroll-mt-28 pb-24">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
+            <div className="relative pb-16 lg:order-2">
+              <BrowserFrame>
+                <Shot src={`${shots}/desktop-admin-forecasting.jpg`} alt={t("demandSignal.shotAlt")} width={2880} height={1800} className="h-auto w-full" />
+              </BrowserFrame>
+              {/* The event planner's timeline card, floating over the dashboard shot. */}
+              <div className="absolute -bottom-2 -left-3 w-[72%] overflow-hidden rounded-2xl shadow-[0_30px_60px_-24px_rgb(64_40_48/0.5)] ring-1 ring-white/80 sm:-left-8">
+                <Shot src={`${shots}/desktop-admin-events.jpg`} alt={t("demandSignal.eventsAlt")} width={2068} height={696} className="h-auto w-full" />
+              </div>
+            </div>
+            <div className="lg:order-1">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-admin-accent-strong">{t("demandSignal.eyebrow")}</div>
+              <h2 id="demand-signal" className="mt-2 text-3xl font-semibold tracking-tight text-neutral-700 sm:text-4xl">
+                {t("demandSignal.title")}
+              </h2>
+              <p className="mt-3 text-base leading-relaxed text-neutral-500">{t("demandSignal.subtitle")}</p>
+              <ul className="mt-6 flex flex-col gap-3">
+                {[
+                  { icon: <IconChart size={18} />, key: "b1" },
+                  { icon: <IconHistory size={18} />, key: "b2" },
+                  { icon: <IconSparkle size={18} />, key: "b3" },
+                ].map((b) => (
+                  <li key={b.key} className="flex items-start gap-3">
+                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-admin-accent/12 text-admin-accent-strong">{b.icon}</span>
+                    <div>
+                      <div className="text-[15px] font-semibold text-neutral-700">{t(`demandSignal.${b.key}.title`)}</div>
+                      <div className="text-sm leading-relaxed text-neutral-500">{t(`demandSignal.${b.key}.body`)}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 text-xs text-neutral-400">{t("demandSignal.demoNote")}</p>
+            </div>
+          </div>
+        </section>
+
         {/* Features */}
-        <section aria-labelledby="features" className="scroll-mt-28 py-24">
+        <section aria-labelledby="features" className="scroll-mt-28 pb-24">
           <SectionTitle id="features" eyebrow={t("features.eyebrow")} title={t("features.title")} subtitle={t("features.subtitle")} />
-          <div className="mt-12 grid gap-6 lg:grid-cols-2">
+          <h3 className="mt-12 text-center text-sm font-semibold uppercase tracking-[0.14em] text-admin-nav-ink">{t("features.shadesTitle")}</h3>
+          <div className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {shadeKeys.map((sk) => (
+              <article key={sk.key} className="glass-card rounded-[22px] p-5">
+                <div className="flex -space-x-1.5" aria-hidden>
+                  {sk.swatches.map((c) => (
+                    <span key={c} className="h-7 w-7 rounded-full ring-2 ring-white" style={{ background: c }} />
+                  ))}
+                </div>
+                <h4 className="mt-4 text-base font-semibold text-neutral-700">{t(`features.shades.${sk.key}.name`)}</h4>
+                <p className="mt-1 text-sm leading-relaxed text-neutral-500">{t(`features.shades.${sk.key}.body`)}</p>
+              </article>
+            ))}
+          </div>
+          <div className="mt-6 grid gap-6 lg:grid-cols-2">
             <article className="glass-card flex flex-col overflow-hidden rounded-[26px] p-6 sm:p-8">
               <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-admin-accent/12 text-admin-accent-strong">
                 <IconSearch size={22} />
               </span>
               <h3 className="mt-4 text-xl font-semibold text-neutral-700">{t("features.scan.title")}</h3>
               <p className="mt-2 text-[15px] leading-relaxed text-neutral-500">{t("features.scan.body")}</p>
+              <p className="mt-2 text-xs text-neutral-400">{t("features.scan.aiNote")}</p>
               <div className="mt-6 flex flex-1 items-end justify-center gap-4">
                 <PhoneFrame className="w-[46%] max-w-[230px]">
                   <Shot src={`${shots}/mobile-welcome.jpg`} alt={t("features.scan.alt")} width={780} height={1688} className="h-auto w-full" />
                 </PhoneFrame>
                 <PhoneFrame className="mb-8 w-[46%] max-w-[230px]">
-                  <Shot src={`${shots}/mobile-scan.jpg`} alt={t("features.scan.alt")} width={780} height={1180} className="h-auto w-full" />
+                  <Shot src={`${shots}/mobile-scan.jpg`} alt={t("features.scan.alt")} width={780} height={1624} className="h-auto w-full" />
                 </PhoneFrame>
               </div>
             </article>
@@ -269,46 +363,9 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
           </div>
         </section>
 
-        {/* Sales Intelligence */}
-        <section aria-labelledby="sales-intel" className="scroll-mt-28 pb-24">
-          <div className="grid items-center gap-10 lg:grid-cols-2">
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-admin-accent-strong">{t("salesIntel.eyebrow")}</div>
-              <h2 id="sales-intel" className="mt-2 text-3xl font-semibold tracking-tight text-neutral-700 sm:text-4xl">
-                {t("salesIntel.title")}
-              </h2>
-              <p className="mt-3 text-base leading-relaxed text-neutral-500">{t("salesIntel.subtitle")}</p>
-              <div className="glass-inset mt-6 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm text-neutral-700">
-                <IconChat size={16} className="shrink-0 text-admin-accent-strong" />
-                {t("salesIntel.sampleQ")}
-              </div>
-            </div>
-            <BrowserFrame>
-              <Shot src={`${shots}/desktop-admin-insight.jpg`} alt={t("salesIntel.shotAlt")} width={2880} height={1800} className="h-auto w-full" />
-            </BrowserFrame>
-          </div>
-        </section>
-
-        {/* Forecasting & Demand Signal */}
-        <section aria-labelledby="demand-signal" className="scroll-mt-28 pb-24">
-          <div className="grid items-center gap-10 lg:grid-cols-2">
-            <BrowserFrame className="lg:order-2">
-              <Shot src={`${shots}/desktop-admin-forecasting.jpg`} alt={t("demandSignal.shotAlt")} width={2880} height={1800} className="h-auto w-full" />
-            </BrowserFrame>
-            <div className="lg:order-1">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-admin-accent-strong">{t("demandSignal.eyebrow")}</div>
-              <h2 id="demand-signal" className="mt-2 text-3xl font-semibold tracking-tight text-neutral-700 sm:text-4xl">
-                {t("demandSignal.title")}
-              </h2>
-              <p className="mt-3 text-base leading-relaxed text-neutral-500">{t("demandSignal.subtitle")}</p>
-              <p className="mt-4 text-xs text-neutral-400">{t("demandSignal.demoNote")}</p>
-            </div>
-          </div>
-        </section>
-
         {/* How it works */}
         <section aria-labelledby="how" className="scroll-mt-28 pb-24">
-          <SectionTitle id="how" title={t("how.title")} />
+          <SectionTitle id="how" eyebrow={t("how.eyebrow")} title={t("how.title")} />
           <ol className="mt-12 grid gap-6 md:grid-cols-3">
             {steps.map((s) => (
               <li key={s.n} className="glass-card relative rounded-[26px] p-6 sm:p-8">
@@ -335,10 +392,15 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
               </div>
               <pre className="overflow-x-auto rounded-xl bg-neutral-700 px-4 py-3 text-xs text-neutral-100">{SNIPPET}</pre>
             </div>
-            <Link href="/login" className={`${btnPrimaryCls} mt-6`}>
-              {t("retailers.cta")}
-              <IconArrowRight size={16} />
-            </Link>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link href="/login" className={btnPrimaryCls}>
+                {t("retailers.cta")}
+                <IconArrowRight size={16} />
+              </Link>
+              <a href="/demo-retailer.html" target="_blank" rel="noopener noreferrer" className={btnSecondaryCls}>
+                {t("retailers.preview")}
+              </a>
+            </div>
           </div>
         </section>
 
