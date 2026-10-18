@@ -725,7 +725,7 @@
     },
     "forecasting": {
       "title": "Forecasting",
-      "intro": "Pantau demand signal, rencanakan event & promo kamu, dan dapatkan insight AI soal apa yang mendorong penjualanmu — semua dari data toko kamu sendiri. Forecast Overview nunjukin tren demand hari ini, SKU Detail breakdown per produk, Event & Promo Planner bantu kamu rencanain langkah berikutnya, dan Marketing Strategy nunjukin attribution per kanal.",
+      "intro": "Pantau demand signal, rencanakan event & promo kamu, dan dapatkan insight AI soal apa yang mendorong penjualanmu, semua dari data toko kamu sendiri. Forecast Overview nunjukin tren demand hari ini, SKU Detail breakdown per produk, Event & Promo Planner bantu kamu rencanain langkah berikutnya, dan Marketing Strategy nunjukin attribution per kanal.",
       "tabs": {
         "overview": "Forecast Overview",
         "sku": "Detail SKU",
@@ -954,7 +954,7 @@
       },
       "marketing": {
         "title": "Strategi Marketing — status per kanal",
-        "intro": "Lihat kanal marketing mana yang beneran mendorong hasil. Sekarang ini attribution lewat kode promo per event — satu-satunya kanal yang didukung data transaksi real saat ini. ROAS/CAC per kanal iklan, alokasi budget Marketing Mix Modeling, dan incrementality testing ada di roadmap begitu integrasi platform iklan tersedia.",
+        "intro": "Lihat kanal marketing mana yang beneran mendorong hasil. Sekarang ini attribution lewat kode promo per event, satu-satunya kanal yang didukung data transaksi real saat ini. ROAS/CAC per kanal iklan, alokasi budget Marketing Mix Modeling, dan incrementality testing ada di roadmap begitu integrasi platform iklan tersedia.",
         "statusLive": "Terukur",
         "statusPlanned": "Belum tersedia",
         "measurableCard": {
@@ -979,7 +979,7 @@
     },
     "insight": {
       "title": "Vera Intelligence",
-      "subtitle": "Tanya soal penjualan, event, dan alert demand-signal — berdasarkan data tenant kamu.",
+      "subtitle": "Tanya soal penjualan, event, dan alert demand-signal. Jawabannya berdasarkan data tenant kamu.",
       "empty": "Tanya apa saja soal penjualan, event, atau alert kamu.",
       "placeholder": "Tanya Vera Intelligence...",
       "send": "Kirim",

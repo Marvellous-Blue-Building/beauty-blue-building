@@ -725,7 +725,7 @@
     },
     "forecasting": {
       "title": "Forecasting",
-      "intro": "Track demand signals, plan your events and promos, and get AI-powered insight into what's driving your sales — all from your store's own data. Forecast Overview shows today's demand trend, SKU Detail breaks it down per product, Event & Promo Planner helps you plan what's next, and Marketing Strategy shows channel-level attribution.",
+      "intro": "Track demand signals, plan your events and promos, and get AI-powered insight into what's driving your sales, all from your store's own data. Forecast Overview shows today's demand trend, SKU Detail breaks it down per product, Event & Promo Planner helps you plan what's next, and Marketing Strategy shows channel-level attribution.",
       "tabs": {
         "overview": "Forecast Overview",
         "sku": "SKU Detail",
@@ -954,7 +954,7 @@
       },
       "marketing": {
         "title": "Marketing Strategy — status per channel",
-        "intro": "See which marketing channels are actually driving results. Right now that's promo-code attribution per event — the one channel real transaction data supports today. Per-channel ad ROAS/CAC, Marketing Mix Modeling budget allocation, and incrementality testing are on the roadmap as ad-platform integrations come online.",
+        "intro": "See which marketing channels are actually driving results. Right now that's promo-code attribution per event, the one channel real transaction data supports today. Per-channel ad ROAS/CAC, Marketing Mix Modeling budget allocation, and incrementality testing are on the roadmap as ad-platform integrations come online.",
         "statusLive": "Measurable",
         "statusPlanned": "Not available yet",
         "measurableCard": {
@@ -979,7 +979,7 @@
     },
     "insight": {
       "title": "Vera Intelligence",
-      "subtitle": "Ask about your sales, events, and demand-signal alerts — grounded in your real data.",
+      "subtitle": "Ask about your sales, events, and demand-signal alerts. Answers are grounded in your real data.",
       "empty": "Ask anything about your sales, events, or alerts.",
       "placeholder": "Ask Vera Intelligence...",
       "send": "Send",
