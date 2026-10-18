@@ -337,10 +337,10 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
           <h2 className="text-3xl font-semibold tracking-tight text-neutral-700 sm:text-4xl">{t("cta.title")}</h2>
           <p className="mt-3 text-base text-neutral-500">{t("cta.subtitle")}</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/welcome" className={`${btnPrimaryCls} h-12 px-6 text-[15px]`}>
+            <a href="/demo-retailer.html" target="_blank" rel="noopener noreferrer" className={`${btnPrimaryCls} h-12 px-6 text-[15px]`}>
               {t("cta.primary")}
               <IconArrowRight size={18} />
-            </Link>
+            </a>
             <Link href="/login" className={`${btnSecondaryCls} h-12 px-6 text-[15px]`}>
               {t("cta.secondary")}
             </Link>
