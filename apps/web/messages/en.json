@@ -586,7 +586,7 @@
     },
     "header": {
       "greeting": "Hi, Admin",
-      "welcome": "Welcome back to AI Beauty Advisor 👋",
+      "welcome": "Welcome back to GlowOps 👋",
       "searchProducts": "Search products",
       "alerts": "{count} demand-signal alerts",
       "noAlerts": "No demand-signal alerts",
@@ -596,7 +596,7 @@
       "closeMenu": "Close menu"
     },
     "sidebar": {
-      "appName": "AI Beauty Advisor",
+      "appName": "GlowOps",
       "tenantDashboard": "Tenant Dashboard",
       "logout": "Log out",
       "searchPlaceholder": "Search products...",
@@ -1002,27 +1002,43 @@
   },
   "landing": {
     "nav": {
-      "features": "Features",
+      "features": "Beauty Advisor",
       "how": "How it works",
-      "retailers": "For retailers",
+      "retailers": "Get started",
       "faq": "FAQ",
       "pricing": "Pricing",
       "about": "About Us",
       "contact": "Contact Us",
       "login": "Log In",
-      "tryScan": "Live Demo"
+      "tryScan": "See the customer experience"
     },
     "hero": {
-      "eyebrow": "AI skin & beauty advisor",
-      "title": "Your skin, decoded in three poses",
-      "subtitle": "One camera scan reads your skin, colour season and face shape — then an AI advisor matches you with products from a real catalog and builds your routine.",
-      "ctaPrimary": "Live Demo",
-      "ctaSecondary": "For retailers",
+      "eyebrow": "For beauty brands & sellers",
+      "title": "Run your beauty brand with AI",
+      "subtitle": "Sales Intelligence explains what happened and why. Demand Signal forecasting shows what's next. A personalized Beauty Advisor gives every customer their own skin and color analysis, matched down to the eyeshadow shade.",
+      "ctaPrimary": "See the customer experience",
+      "ctaSecondary": "Get started",
       "chipSeason": "Colour season",
       "chipFace": "Face shape",
       "chipSkin": "Skin type",
-      "shotAlt": "AI Beauty Advisor tenant dashboard",
+      "shotAlt": "GlowOps tenant dashboard",
       "phoneAlt": "Three-pose skin scan screen"
+    },
+    "pillars": {
+      "eyebrow": "The 3 pillars",
+      "title": "Everything your beauty brand needs, in one place",
+      "p1": {
+        "name": "Sales Intelligence",
+        "body": "Chat with your own sales data in plain language and get the real cause behind every spike or dip, plus a concrete strategy for what's next."
+      },
+      "p2": {
+        "name": "Forecasting & Demand Signal",
+        "body": "Real-time demand signal per SKU and an event planner with deadlines, so you see what's about to move before it happens."
+      },
+      "p3": {
+        "name": "Personalized Beauty Advisor",
+        "body": "A white-labeled AI advisor for your own customers. Skin analysis and color analysis lead straight to the best eyeshadow, lipstick, blush, and foundation shade for them, plus a makeup trend recommendation based on their face shape."
+      }
     },
     "facts": {
       "products": "products in the catalog",
@@ -1031,26 +1047,41 @@
       "script": "script tag to add it to any store"
     },
     "features": {
-      "title": "Everything from scan to checkout",
-      "subtitle": "Built on real computer vision and a real product catalog — no mocked answers.",
+      "eyebrow": "Personalized Beauty Advisor",
+      "title": "Give every customer their own Beauty Advisor",
+      "subtitle": "Skin analysis and color analysis lead straight to the best shade for every category, on your own store. Built on real computer vision and a real product catalog, no mocked answers.",
       "scan": {
-        "title": "Skin & beauty scan",
+        "title": "Skin analysis & color analysis",
         "body": "Front, right and left poses. Reads hydration, acne and pigmentation, plus colour season, face shape and skin type.",
         "alt": "Skin scan intro with the three-pose stepper"
       },
       "chat": {
-        "title": "AI advisor chat",
-        "body": "Ask in plain language — the advisor recommends products from the catalog with prices, grounded in your scan.",
+        "title": "Best color recommendations",
+        "body": "Ask in plain language. The advisor recommends the best eyeshadow, lipstick, blush, and foundation or powder shade from the catalog, with prices, grounded in the scan.",
         "alt": "AI advisor chat recommending serums inside a store website"
       },
       "routine": {
-        "title": "Routine & product matching",
-        "body": "Scan and quiz results are matched against the catalog into a morning and evening routine you can shop."
+        "title": "Makeup trend by face shape",
+        "body": "Face shape results are matched into a makeup trend recommendation and a full routine your customer can shop, morning and evening."
       },
       "progress": {
         "title": "Progress tracker",
         "body": "Re-scan over time and compare results, with a downloadable PDF report for each scan."
       }
+    },
+    "salesIntel": {
+      "eyebrow": "Sales Intelligence",
+      "title": "Ask your sales data anything",
+      "subtitle": "No dashboards to decode. Type a question in plain language and get a grounded answer with the real numbers behind it.",
+      "shotAlt": "Sales Intelligence chat answering why the 9.9 event underperformed",
+      "sampleQ": "\"Why did sales during the 9.9 event decline?\""
+    },
+    "demandSignal": {
+      "eyebrow": "Forecasting & Demand Signal",
+      "title": "See what's about to move before it happens",
+      "subtitle": "Real-time demand signal per SKU, event planning with deadlines, and an AI-generated insight the moment you open the tab.",
+      "shotAlt": "Forecasting dashboard with today's top insight",
+      "demoNote": "Sales figures in this screenshot use sample data."
     },
     "how": {
       "title": "How it works",
@@ -1064,44 +1095,37 @@
       },
       "s3": {
         "title": "Get matched",
-        "body": "Receive product picks, shades for your season and a routine — then keep chatting with the advisor."
+        "body": "Receive product picks, shades for your season and a routine. Then keep chatting with the advisor."
       }
     },
     "retailers": {
-      "eyebrow": "For retailers",
+      "eyebrow": "Get started",
       "title": "Add a beauty advisor to your store with one line",
       "subtitle": "The widget runs inside your own website and talks to the same AI pipeline as the main app.",
-      "b1": "Floating chat + hands-free 3-pose scan for every visitor",
-      "b2": "Tenant dashboard: overview, catalog, trend boosts and demand forecasting",
-      "b3": "Full conversation history of widget visitors",
       "snippetLabel": "Paste before '</body>'",
-      "cta": "Open the dashboard",
-      "widgetAlt": "The AI advisor widget open on a sample store",
-      "forecastAlt": "Forecasting dashboard with demand signal chart",
-      "convAlt": "Conversation history of widget visitors",
-      "demoNote": "Dashboard screenshots use demo data."
+      "cta": "Open the dashboard"
     },
     "faq": {
       "title": "Frequently asked questions",
-      "q1": "What does the scan measure?",
-      "a1": "Hydration, acne and pigmentation scores, plus your colour season (with undertone), face shape and skin type — all from one three-pose scan.",
-      "q2": "Are my photos stored?",
-      "a2": "If you're signed in, your scan photo is saved to your account with its result so the Progress Tracker and PDF report can show it. Scans done through a store widget keep only the analysis result for that session, not the photos.",
-      "q3": "Do I need an account?",
-      "a3": "You can start a scan right away. Saving your routine, cart, saved products and progress history requires signing in with Google.",
+      "q1": "Is this for me or my customers?",
+      "a1": "Both. Sales Intelligence and Forecasting & Demand Signal are your own tools, in your dashboard. The Beauty Advisor is what your customers use on your store, under your brand.",
+      "q2": "What does the scan measure?",
+      "a2": "Hydration, acne and pigmentation scores, plus your customer's colour season (with undertone), face shape and skin type, all from one three-pose scan.",
+      "q3": "Are customer photos stored?",
+      "a3": "A signed-in shopper's scan photo is saved to their own account with its result. Scans done through your store's widget keep only the analysis result for that session, not the photos.",
       "q4": "Which languages are supported?",
-      "a4": "English and Indonesian, for both the app and the advisor's answers.",
+      "a4": "English and Indonesian, for both the dashboard and the advisor's answers.",
       "q5": "How do I add the widget to my store?",
       "a5": "Paste one '<script>' tag before '</body>' on your website. The widget appears as a floating button; nothing else on your site changes."
     },
     "cta": {
-      "title": "See what your skin is telling you",
-      "subtitle": "It takes three poses and about a minute.",
-      "primary": "Live Demo",
+      "title": "Ready to run your beauty brand with AI?",
+      "subtitle": "Set up Sales Intelligence and Forecasting today, and give your customers their own Beauty Advisor.",
+      "primary": "See the customer experience",
       "secondary": "Log in to dashboard"
     },
     "footer": {
-      "rights": "AI Beauty Advisor"
+      "rights": "GlowOps"
     }
   }
 }

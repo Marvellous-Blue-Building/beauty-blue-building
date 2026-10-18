@@ -72,10 +72,20 @@ async function adminShots(browser, locale) {
   await settle(page, 2500);
   await shot(page, locale, "desktop-admin-overview");
 
-  const nav = (id) => page.locator("nav button").nth(["overview", "catalog", "marketing", "forecasting", "simulator", "integration", "conversations"].indexOf(id));
+  const nav = (id) => page.locator("nav button").nth(["overview", "catalog", "marketing", "forecasting", "insight", "simulator", "integration", "conversations"].indexOf(id));
   await nav("forecasting").click();
   await settle(page, 2500);
   await shot(page, locale, "desktop-admin-forecasting");
+
+  await nav("insight").click();
+  await settle(page, 1000);
+  const suggestion = locale === "en" ? "Why did sales during the 9.9 event decline?" : "Kenapa penjualan di event 9.9 menurun?";
+  await page.getByRole("button", { name: suggestion }).click();
+  const thinking = locale === "en" ? "Vera Intelligence is thinking..." : "Vera Intelligence sedang berpikir...";
+  await page.getByText(thinking).waitFor({ state: "visible", timeout: 5000 }).catch(() => {});
+  await page.getByText(thinking).waitFor({ state: "hidden", timeout: 45000 }).catch(() => {});
+  await settle(page, 1000);
+  await shot(page, locale, "desktop-admin-insight");
 
   await nav("conversations").click();
   await settle(page, 1500);

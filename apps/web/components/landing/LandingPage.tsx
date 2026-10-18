@@ -111,7 +111,7 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-admin-accent text-white shadow-[0_8px_20px_-6px_rgb(210_98_135/0.7)]">
               <IconSparkle size={18} />
             </span>
-            <span className="whitespace-nowrap text-[15px] font-bold tracking-tight text-neutral-700">AI Beauty Advisor</span>
+            <span className="whitespace-nowrap text-[15px] font-bold tracking-tight text-neutral-700">GlowOps</span>
           </Link>
           <div className="ml-4 hidden items-center gap-1 lg:flex">
             {anchors.map((a) => (
@@ -197,6 +197,24 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
           </div>
         </section>
 
+        {/* 3 Pillars overview */}
+        <section aria-labelledby="pillars" className="pb-16">
+          <SectionTitle id="pillars" eyebrow={t("pillars.eyebrow")} title={t("pillars.title")} />
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {[
+              { icon: <IconSparkle size={20} />, name: t("pillars.p1.name"), body: t("pillars.p1.body") },
+              { icon: <IconTrend size={20} />, name: t("pillars.p2.name"), body: t("pillars.p2.body") },
+              { icon: <IconChat size={20} />, name: t("pillars.p3.name"), body: t("pillars.p3.body") },
+            ].map((p) => (
+              <article key={p.name} className="glass-card rounded-[24px] p-6 sm:p-7">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-admin-accent text-white shadow-[0_8px_20px_-8px_rgb(210_98_135/0.7)]">{p.icon}</span>
+                <h3 className="mt-4 text-lg font-semibold text-neutral-700">{p.name}</h3>
+                <p className="mt-2 text-[14.5px] leading-relaxed text-neutral-500">{p.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
         {/* Facts */}
         <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {facts.map((f) => (
@@ -209,7 +227,7 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
 
         {/* Features */}
         <section aria-labelledby="features" className="scroll-mt-28 py-24">
-          <SectionTitle id="features" title={t("features.title")} subtitle={t("features.subtitle")} />
+          <SectionTitle id="features" eyebrow={t("features.eyebrow")} title={t("features.title")} subtitle={t("features.subtitle")} />
           <div className="mt-12 grid gap-6 lg:grid-cols-2">
             <article className="glass-card flex flex-col overflow-hidden rounded-[26px] p-6 sm:p-8">
               <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-admin-accent/12 text-admin-accent-strong">
@@ -251,6 +269,43 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
           </div>
         </section>
 
+        {/* Sales Intelligence */}
+        <section aria-labelledby="sales-intel" className="scroll-mt-28 pb-24">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-admin-accent-strong">{t("salesIntel.eyebrow")}</div>
+              <h2 id="sales-intel" className="mt-2 text-3xl font-semibold tracking-tight text-neutral-700 sm:text-4xl">
+                {t("salesIntel.title")}
+              </h2>
+              <p className="mt-3 text-base leading-relaxed text-neutral-500">{t("salesIntel.subtitle")}</p>
+              <div className="glass-inset mt-6 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm text-neutral-700">
+                <IconChat size={16} className="shrink-0 text-admin-accent-strong" />
+                {t("salesIntel.sampleQ")}
+              </div>
+            </div>
+            <BrowserFrame>
+              <Shot src={`${shots}/desktop-admin-insight.jpg`} alt={t("salesIntel.shotAlt")} width={2880} height={1800} className="h-auto w-full" />
+            </BrowserFrame>
+          </div>
+        </section>
+
+        {/* Forecasting & Demand Signal */}
+        <section aria-labelledby="demand-signal" className="scroll-mt-28 pb-24">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
+            <BrowserFrame className="lg:order-2">
+              <Shot src={`${shots}/desktop-admin-forecasting.jpg`} alt={t("demandSignal.shotAlt")} width={2880} height={1800} className="h-auto w-full" />
+            </BrowserFrame>
+            <div className="lg:order-1">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-admin-accent-strong">{t("demandSignal.eyebrow")}</div>
+              <h2 id="demand-signal" className="mt-2 text-3xl font-semibold tracking-tight text-neutral-700 sm:text-4xl">
+                {t("demandSignal.title")}
+              </h2>
+              <p className="mt-3 text-base leading-relaxed text-neutral-500">{t("demandSignal.subtitle")}</p>
+              <p className="mt-4 text-xs text-neutral-400">{t("demandSignal.demoNote")}</p>
+            </div>
+          </div>
+        </section>
+
         {/* How it works */}
         <section aria-labelledby="how" className="scroll-mt-28 pb-24">
           <SectionTitle id="how" title={t("how.title")} />
@@ -266,52 +321,25 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
           </ol>
         </section>
 
-        {/* Retailers */}
-        <section aria-labelledby="retailers" className="glass-frame scroll-mt-28 rounded-[32px] p-6 sm:p-10 lg:rounded-[40px]">
-          <div className="grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-            {/* min-w-0: the long <pre> snippet must scroll inside, not widen the grid column. */}
-            <div className="min-w-0">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-admin-accent-strong">{t("retailers.eyebrow")}</div>
-              <h2 id="retailers" className="mt-2 text-3xl font-semibold tracking-tight text-neutral-700 sm:text-4xl">
-                {t("retailers.title")}
-              </h2>
-              <p className="mt-3 text-base leading-relaxed text-neutral-500">{t("retailers.subtitle")}</p>
-              <ul className="mt-6 flex flex-col gap-3">
-                {[
-                  { icon: <IconChat size={18} />, text: t("retailers.b1") },
-                  { icon: <IconChart size={18} />, text: t("retailers.b2") },
-                  { icon: <IconHistory size={18} />, text: t("retailers.b3") },
-                ].map((b) => (
-                  <li key={b.text} className="flex items-start gap-3 text-[15px] text-neutral-700">
-                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-admin-accent/12 text-admin-accent-strong">{b.icon}</span>
-                    {b.text}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-6">
-                <div className="mb-2 flex items-center gap-2 text-xs font-medium text-neutral-500">
-                  <IconCode size={14} /> {t("retailers.snippetLabel")}
-                </div>
-                <pre className="overflow-x-auto rounded-xl bg-neutral-700 px-4 py-3 text-xs text-neutral-100">{SNIPPET}</pre>
+        {/* Get started */}
+        <section aria-labelledby="retailers" className="glass-frame scroll-mt-28 rounded-[32px] p-6 text-center sm:p-10 lg:rounded-[40px]">
+          <div className="mx-auto max-w-xl">
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-admin-accent-strong">{t("retailers.eyebrow")}</div>
+            <h2 id="retailers" className="mt-2 text-3xl font-semibold tracking-tight text-neutral-700 sm:text-4xl">
+              {t("retailers.title")}
+            </h2>
+            <p className="mt-3 text-base leading-relaxed text-neutral-500">{t("retailers.subtitle")}</p>
+            <div className="mt-6 text-left">
+              <div className="mb-2 flex items-center gap-2 text-xs font-medium text-neutral-500">
+                <IconCode size={14} /> {t("retailers.snippetLabel")}
               </div>
-              <Link href="/login" className={`${btnPrimaryCls} mt-6`}>
-                {t("retailers.cta")}
-                <IconArrowRight size={16} />
-              </Link>
+              <pre className="overflow-x-auto rounded-xl bg-neutral-700 px-4 py-3 text-xs text-neutral-100">{SNIPPET}</pre>
             </div>
-            <BrowserFrame>
-              <Shot src={`${shots}/desktop-widget.jpg`} alt={t("retailers.widgetAlt")} width={2880} height={1800} className="h-auto w-full" />
-            </BrowserFrame>
+            <Link href="/login" className={`${btnPrimaryCls} mt-6`}>
+              {t("retailers.cta")}
+              <IconArrowRight size={16} />
+            </Link>
           </div>
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
-            <BrowserFrame>
-              <Shot src={`${shots}/desktop-admin-forecasting.jpg`} alt={t("retailers.forecastAlt")} width={2880} height={1800} className="h-auto w-full" />
-            </BrowserFrame>
-            <BrowserFrame>
-              <Shot src={`${shots}/desktop-admin-conversations.jpg`} alt={t("retailers.convAlt")} width={2880} height={1800} className="h-auto w-full" />
-            </BrowserFrame>
-          </div>
-          <p className="mt-4 text-center text-xs text-neutral-500">{t("retailers.demoNote")}</p>
         </section>
 
         {/* FAQ */}
