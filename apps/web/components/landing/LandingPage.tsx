@@ -194,7 +194,7 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
               <Shot src={`${shots}/desktop-admin-overview.jpg`} alt={t("hero.shotAlt")} width={2880} height={1800} priority className="h-auto w-full" />
             </BrowserFrame>
             <PhoneFrame className="absolute -bottom-2 left-0 w-[34%] min-w-[130px] max-w-[210px]">
-              <Shot src={`${shots}/mobile-scan.jpg`} alt={t("hero.phoneAlt")} width={780} height={1180} priority className="h-auto w-full" />
+              <Shot src={`${shots}/mobile-scan.jpg`} alt={t("hero.phoneAlt")} width={780} height={1624} priority className="h-auto w-full" />
             </PhoneFrame>
             <div className="absolute -top-5 right-4 hidden flex-col items-end gap-2 sm:flex">
               {[t("hero.chipSales"), t("hero.chipDemand"), t("hero.chipAdvisor")].map((c, i) => (
@@ -328,12 +328,13 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
               </span>
               <h3 className="mt-4 text-xl font-semibold text-neutral-700">{t("features.scan.title")}</h3>
               <p className="mt-2 text-[15px] leading-relaxed text-neutral-500">{t("features.scan.body")}</p>
+              <p className="mt-2 text-xs text-neutral-400">{t("features.scan.aiNote")}</p>
               <div className="mt-6 flex flex-1 items-end justify-center gap-4">
                 <PhoneFrame className="w-[46%] max-w-[230px]">
                   <Shot src={`${shots}/mobile-welcome.jpg`} alt={t("features.scan.alt")} width={780} height={1688} className="h-auto w-full" />
                 </PhoneFrame>
                 <PhoneFrame className="mb-8 w-[46%] max-w-[230px]">
-                  <Shot src={`${shots}/mobile-scan.jpg`} alt={t("features.scan.alt")} width={780} height={1180} className="h-auto w-full" />
+                  <Shot src={`${shots}/mobile-scan.jpg`} alt={t("features.scan.alt")} width={780} height={1624} className="h-auto w-full" />
                 </PhoneFrame>
               </div>
             </article>
