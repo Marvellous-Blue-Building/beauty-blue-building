@@ -455,6 +455,11 @@
       "background:rgba(255,255,255,.72);border-radius:999px;padding:6px 11px;font-size:11.5px;font-weight:500;font-family:inherit;cursor:pointer;" +
       "transition:background .15s ease;}" +
       ".bw-chips button:hover{background:#fff;}" +
+      ".bw-scancta{display:inline-flex;align-self:flex-start;flex-direction:column;width:100px;border:1px solid var(--bw-line);border-radius:12px;overflow:hidden;background:#fff;cursor:pointer;font-family:inherit;padding:0;text-align:left;transition:transform .12s ease;box-shadow:0 2px 10px rgba(20,20,40,.10);}" +
+      ".bw-scancta:hover{transform:translateY(-1px);}" +
+      ".bw-scancta:active{transform:scale(.98);}" +
+      ".bw-scancta img{display:block;width:100%;height:auto;}" +
+      ".bw-scancta span{padding:7px 6px;font-size:12px;font-weight:500;color:var(--bw-strong);text-align:center;white-space:nowrap;}" +
       ".bw-foot{border-top:1px solid rgba(255,255,255,.75);background:rgba(255,255,255,.38);padding:10px 11px;display:flex;gap:8px;flex:none;}" +
       ".bw-foot[hidden],.bw-body[hidden]{display:none;}" +
       ".bw-foot input{flex:1;min-width:0;border:1px solid var(--bw-glass-line);background:rgba(255,255,255,.78);border-radius:14px;" +
@@ -2196,9 +2201,26 @@
         if (scanView.hidden) openScanView(); else showChatView();
       });
 
+      /** The "Scan my face" quick reply merged into the face-scan illustration:
+       * a single clickable card (image + label) that opens the scan flow.
+       * Served from the widget's own origin so cross-origin embeds resolve it. */
+      function addScanCta() {
+        var btn = text("button", "bw-scancta");
+        btn.setAttribute("type", "button");
+        var img = document.createElement("img");
+        img.src = API_BASE + "/face_scan.png";
+        img.alt = "";
+        img.loading = "lazy";
+        btn.appendChild(img);
+        btn.appendChild(text("span", null, tr("Scan wajahku", "Scan my face")));
+        btn.addEventListener("click", openScanView);
+        body.appendChild(btn);
+        body.scrollTop = body.scrollHeight;
+      }
+
       function greet() {
         addBotText(state.config.greeting || tr("Hai! Ada yang bisa aku bantu?", "Hi! How can I help?"));
-        addChips([{ label: tr("Scan wajahku", "Scan my face"), onClick: openScanView }]);
+        addScanCta();
       }
       greet();
 

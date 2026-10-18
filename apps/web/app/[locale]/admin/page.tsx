@@ -1677,15 +1677,15 @@ function SimulatorSection() {
                   </div>
                 </div>
               )}
-              <div className="ml-9 flex flex-wrap gap-2">
-                <button
-                  onClick={() => send(t("scanChip"))}
-                  disabled={sending}
-                  className="rounded-full border border-white/80 bg-white/70 px-3.5 py-1.5 text-xs text-neutral-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {t("scanChip")}
-                </button>
-              </div>
+              <button
+                onClick={() => send(t("scanChip"))}
+                disabled={sending}
+                className="ml-9 flex w-[150px] flex-col overflow-hidden rounded-[12px] border border-white/80 bg-white/70 text-left transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- local scan illustration, fixed size */}
+                <img src="/face_scan.png" alt={t("skinTool")} className="h-auto w-full object-cover" />
+                <span className="whitespace-nowrap px-3 py-2 text-center text-xs font-medium text-neutral-700">{t("scanChip")}</span>
+              </button>
             </div>
           )}
           {messages.map((m, i) => (
@@ -1699,7 +1699,7 @@ function SimulatorSection() {
                 {m.text?.includes("[Skin Scanning Analysis Tool]") ? (
                   <div className="flex flex-col items-center gap-2">
                     {/* eslint-disable-next-line @next/next/no-img-element -- static asset, fixed small size */}
-                    <img src="/assets/chat/skin-scan-analysis.png" alt={t("skinTool")} className="h-auto w-[100px] rounded-[10px] object-cover shadow-sm" />
+                    <img src="/face_scan.png" alt={t("skinTool")} className="h-auto w-[100px] rounded-[10px] object-cover shadow-sm" />
                     <span className="text-[11px] font-medium text-neutral-500">{t("skinTool")}</span>
                   </div>
                 ) : m.text?.includes("[Track Your Progress]") ? (
