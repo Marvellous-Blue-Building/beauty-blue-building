@@ -111,7 +111,7 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-admin-accent text-white shadow-[0_8px_20px_-6px_rgb(210_98_135/0.7)]">
               <IconSparkle size={18} />
             </span>
-            <span className="whitespace-nowrap text-[15px] font-bold tracking-tight text-neutral-700">AI Beauty Adviser</span>
+            <span className="whitespace-nowrap text-[15px] font-bold tracking-tight text-neutral-700">AI Beauty Advisor</span>
           </Link>
           <div className="ml-4 hidden items-center gap-1 lg:flex">
             {anchors.map((a) => (
