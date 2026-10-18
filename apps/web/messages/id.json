@@ -607,7 +607,7 @@
       "nav": {
         "overview": { "label": "Overview", "hint": "Ringkasan aktivitas" },
         "catalog": { "label": "Katalog", "hint": "Produk, harga, stok" },
-        "marketing": { "label": "Marketing & Trend", "hint": "Boost keyword" },
+        "marketing": { "label": "Trend Boost", "hint": "Boost keyword" },
         "forecasting": { "label": "Forecasting", "hint": "Demand signal" },
         "insight": { "label": "Vera Intelligence", "hint": "Tanya soal penjualan & event" },
         "simulator": { "label": "Chat Simulator", "hint": "Uji widget" },
@@ -679,7 +679,7 @@
       "columns": { "product": "Produk", "price": "Harga", "stock": "Stok", "category": "Kategori" }
     },
     "marketing": {
-      "title": "Marketing & Trend Boost",
+      "title": "Trend Boost",
       "cardTitle": "Trend / Merchandising Boost",
       "cardSubtitle": "Keyword di sini ikut menaikkan ranking produk di rekomendasi chat (ranking-only, tidak pernah jadi syarat mutlak) — langsung aktif, tanpa perlu ubah kode.",
       "keywordPlaceholder": "mis. glass skin, bold red lip",

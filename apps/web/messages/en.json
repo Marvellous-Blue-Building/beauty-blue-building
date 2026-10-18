@@ -607,7 +607,7 @@
       "nav": {
         "overview": { "label": "Overview", "hint": "Activity summary" },
         "catalog": { "label": "Catalog", "hint": "Products, price, stock" },
-        "marketing": { "label": "Marketing & Trend", "hint": "Boost keywords" },
+        "marketing": { "label": "Trend Boost", "hint": "Boost keywords" },
         "forecasting": { "label": "Forecasting", "hint": "Demand signal" },
         "insight": { "label": "Vera Intelligence", "hint": "Ask about sales & events" },
         "simulator": { "label": "Chat Simulator", "hint": "Test widget" },
@@ -679,7 +679,7 @@
       "columns": { "product": "Product", "price": "Price", "stock": "Stock", "category": "Category" }
     },
     "marketing": {
-      "title": "Marketing & Trend Boost",
+      "title": "Trend Boost",
       "cardTitle": "Trend / Merchandising Boost",
       "cardSubtitle": "Keywords here help boost product ranking in chat recommendations (ranking-only, never an absolute requirement) — active immediately, no code changes needed.",
       "keywordPlaceholder": "e.g. glass skin, bold red lip",
