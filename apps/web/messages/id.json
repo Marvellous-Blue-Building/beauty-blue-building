@@ -681,7 +681,7 @@
     "marketing": {
       "title": "Trend Boost",
       "cardTitle": "Trend / Merchandising Boost",
-      "cardSubtitle": "Keyword di sini ikut menaikkan ranking produk di rekomendasi chat (ranking-only, tidak pernah jadi syarat mutlak) — langsung aktif, tanpa perlu ubah kode. Bobot (1-5) nentuin seberapa kuat: makin tinggi, makin sering keyword itu dihitung sebagai sinyal ranking, jadi bobot 5 mendorong produk terkait lebih tinggi dibanding bobot 1.",
+      "cardSubtitle": "Keyword di sini ikut menaikkan ranking produk di rekomendasi chat. Sifatnya ranking-only, tidak pernah jadi syarat mutlak, dan langsung aktif tanpa perlu ubah kode. Bobot (1-5) nentuin seberapa kuat keyword itu dihitung sebagai sinyal ranking, jadi bobot 5 mendorong produk terkait lebih tinggi dibanding bobot 1.",
       "keywordPlaceholder": "mis. glass skin, bold red lip",
       "weightOption": "Bobot {w}",
       "addButton": "Tambah",
