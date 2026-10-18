@@ -16,6 +16,7 @@ import {
   thGlassCls,
 } from "@/components/admin/glass";
 import { OverviewSection } from "@/components/admin/OverviewSection";
+import { InsightSection } from "@/components/admin/InsightSection";
 import { ProductCardRow, type ProductCardData } from "@/components/admin/ProductCardRow";
 import { useLocale, useTranslations } from "next-intl";
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts";
@@ -1886,6 +1887,7 @@ function AdminShell() {
       {section === "catalog" && <CatalogSection key={catalogQuery.n} initialSearch={catalogQuery.q} />}
       {section === "marketing" && <MarketingSection />}
       {section === "forecasting" && <ForecastingSection />}
+      {section === "insight" && <InsightSection />}
       {section === "simulator" && <SimulatorSection />}
       {section === "integration" && <IntegrationSection />}
       {section === "conversations" && <ConversationsSection />}

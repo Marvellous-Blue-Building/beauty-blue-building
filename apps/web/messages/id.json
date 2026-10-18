@@ -609,6 +609,7 @@
         "catalog": { "label": "Katalog", "hint": "Produk, harga, stok" },
         "marketing": { "label": "Marketing & Trend", "hint": "Boost keyword" },
         "forecasting": { "label": "Forecasting", "hint": "Demand signal" },
+        "insight": { "label": "Vera Intelligence", "hint": "Tanya soal penjualan & event" },
         "simulator": { "label": "Chat Simulator", "hint": "Uji widget" },
         "integration": { "label": "Integrasi", "hint": "Embed widget" },
         "conversations": { "label": "Conversation history", "hint": "Riwayat percakapan" }
@@ -975,6 +976,20 @@
           "viewDetail": "Lihat detail attribution →"
         }
       }
+    },
+    "insight": {
+      "title": "Vera Intelligence",
+      "subtitle": "Tanya soal penjualan, event, dan alert demand-signal — berdasarkan kalender event beneran plus data sampel penjualan.",
+      "empty": "Tanya apa saja soal penjualan, event, atau alert kamu.",
+      "placeholder": "Tanya Vera Intelligence...",
+      "send": "Kirim",
+      "thinking": "Vera Intelligence sedang berpikir...",
+      "error": "Vera Intelligence sedang tidak bisa dihubungi. Coba lagi sebentar lagi.",
+      "suggestions": [
+        "Kenapa penjualan di event 9.9 menurun?",
+        "Strategi apa yang bisa dipakai di 11.11?",
+        "Bandingkan performa 8.8, 9.9, dan 10.10"
+      ]
     }
   },
   "landing": {

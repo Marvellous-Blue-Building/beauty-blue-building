@@ -12,6 +12,7 @@ export type AdminSection =
   | "catalog"
   | "marketing"
   | "forecasting"
+  | "insight"
   | "simulator"
   | "integration"
   | "conversations";
@@ -21,6 +22,7 @@ const MAIN_NAV: { id: AdminSection; icon: ReactNode }[] = [
   { id: "catalog", icon: <IconBox /> },
   { id: "marketing", icon: <IconTrend /> },
   { id: "forecasting", icon: <IconChart /> },
+  { id: "insight", icon: <IconSparkle /> },
 ];
 const APPS_NAV: { id: AdminSection; icon: ReactNode }[] = [
   { id: "simulator", icon: <IconChat /> },

@@ -609,6 +609,7 @@
         "catalog": { "label": "Catalog", "hint": "Products, price, stock" },
         "marketing": { "label": "Marketing & Trend", "hint": "Boost keywords" },
         "forecasting": { "label": "Forecasting", "hint": "Demand signal" },
+        "insight": { "label": "Vera Intelligence", "hint": "Ask about sales & events" },
         "simulator": { "label": "Chat Simulator", "hint": "Test widget" },
         "integration": { "label": "Integration", "hint": "Embed widget" },
         "conversations": { "label": "Conversation history", "hint": "Chat history" }
@@ -975,6 +976,20 @@
           "viewDetail": "View attribution detail →"
         }
       }
+    },
+    "insight": {
+      "title": "Vera Intelligence",
+      "subtitle": "Ask about your sales, events, and demand-signal alerts — grounded in your real event calendar plus sample sales data.",
+      "empty": "Ask anything about your sales, events, or alerts.",
+      "placeholder": "Ask Vera Intelligence...",
+      "send": "Send",
+      "thinking": "Vera Intelligence is thinking...",
+      "error": "Vera Intelligence couldn't be reached right now. Try again in a moment.",
+      "suggestions": [
+        "Why did sales during the 9.9 event decline?",
+        "What strategy should we use for 11.11?",
+        "Compare the performance of 8.8, 9.9, and 10.10"
+      ]
     }
   },
   "landing": {
