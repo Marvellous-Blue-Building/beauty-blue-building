@@ -1,0 +1,23 @@
+{
+  "name": "beauty-advisor-promo-video",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Vertical promo video (Remotion) for the AI Beauty Advisor skin scan and AI chat, built from real Playwright recordings of the app.",
+  "scripts": {
+    "camera": "bash scripts/make-fake-camera.sh",
+    "record": "node scripts/record-demo.mjs",
+    "assets": "node scripts/prepare-assets.mjs",
+    "studio": "remotion studio",
+    "render": "remotion render Promo out/ai-beauty-advisor-promo.mp4 --codec=h264 --crf=18"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.531",
+    "@remotion/google-fonts": "4.0.531",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.531"
+  },
+  "devDependencies": {
+    "playwright": "1.64.1"
+  }
+}

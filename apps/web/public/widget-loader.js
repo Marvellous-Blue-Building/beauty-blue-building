@@ -26,6 +26,11 @@
   var API_BASE = script.getAttribute("data-api-base") || new URL(script.src, location.href).origin;
   var SESSION_KEY = "bw_session_id";
   var CONVO_KEY = "bw_conversation_id";
+  // UI language: data-lang on the script tag, else the host page's <html lang>. An English page
+  // gets English everywhere — UI, scan report and chat replies; anything else stays Indonesian.
+  var LANG = /^en\b/i.test(script.getAttribute("data-lang") || document.documentElement.lang || "") ? "en" : "id";
+  /** The Indonesian or English copy of a UI string. */
+  function tr(id, en) { return LANG === "en" ? en : id; }
 
   // Scan pacing — slow enough to feel deliberate, short enough to hold still for.
   var CHECK_MS = 120;
@@ -339,8 +344,8 @@
   }
 
   function fetchConfig() {
-    return api("/api/widget/config").then(function (res) { return res.json(); }).catch(function () {
-      return { botName: "Vera", greeting: "Hai! Ada yang bisa aku bantu?", color: "#7A4259", position: "br" };
+    return api("/api/widget/config?lang=" + LANG).then(function (res) { return res.json(); }).catch(function () {
+      return { botName: "Vera", greeting: tr("Hai! Ada yang bisa aku bantu?", "Hi! How can I help?"), color: "#d26287", position: "br" };
     });
   }
 
@@ -349,7 +354,7 @@
     return fetch(API_BASE + "/api/widget/chat", {
       method: "POST",
       headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ sessionId: sessionId, conversationId: conversationId, message: message }),
+      body: JSON.stringify({ sessionId: sessionId, conversationId: conversationId, message: message, lang: LANG }),
     }).then(function (res) {
       var reader = res.body.getReader();
       var decoder = new TextDecoder();
@@ -378,55 +383,90 @@
   var STYLE = function (cfg) {
     return (
       ":host, *{box-sizing:border-box;}" +
-      ":host{--bw-primary:" + (cfg.color || "#7A4259") + ";--bw-ink:#241F26;--bw-paper:#FAF6F3;--bw-line:rgba(36,31,38,.12);" +
-      "--bw-soft:#F3ECE6;--bw-muted:rgba(36,31,38,.6);--bw-faint:rgba(36,31,38,.4);--bw-ok:#2F8A5F;--bw-warn:#B7791F;" +
+      // Glassmorphism theme, matching the app/admin (docs/admin-ui-guidelines.md). Every accent derives
+      // from --bw-primary, so WIDGET_COLOR still rethemes the whole widget.
+      ":host{--bw-primary:" + (cfg.color || "#d26287") + ";--bw-ink:#404040;--bw-paper:transparent;--bw-line:rgba(64,64,64,.1);" +
+      "--bw-soft:color-mix(in srgb,var(--bw-primary) 9%,#fff);--bw-muted:rgba(64,64,64,.66);--bw-faint:rgba(64,64,64,.44);--bw-ok:#22a06b;--bw-warn:#c58a1b;" +
+      "--bw-strong:color-mix(in srgb,var(--bw-primary) 82%,#000);--bw-glass:rgba(255,255,255,.74);--bw-glass-line:rgba(255,255,255,.9);" +
+      "--bw-glow:0 12px 26px -12px color-mix(in srgb,var(--bw-primary) 75%,transparent);" +
       // The app's own display face (apps/web/app/globals.css), falling back to the system serif.
       "--bw-serif:'Canela Text','GT Sectra','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;" +
       "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}" +
       ".bw-launcher{position:fixed;" + (cfg.position === "bl" ? "left:20px;" : "right:20px;") + "bottom:20px;width:58px;height:58px;" +
-      "border-radius:50%;border:none;cursor:pointer;background:var(--bw-primary);color:#fff;display:flex;" +
-      "align-items:center;justify-content:center;box-shadow:0 10px 24px -8px rgba(0,0,0,.35);z-index:2147483000;}" +
+      "border-radius:50%;border:1px solid rgba(255,255,255,.55);cursor:pointer;color:#fff;display:flex;" +
+      "background:linear-gradient(145deg,color-mix(in srgb,var(--bw-primary) 72%,#fff),var(--bw-primary));" +
+      "align-items:center;justify-content:center;z-index:2147483000;transition:transform .2s ease;" +
+      "box-shadow:0 16px 32px -12px color-mix(in srgb,var(--bw-primary) 80%,transparent),inset 0 1px 0 rgba(255,255,255,.45);}" +
+      ".bw-launcher:hover{transform:translateY(-2px) scale(1.03);}" +
       ".bw-launcher svg{width:26px;height:26px;}" +
       ".bw-panel{position:fixed;" + (cfg.position === "bl" ? "left:20px;" : "right:20px;") + "bottom:88px;width:320px;max-width:calc(100vw - 40px);" +
-      "height:460px;max-height:calc(100vh - 120px);background:#fff;border:1px solid var(--bw-line);border-radius:16px;" +
-      "box-shadow:0 24px 48px -20px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;z-index:2147483000;" +
+      "height:460px;max-height:calc(100vh - 120px);border:1px solid rgba(255,255,255,.8);border-radius:24px;" +
+      "background:linear-gradient(150deg,rgba(255,255,255,.8),color-mix(in srgb,var(--bw-primary) 6%,rgba(255,255,255,.62)));" +
+      "-webkit-backdrop-filter:blur(26px) saturate(170%);backdrop-filter:blur(26px) saturate(170%);" +
+      "box-shadow:0 30px 60px -24px rgba(64,40,48,.45),inset 0 1px 0 rgba(255,255,255,.9);" +
+      "display:flex;flex-direction:column;overflow:hidden;z-index:2147483000;" +
       "transition:width .25s ease,height .25s ease;}" +
       ".bw-panel.bw-wide{width:384px;height:660px;}" +
       ".bw-panel[hidden]{display:none;}" +
-      ".bw-head{display:flex;align-items:center;gap:10px;padding:13px 14px;background:var(--bw-primary);color:#fff;flex:none;}" +
-      ".bw-avatar{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;" +
+      ".bw-head{display:flex;align-items:center;gap:10px;padding:13px 14px;background:rgba(255,255,255,.42);color:var(--bw-ink);flex:none;" +
+      "border-bottom:1px solid rgba(255,255,255,.75);}" +
+      ".bw-avatar{width:32px;height:32px;border-radius:12px;background:var(--bw-primary);color:#fff;box-shadow:var(--bw-glow);display:flex;" +
       "align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none;}" +
       ".bw-head .bw-name{font-weight:700;font-size:13.5px;}" +
-      ".bw-head .bw-status{font-size:10.5px;opacity:.85;}" +
-      ".bw-head button{margin-left:auto;background:none;border:none;color:#fff;opacity:.85;cursor:pointer;}" +
+      ".bw-head .bw-status{font-size:10.5px;color:var(--bw-ok);}" +
+      ".bw-head button{margin-left:auto;background:none;border:none;color:var(--bw-muted);cursor:pointer;}" +
+      ".bw-head button:hover{color:var(--bw-ink);}" +
       ".bw-head .bw-scanbtn{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;font-family:inherit;" +
-      "background:rgba(255,255,255,.18);border-radius:999px;padding:5px 10px;opacity:1;}" +
+      "background:var(--bw-primary);color:#fff !important;border-radius:999px;padding:6px 11px;box-shadow:var(--bw-glow);}" +
       ".bw-head .bw-scanbtn + button{margin-left:4px;font-size:20px;line-height:1;}" +
       ".bw-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--bw-ink);}" +
       ".bw-row{display:flex;}" +
       ".bw-row.user{justify-content:flex-end;}" +
       ".bw-bubble{max-width:84%;padding:9px 12px;border-radius:13px;line-height:1.48;}" +
-      ".bw-row.bot .bw-bubble{background:var(--bw-soft);border-bottom-left-radius:4px;}" +
-      ".bw-row.user .bw-bubble{background:var(--bw-primary);color:#fff;border-bottom-right-radius:4px;}" +
-      ".bw-card{display:flex;gap:9px;border:1px solid var(--bw-line);border-radius:11px;padding:8px;background:#fff;margin-top:6px;}" +
-      ".bw-card .bw-ic{width:36px;height:36px;border-radius:8px;flex:none;background:var(--bw-soft);" +
-      "display:flex;align-items:center;justify-content:center;font-size:16px;}" +
-      ".bw-card .bw-meta{min-width:0;}" +
-      ".bw-card .bw-brand{font-size:10px;text-transform:uppercase;letter-spacing:.05em;opacity:.6;}" +
-      ".bw-card .bw-pname{font-size:12px;font-weight:600;line-height:1.3;margin:1px 0 3px;}" +
-      ".bw-card .bw-price{font-size:11px;font-weight:600;}" +
+      ".bw-row.bot .bw-bubble{background:var(--bw-glass);border:1px solid var(--bw-glass-line);border-bottom-left-radius:5px;" +
+      "box-shadow:0 6px 16px -12px rgba(64,40,48,.35);}" +
+      ".bw-row.user .bw-bubble{background:var(--bw-primary);color:#fff;border-bottom-right-radius:5px;box-shadow:var(--bw-glow);}" +
+      // Recommended products: a swipeable row of product cards that bleeds to the panel edges.
+      ".bw-prow{margin:0 -14px;}" +
+      ".bw-prods{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 14px 8px;scrollbar-width:none;}" +
+      ".bw-prods::-webkit-scrollbar{display:none;}" +
+      ".bw-pcard{flex:0 0 138px;scroll-snap-align:start;scroll-margin-left:14px;display:flex;flex-direction:column;overflow:hidden;" +
+      "border:1px solid var(--bw-glass-line);border-radius:16px;background:rgba(255,255,255,.86);box-shadow:0 10px 22px -16px rgba(64,40,48,.45);" +
+      "animation:bwcard .35s cubic-bezier(.2,.9,.3,1.15) both;}" +
+      "@keyframes bwcard{from{opacity:0;transform:translateY(6px) scale(.97);}to{opacity:1;transform:none;}}" +
+      ".bw-pimg{position:relative;aspect-ratio:1/1;background:#fff;display:flex;align-items:center;justify-content:center;}" +
+      ".bw-pimg img{width:100%;height:100%;object-fit:cover;display:block;}" +
+      ".bw-pimg .bw-ph{font-size:22px;color:var(--bw-primary);opacity:.7;}" +
+      ".bw-pbadge{position:absolute;top:6px;left:6px;background:var(--bw-primary);color:#fff;font-size:9.5px;font-weight:700;" +
+      "border-radius:999px;padding:2px 7px;}" +
+      ".bw-pinfo{flex:1;display:flex;flex-direction:column;gap:3px;padding:8px 9px 10px;}" +
+      ".bw-pbrand{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--bw-muted);" +
+      "white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
+      ".bw-pname{font-size:12px;font-weight:600;line-height:1.3;min-height:31px;display:-webkit-box;-webkit-line-clamp:2;" +
+      "-webkit-box-orient:vertical;overflow:hidden;}" +
+      ".bw-prate{font-size:10.5px;color:var(--bw-muted);}.bw-prate b{color:var(--bw-warn);font-weight:600;}" +
+      ".bw-pswatch{display:flex;align-items:center;gap:3px;}" +
+      ".bw-pswatch i{width:10px;height:10px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);}" +
+      ".bw-pswatch span{font-size:9.5px;color:var(--bw-faint);margin-left:1px;}" +
+      ".bw-pprice{margin-top:auto;padding-top:3px;display:flex;align-items:baseline;flex-wrap:wrap;gap:0 5px;}" +
+      ".bw-pprice b{font-size:12.5px;}.bw-pprice s{font-size:10px;color:var(--bw-faint);}" +
       ".bw-chips{display:flex;flex-wrap:wrap;gap:6px;}" +
-      ".bw-chips button{border:1px solid var(--bw-primary);color:var(--bw-primary);background:#fff;border-radius:999px;" +
-      "padding:6px 11px;font-size:11.5px;font-family:inherit;cursor:pointer;}" +
-      ".bw-chips button:hover{background:var(--bw-soft);}" +
-      ".bw-foot{border-top:1px solid var(--bw-line);padding:9px 10px;display:flex;gap:7px;flex:none;}" +
+      ".bw-chips button{border:1px solid color-mix(in srgb,var(--bw-primary) 35%,transparent);color:var(--bw-strong);" +
+      "background:rgba(255,255,255,.72);border-radius:999px;padding:6px 11px;font-size:11.5px;font-weight:500;font-family:inherit;cursor:pointer;" +
+      "transition:background .15s ease;}" +
+      ".bw-chips button:hover{background:#fff;}" +
+      ".bw-foot{border-top:1px solid rgba(255,255,255,.75);background:rgba(255,255,255,.38);padding:10px 11px;display:flex;gap:8px;flex:none;}" +
       ".bw-foot[hidden],.bw-body[hidden]{display:none;}" +
-      ".bw-foot input{flex:1;min-width:0;border:1px solid var(--bw-line);border-radius:999px;padding:8px 13px;font-size:12.5px;" +
-      "font-family:inherit;color:var(--bw-ink);}" +
-      ".bw-foot button{width:34px;height:34px;border-radius:50%;border:none;background:var(--bw-primary);color:#fff;" +
+      ".bw-foot input{flex:1;min-width:0;border:1px solid var(--bw-glass-line);background:rgba(255,255,255,.78);border-radius:14px;" +
+      "padding:9px 13px;font-size:12.5px;font-family:inherit;color:var(--bw-ink);outline:none;transition:box-shadow .15s ease,border-color .15s ease;}" +
+      ".bw-foot input::placeholder{color:var(--bw-faint);}" +
+      ".bw-foot input:focus{border-color:color-mix(in srgb,var(--bw-primary) 55%,transparent);" +
+      "box-shadow:0 0 0 4px color-mix(in srgb,var(--bw-primary) 16%,transparent);}" +
+      ".bw-foot button{width:38px;height:38px;border-radius:13px;border:none;background:var(--bw-primary);color:#fff;box-shadow:var(--bw-glow);" +
       "display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;}" +
-      ".bw-typing{display:flex;gap:4px;padding:9px 12px;background:var(--bw-soft);border-radius:13px;width:fit-content;border-bottom-left-radius:4px;}" +
-      ".bw-typing span{width:5px;height:5px;border-radius:50%;background:#999;display:inline-block;animation:bwb 1.1s infinite ease-in-out;}" +
+      ".bw-typing{display:flex;gap:4px;padding:10px 13px;background:var(--bw-glass);border:1px solid var(--bw-glass-line);border-radius:13px;" +
+      "width:fit-content;border-bottom-left-radius:5px;}" +
+      ".bw-typing span{width:5px;height:5px;border-radius:50%;background:var(--bw-primary);display:inline-block;animation:bwb 1.1s infinite ease-in-out;}" +
       ".bw-typing span:nth-child(2){animation-delay:.15s;}.bw-typing span:nth-child(3){animation-delay:.3s;}" +
       "@keyframes bwb{0%,80%,100%{transform:translateY(0);opacity:.35;}40%{transform:translateY(-3px);opacity:.9;}}" +
 
@@ -436,10 +476,10 @@
       ".bw-scanview[hidden]{display:none;}" +
       ".bw-scroll{flex:1;overflow-y:auto;padding:16px 16px 22px;display:flex;flex-direction:column;min-height:0;}" +
       ".bw-scroll > *{flex:none;}" +
-      ".bw-actions{flex:none;display:flex;gap:8px;padding:12px 16px 14px;border-top:1px solid var(--bw-line);background:#fff;}" +
+      ".bw-actions{flex:none;display:flex;gap:8px;padding:12px 16px 14px;border-top:1px solid rgba(255,255,255,.75);background:rgba(255,255,255,.42);}" +
       ".bw-btn-primary{flex:1;background:var(--bw-primary);color:#fff;border:0;border-radius:999px;padding:12px 16px;font-size:13px;font-weight:600;" +
       "cursor:pointer;font-family:inherit;box-shadow:0 10px 20px -12px var(--bw-primary);transition:transform .15s ease,filter .15s ease;}" +
-      ".bw-btn-ghost{flex:1;background:#fff;border:1px solid var(--bw-line);border-radius:999px;padding:11px 16px;font-size:13px;cursor:pointer;color:var(--bw-ink);font-family:inherit;}" +
+      ".bw-btn-ghost{flex:1;background:rgba(255,255,255,.75);border:1px solid var(--bw-glass-line);border-radius:999px;padding:11px 16px;font-size:13px;cursor:pointer;color:var(--bw-ink);font-family:inherit;}" +
       ".bw-btn-primary:hover{filter:brightness(1.08);}.bw-btn-primary:active{transform:scale(.98);}.bw-btn-ghost:hover{border-color:rgba(36,31,38,.3);}" +
       ".bw-link{align-self:center;background:none;border:0;color:var(--bw-muted);font-size:12px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-family:inherit;padding:6px;margin-top:4px;}" +
       ".bw-link[hidden]{display:none;}" +
@@ -581,7 +621,7 @@
       ".bw-rhero .pal i{flex:1;height:36px;border-radius:10px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);transform-origin:bottom;animation:bwrise .5s cubic-bezier(.2,.9,.3,1.25) both;}" +
       "@keyframes bwrise{from{opacity:0;transform:translateY(8px) scaleY(.5);}}" +
       ".bw-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;flex:none;}" +
-      ".bw-tiles button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:0;border-radius:14px;padding:11px 10px 10px;background:#fff;" +
+      ".bw-tiles button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:0;border-radius:14px;padding:11px 10px 10px;background:var(--bw-glass);" +
       "box-shadow:inset 0 0 0 1px var(--bw-line);cursor:pointer;font-family:inherit;color:var(--bw-ink);min-width:0;transition:box-shadow .2s ease,transform .15s ease;}" +
       ".bw-tiles button:hover{transform:translateY(-1px);}" +
       ".bw-tiles button[aria-selected='true']{box-shadow:inset 0 0 0 2px var(--bw-primary),0 10px 20px -14px var(--bw-primary);}" +
@@ -592,7 +632,7 @@
       ".bw-tiles b{font-size:12.5px;font-weight:600;margin-top:2px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
       ".bw-tiles b.off{color:var(--bw-faint);font-weight:400;}" +
       ".bw-tabpanel{display:flex;flex-direction:column;animation:bwfadeup .3s ease-out both;}" +
-      ".bw-sec{background:#fff;border-radius:16px;padding:14px;margin-top:10px;box-shadow:inset 0 0 0 1px var(--bw-line);}" +
+      ".bw-sec{background:var(--bw-glass);border-radius:16px;padding:14px;margin-top:10px;box-shadow:inset 0 0 0 1px var(--bw-line);}" +
       ".bw-sec > h5{font-family:var(--bw-serif);font-weight:400;font-size:17px;line-height:1.25;margin:0 0 4px;}" +
       ".bw-text{font-size:13px;line-height:1.6;margin:8px 0 0;}" +
       ".bw-metaline{font-size:12px;color:var(--bw-muted);margin:6px 0 0;}" +
@@ -616,7 +656,7 @@
       ".bw-pal i:hover{transform:scale(1.18);}" +
       ".bw-shelf{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 16px;margin:10px -16px 0;padding:2px 16px 6px;scrollbar-width:none;}" +
       ".bw-shelf::-webkit-scrollbar{display:none;}" +
-      ".bw-pc{flex:none;width:128px;scroll-snap-align:start;background:#fff;border-radius:14px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--bw-line);display:flex;flex-direction:column;}" +
+      ".bw-pc{flex:none;width:128px;scroll-snap-align:start;background:var(--bw-glass);border-radius:14px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--bw-glass-line);display:flex;flex-direction:column;}" +
       ".bw-pc .sw{position:relative;height:58px;}" +
       ".bw-pc .sw span{position:absolute;left:8px;bottom:8px;font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;" +
       "background:rgba(255,255,255,.92);color:var(--bw-ink);padding:3px 7px;border-radius:999px;}" +
@@ -703,7 +743,15 @@
     return n != null ? "Rp " + Number(n).toLocaleString("id-ID") : "";
   }
 
-  var ERROR_TEXT = {
+  var ERROR_TEXT = LANG === "en" ? {
+    no_face: ["Face not visible yet", "Fit your whole face inside the oval, then scan again."],
+    face_too_small: ["Face too far away", "Move a little closer until your face fills the oval."],
+    no_skin: ["Skin not readable yet", "Make sure your face isn't covered by hair, a mask or your hand."],
+    too_dark: ["Too dark", "Face a window or a lamp, then scan again."],
+    too_blurry: ["Image is blurry", "Keep the camera and your head still while scanning."],
+    frames_too_large: ["Photos too large", "Please scan again."],
+    service_unreachable: ["The analysis server is offline", "Please try again in a moment."],
+  } : {
     no_face: ["Wajah belum terlihat", "Posisikan seluruh wajahmu di dalam oval, lalu scan lagi."],
     face_too_small: ["Wajah terlalu jauh", "Dekatkan sedikit ke kamera sampai wajah memenuhi oval."],
     no_skin: ["Kulit belum terbaca", "Pastikan wajah tidak tertutup rambut, masker atau tangan."],
@@ -730,7 +778,7 @@
       shadow.appendChild(styleEl);
 
       var launcher = el(
-        '<button class="bw-launcher" aria-label="Buka AI Beauty Advisor">' +
+        '<button class="bw-launcher" aria-label="' + tr("Buka AI Beauty Advisor", "Open AI Beauty Advisor") + '">' +
           '<svg viewBox="0 0 24 24" fill="none"><path d="M5 19l1.4-4.2A8 8 0 1112 20l-7 1z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>' +
         "</button>"
       );
@@ -739,17 +787,18 @@
           '<div class="bw-head">' +
             '<div class="bw-avatar">' + (state.config.botName || "V").charAt(0) + "</div>" +
             '<div><div class="bw-name"></div><div class="bw-status">Online</div></div>' +
-            '<button class="bw-scanbtn" aria-label="Analisis kecantikan" title="Analisis warna, bentuk wajah & kulit">' +
+            '<button class="bw-scanbtn" aria-label="' + tr("Analisis kecantikan", "Beauty analysis") + '" title="' +
+              tr("Analisis warna, bentuk wajah & kulit", "Colour, face shape & skin analysis") + '">' +
               '<svg viewBox="0 0 24 24" width="15" height="15" fill="none"><path d="M4 8V6a2 2 0 012-2h2M16 4h2a2 2 0 012 2v2M20 16v2a2 2 0 01-2 2h-2M8 20H6a2 2 0 01-2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="12" cy="12" rx="3.6" ry="4.6" stroke="currentColor" stroke-width="1.6"/></svg>' +
               "<span>Scan</span>" +
             "</button>" +
-            '<button aria-label="Tutup">&times;</button>' +
+            '<button class="bw-close" aria-label="' + tr("Tutup", "Close") + '">&times;</button>' +
           "</div>" +
           '<div class="bw-body"></div>' +
           '<div class="bw-scanview" hidden></div>' +
           '<div class="bw-foot">' +
-            '<input type="text" placeholder="Tulis pertanyaan…" />' +
-            '<button aria-label="Kirim">&#8594;</button>' +
+            '<input type="text" placeholder="' + tr("Tulis pertanyaan…", "Ask a question…") + '" />' +
+            '<button aria-label="' + tr("Kirim", "Send") + '">&#8594;</button>' +
           "</div>" +
         "</div>"
       );
@@ -760,7 +809,7 @@
       var body = panel.querySelector(".bw-body");
       var input = panel.querySelector("input");
       var sendBtn = panel.querySelector(".bw-foot button");
-      var closeBtn = panel.querySelector(".bw-head > button[aria-label='Tutup']");
+      var closeBtn = panel.querySelector(".bw-head > .bw-close");
       var scanBtn = panel.querySelector(".bw-scanbtn");
       var scanView = panel.querySelector(".bw-scanview");
       var footEl = panel.querySelector(".bw-foot");
@@ -828,18 +877,18 @@
       function renderGuide() {
         stopCamera();
         var scroll = scanLayout([
-          { label: "Mulai scan", primary: true, onClick: renderCamera },
-          { label: "Nanti saja", onClick: showChatView },
+          { label: tr("Mulai scan", "Start scan"), primary: true, onClick: renderCamera },
+          { label: tr("Nanti saja", "Maybe later"), onClick: showChatView },
         ]);
         var hero = text("div", "bw-hero");
-        hero.appendChild(text("div", "k", "Analisis kecantikan"));
+        hero.appendChild(text("div", "k", tr("Analisis kecantikan", "Beauty analysis")));
         var title = document.createElement("h3");
-        title.appendChild(document.createTextNode("Tiga foto, "));
-        title.appendChild(text("em", null, "satu profil"));
-        title.appendChild(document.createTextNode(" kecantikan."));
+        title.appendChild(document.createTextNode(tr("Tiga foto, ", "Three photos, ")));
+        title.appendChild(text("em", null, tr("satu profil", "one beauty")));
+        title.appendChild(document.createTextNode(tr(" kecantikan.", " profile.")));
         hero.appendChild(title);
         var booth = text("div", "bw-booth");
-        [[0, "Hadap kamera"], [1, "Toleh kanan"], [-1, "Toleh kiri"]].forEach(function (b, i) {
+        [[0, tr("Hadap kamera", "Face the camera")], [1, tr("Toleh kanan", "Turn right")], [-1, tr("Toleh kiri", "Turn left")]].forEach(function (b, i) {
           var fig = document.createElement("figure");
           var frame = text("div", "f");
           frame.innerHTML = boothArt(b[0]);
@@ -853,12 +902,12 @@
         hero.appendChild(booth);
         scroll.appendChild(hero);
 
-        scroll.appendChild(text("div", "bw-label", "Yang kamu dapat"));
+        scroll.appendChild(text("div", "bw-label", tr("Yang kamu dapat", "What you get")));
         var gets = text("div", "bw-gets");
         [
-          [fanEl(SAMPLE_FAN), "Musim warna", "dan shade dari katalog"],
-          [MEASURE_ART, "Bentuk wajah", "dan look yang cocok"],
-          [skinEl(null), "Tipe kulit", "dibaca per area wajah"],
+          [fanEl(SAMPLE_FAN), tr("Musim warna", "Colour season"), tr("dan shade dari katalog", "plus catalog shades")],
+          [MEASURE_ART, tr("Bentuk wajah", "Face shape"), tr("dan look yang cocok", "plus looks that suit you")],
+          [skinEl(null), tr("Tipe kulit", "Skin type"), tr("dibaca per area wajah", "read area by area")],
         ].forEach(function (g) {
           var tile = document.createElement("div");
           var art = text("div", "art");
@@ -870,12 +919,12 @@
         });
         scroll.appendChild(gets);
 
-        scroll.appendChild(text("div", "bw-label", "Sebelum mulai"));
+        scroll.appendChild(text("div", "bw-label", tr("Sebelum mulai", "Before you start")));
         var tips = text("ul", "bw-tips");
         [
-          [ICON.light, "Cahaya dari depan — menghadap jendela atau lampu."],
-          [ICON.glasses, "Lepas kacamata; makeup tipis saja."],
-          [ICON.hair, "Biarkan sedikit rambut terlihat. Hijab tidak masalah."],
+          [ICON.light, tr("Cahaya dari depan — menghadap jendela atau lampu.", "Light from the front — face a window or a lamp.")],
+          [ICON.glasses, tr("Lepas kacamata; makeup tipis saja.", "Take off your glasses; keep makeup light.")],
+          [ICON.hair, tr("Biarkan sedikit rambut terlihat. Hijab tidak masalah.", "Let a little hair show. A hijab is fine.")],
         ].forEach(function (tip) {
           var li = document.createElement("li");
           li.innerHTML = tip[0];
@@ -886,26 +935,58 @@
         var fine = text("p", "bw-fine");
         fine.innerHTML = ICON.lock;
         fine.appendChild(text("span", null,
-          "Foto hanya dipakai untuk analisis dan tidak disimpan. Yang kami simpan hanya hasilnya, supaya saran di chat sesuai denganmu."));
+          tr("Foto hanya dipakai untuk analisis dan tidak disimpan. Yang kami simpan hanya hasilnya, supaya saran di chat sesuai denganmu.",
+            "Photos are used only for the analysis and aren't stored. We keep only the result, so the chat's advice fits you.")));
         scroll.appendChild(fine);
         loadTracker(); // start fetching the face mesh while she reads
       }
 
       // ------------------------------------------------------------ 2. camera: three poses, hands-free
 
-      var POSE_NAME = { front: "Depan", right: "Kanan", left: "Kiri" };
-      var POSE_SUB = {
+      var POSE_NAME = LANG === "en" ? { front: "Front", right: "Right", left: "Left" } : { front: "Depan", right: "Kanan", left: "Kiri" };
+      var POSE_SUB = LANG === "en" ? {
+        front: "Photo 1 of 3 · face straight, neutral expression",
+        right: "Photo 2 of 3 · stop in the green zone",
+        left: "Photo 3 of 3 · stop in the green zone",
+      } : {
         front: "Foto 1 dari 3 · wajah lurus, ekspresi netral",
         right: "Foto 2 dari 3 · berhenti di zona hijau",
         left: "Foto 3 dari 3 · berhenti di zona hijau",
       };
-      var POSE_NEXT = {
+      var POSE_NEXT = LANG === "en" ? {
+        front: "Next, slowly turn to your right.",
+        right: "Next, slowly turn to your left.",
+        left: "Done. Preparing your results.",
+      } : {
         front: "Selanjutnya, toleh pelan ke kanan.",
         right: "Selanjutnya, toleh pelan ke kiri.",
         left: "Selesai. Sedang menyiapkan hasilmu.",
       };
 
-      var STATUS = {
+      var STATUS = LANG === "en" ? {
+        start: "Starting camera",
+        loading: "Getting the camera ready",
+        noface: "Fit your face inside the oval",
+        far: "A little closer",
+        close: "A little further",
+        centre: "Move to the centre of the oval",
+        dark: "Find brighter light",
+        bright: "The light is too bright",
+        uneven: "Face toward the light",
+        motion: "Hold still",
+        lookStraight: "Look straight at the camera",
+        levelHead: "Level your head",
+        chinDown: "Lower your chin a little",
+        chinUp: "Lift your chin a little",
+        closeMouth: "Close your mouth for a moment",
+        relaxFace: "Relax your face",
+        turnRight: "Slowly turn right",
+        turnLeft: "Slowly turn left",
+        turnLess: "Come back a little",
+        ready: "Great, hold",
+        readySide: "Great, hold",
+        capture: "Taking photo",
+      } : {
         start: "Menyalakan kamera",
         loading: "Menyiapkan kamera",
         noface: "Masukkan wajahmu ke dalam oval",
@@ -942,7 +1023,7 @@
 
       function renderCamera() {
         stopCamera();
-        var scroll = scanLayout([{ label: "Batal", onClick: renderGuide }]);
+        var scroll = scanLayout([{ label: tr("Batal", "Cancel"), onClick: renderGuide }]);
         var ovalPath = "M" + (OVAL.cx - OVAL.rx) + "," + OVAL.cy +
           " a" + OVAL.rx + "," + OVAL.ry + " 0 1,0 " + 2 * OVAL.rx + ",0 a" + OVAL.rx + "," + OVAL.ry + " 0 1,0 " + -2 * OVAL.rx + ",0Z";
         // The hold ring runs clockwise from the top of the oval.
@@ -999,7 +1080,7 @@
                 '<span class="bw-chev r" hidden><i></i><i></i><i></i></span></p>' +
               '<p class="bw-cue-sub"></p>' +
               '<div class="bw-meter" hidden><div class="track"><span class="zone"></span><span class="dot"></span></div>' +
-                '<div class="ends"><span class="from">Lurus</span><span class="fit">Pas</span></div></div>' +
+                '<div class="ends"><span class="from">' + tr("Lurus", "Straight") + '</span><span class="fit">' + tr("Pas", "Just right") + "</span></div></div>" +
               '<button class="bw-link" hidden></button>' +
             "</div>" +
           "</div>"
@@ -1218,7 +1299,7 @@
           previous = null;
           poseSince = Date.now();
           manual.hidden = true;
-          manual.textContent = p === "front" ? "Ambil foto sekarang" : "Ambil foto sisi ini";
+          manual.textContent = p === "front" ? tr("Ambil foto sekarang", "Take photo now") : tr("Ambil foto sisi ini", "Take this side");
           count.innerHTML = "";
           done.classList.remove("go");
           setRing(0);
@@ -1265,7 +1346,7 @@
           updateGuides(null, "ready");
           oval.setAttribute("class", "bw-oval ok");
           manual.hidden = true;
-          setCue("Tersimpan", true, null);
+          setCue(tr("Tersimpan", "Saved"), true, null);
           cueSub.textContent = POSE_NEXT[p];
           later(function () {
             stage.classList.remove("good");
@@ -1366,7 +1447,7 @@
         });
 
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          renderError("Kamera tidak tersedia", "Browser ini tidak mendukung akses kamera.", null);
+          renderError(tr("Kamera tidak tersedia", "Camera not available"), tr("Browser ini tidak mendukung akses kamera.", "This browser doesn't support camera access."), null);
           return;
         }
         setStatus("start");
@@ -1381,7 +1462,7 @@
             scan.timer = setInterval(tick, CHECK_MS);
           })
           .catch(function () {
-            renderError("Kamera belum diizinkan", "Izinkan akses kamera di browser, lalu coba lagi.", null);
+            renderError(tr("Kamera belum diizinkan", "Camera not allowed"), tr("Izinkan akses kamera di browser, lalu coba lagi.", "Allow camera access in your browser, then try again."), null);
           });
       }
 
@@ -1402,12 +1483,12 @@
           fan.appendChild(img);
         });
         if (fan.children.length) wait.appendChild(fan);
-        wait.appendChild(text("div", "bw-kicker", "Hampir selesai"));
-        wait.appendChild(text("h3", "bw-title", "Sedang membaca hasilmu"));
+        wait.appendChild(text("div", "bw-kicker", tr("Hampir selesai", "Almost done")));
+        wait.appendChild(text("h3", "bw-title", tr("Sedang membaca hasilmu", "Reading your results")));
         var bar = text("div", "bw-run");
         wait.appendChild(bar);
         var list = text("ul", "bw-stepsl");
-        ["Warna kulit dan rambut", "Proporsi wajah", "Kondisi kulit", "Shade dari katalog"].forEach(function (label) {
+        (LANG === "en" ? ["Skin and hair colour", "Face proportions", "Skin condition", "Catalog shades"] : ["Warna kulit dan rambut", "Proporsi wajah", "Kondisi kulit", "Shade dari katalog"]).forEach(function (label) {
           var li = document.createElement("li");
           var mark = document.createElement("i");
           mark.innerHTML = ICON.check;
@@ -1446,6 +1527,7 @@
           body: JSON.stringify({
             sessionId: state.sessionId,
             requestId: requestId,
+            lang: LANG,
             frames: photos.frames,
             right: photos.right,
             left: photos.left,
@@ -1471,7 +1553,7 @@
               if (r.status >= 400 || !r.data || r.data.error) {
                 var known = ERROR_TEXT[r.data && r.data.error];
                 if (known) renderError(known[0], known[1], r.status >= 500 ? function () { submitScan(photos, requestId); } : null);
-                else renderError("Analisis gagal", "Coba kirim ulang sebentar lagi.", function () { submitScan(photos, requestId); });
+                else renderError(tr("Analisis gagal", "Analysis failed"), tr("Coba kirim ulang sebentar lagi.", "Try sending again in a moment."), function () { submitScan(photos, requestId); });
                 return;
               }
               finish(function () {
@@ -1481,16 +1563,16 @@
             }, wait);
           })
           .catch(function () {
-            renderError("Tidak bisa terhubung ke server", "Periksa koneksimu, lalu kirim ulang.", function () { submitScan(photos, requestId); });
+            renderError(tr("Tidak bisa terhubung ke server", "Can't reach the server"), tr("Periksa koneksimu, lalu kirim ulang.", "Check your connection, then send again."), function () { submitScan(photos, requestId); });
           });
       }
 
       function renderError(title, message, resend) {
         stopCamera();
         var actions = [];
-        if (resend) actions.push({ label: "Kirim ulang", primary: true, onClick: resend });
-        actions.push({ label: "Scan lagi", primary: !resend, onClick: renderCamera });
-        actions.push({ label: "Ke chat", onClick: showChatView });
+        if (resend) actions.push({ label: tr("Kirim ulang", "Send again"), primary: true, onClick: resend });
+        actions.push({ label: tr("Scan lagi", "Scan again"), primary: !resend, onClick: renderCamera });
+        actions.push({ label: tr("Ke chat", "Back to chat"), onClick: showChatView });
         var scroll = scanLayout(actions);
         var box = text("div", "bw-error");
         var ic = text("div", "ic");
@@ -1503,10 +1585,10 @@
 
       // ------------------------------------------------------------ 4. results
 
-      var UNDERTONE = { warm: "hangat", cool: "dingin", neutral: "netral" };
+      var UNDERTONE = LANG === "en" ? { warm: "warm", cool: "cool", neutral: "neutral" } : { warm: "hangat", cool: "dingin", neutral: "netral" };
 
       function skinTypeWord(r) {
-        return ((r.skin && r.skin.analysis && r.skin.analysis.summary) || "").replace(/^Kulit\s+/i, "").toLowerCase();
+        return ((r.skin && r.skin.analysis && r.skin.analysis.summary) || "").replace(/^Kulit\s+/i, "").replace(/\s+skin$/i, "").toLowerCase();
       }
 
       function capital(word) {
@@ -1526,8 +1608,8 @@
 
       function renderResults(r) {
         var scroll = scanLayout([
-          { label: "Tanya di chat", primary: true, onClick: function () { goToChat(r); } },
-          { label: "Scan lagi", onClick: renderCamera },
+          { label: tr("Tanya di chat", "Ask in chat"), primary: true, onClick: function () { goToChat(r); } },
+          { label: tr("Scan lagi", "Scan again"), onClick: renderCamera },
         ]);
         var c = r.colour || {};
         var season = c.season;
@@ -1551,11 +1633,13 @@
           top.appendChild(ph);
         }
         var words = document.createElement("div");
-        words.appendChild(text("div", "k", season ? "Musim warnamu" : "Profil kecantikanmu"));
-        words.appendChild(text("h3", null, season ? season.displayName : "Hasil scan"));
+        words.appendChild(text("div", "k", season ? tr("Musim warnamu", "Your colour season") : tr("Profil kecantikanmu", "Your beauty profile")));
+        words.appendChild(text("h3", null, season ? season.displayName : tr("Hasil scan", "Scan result")));
         words.appendChild(text("div", "m", season
-          ? season.confidencePercent + "% cocok · undertone " + (UNDERTONE[c.undertone] || "netral")
-          : "Musim warna belum terbaca kali ini."));
+          ? (LANG === "en"
+            ? season.confidencePercent + "% match · " + (UNDERTONE[c.undertone] || "neutral") + " undertone"
+            : season.confidencePercent + "% cocok · undertone " + (UNDERTONE[c.undertone] || "netral"))
+          : tr("Musim warna belum terbaca kali ini.", "Your colour season couldn't be read this time.")));
         top.appendChild(words);
         hero.appendChild(top);
         if (pal.length) {
@@ -1572,9 +1656,9 @@
         // The three readings, each drawn from the result; they are the tabs too.
         var fan = paletteHexes(c, 4).map(function (sw) { return sw.hex; });
         var defs = [
-          { label: "Warna", value: season && season.displayName, art: fan.length ? fanEl(fan) : '<i class="none"></i>', render: renderColourTab },
-          { label: "Bentuk", value: shape && shape.displayName, art: shape ? faceShapeIcon(shape.key, 30) : '<i class="none"></i>', render: renderShapeTab },
-          { label: "Kulit", value: capital(skinTypeWord(r)), art: skinEl(safeHex(c.evidence && c.evidence.skin)), render: renderSkinTab },
+          { label: tr("Warna", "Colour"), value: season && season.displayName, art: fan.length ? fanEl(fan) : '<i class="none"></i>', render: renderColourTab },
+          { label: tr("Bentuk", "Shape"), value: shape && shape.displayName, art: shape ? faceShapeIcon(shape.key, 30) : '<i class="none"></i>', render: renderShapeTab },
+          { label: tr("Kulit", "Skin"), value: capital(skinTypeWord(r)), art: skinEl(safeHex(c.evidence && c.evidence.skin)), render: renderSkinTab },
         ];
         var tiles = el('<div class="bw-tiles" role="tablist"></div>');
         var holder = text("div");
@@ -1585,7 +1669,7 @@
           addArt(art, d.art);
           b.appendChild(art);
           b.appendChild(text("small", null, d.label));
-          b.appendChild(text("b", d.value ? null : "off", d.value || "Belum terbaca"));
+          b.appendChild(text("b", d.value ? null : "off", d.value || tr("Belum terbaca", "Not read yet")));
           b.addEventListener("click", function () { select(i); });
           tiles.appendChild(b);
           return b;
@@ -1603,7 +1687,15 @@
         select(0);
       }
 
-      var RETRY_TIPS = {
+      var RETRY_TIPS = LANG === "en" ? {
+        face_straight: ["Face the camera straight on, chin level.", "Hold the camera at about eye level."],
+        neutral_face: ["Relax your face with your mouth closed.", "Hold off smiling until the ring around the oval fills."],
+        hold_still: ["Stay still until the ring around the oval fills.", "Rest your elbows, or put the phone on a table."],
+        cannot_measure: ["Find bright light from the front.", "Make sure your whole face is inside the oval."],
+        more_light: ["Face a window or a lamp.", "Avoid bright light behind you."],
+        less_light: ["Move away from very bright light.", "Soft daylight works best."],
+        show_hair: ["Let a little hair show.", "A hijab is fine too."],
+      } : {
         face_straight: ["Hadap lurus ke kamera, dagu sejajar.", "Letakkan kamera kira-kira setinggi mata."],
         neutral_face: ["Wajah rileks dengan mulut tertutup.", "Tahan senyum sampai garis di oval penuh."],
         hold_still: ["Diam sampai garis di oval penuh.", "Sandarkan siku, atau taruh ponsel di meja."],
@@ -1620,13 +1712,13 @@
         var ic = text("div", "ic");
         ic.innerHTML = kind === "shape" ? faceShapeIcon("oval", 24) : ICON.palette;
         box.appendChild(ic);
-        box.appendChild(text("h4", null, kind === "shape" ? "Bentuk wajah belum terbaca" : "Musim warna belum terbaca"));
+        box.appendChild(text("h4", null, kind === "shape" ? tr("Bentuk wajah belum terbaca", "Face shape not read yet") : tr("Musim warna belum terbaca", "Colour season not read yet")));
         if (message) box.appendChild(text("p", null, message));
-        box.appendChild(text("div", "bw-label", "Coba ini"));
+        box.appendChild(text("div", "bw-label", tr("Coba ini", "Try this")));
         var list = document.createElement("ol");
         (RETRY_TIPS[remedy] || RETRY_TIPS.cannot_measure).forEach(function (tip) { list.appendChild(text("li", null, tip)); });
         box.appendChild(list);
-        var again = text("button", "bw-btn-primary", "Scan ulang");
+        var again = text("button", "bw-btn-primary", tr("Scan ulang", "Scan again"));
         again.addEventListener("click", renderCamera);
         box.appendChild(again);
         p.appendChild(box);
@@ -1675,12 +1767,12 @@
         var c = r.colour || {};
         var season = c.season;
         if (!season) {
-          retryCard(p, "colour", c.remedyKey, c.remedyText || "Warnamu belum terbaca kali ini.");
+          retryCard(p, "colour", c.remedyKey, c.remedyText || tr("Warnamu belum terbaca kali ini.", "Your colours couldn't be read this time."));
           return;
         }
-        var about = section(p, "Kenapa " + season.displayName);
+        var about = section(p, tr("Kenapa ", "Why ") + season.displayName);
         if (c.description) about.appendChild(text("p", "bw-text", c.description));
-        if (!season.conclusive && season.runnerUp) about.appendChild(text("p", "bw-metaline", "Dekat juga dengan " + season.runnerUp.displayName + "."));
+        if (!season.conclusive && season.runnerUp) about.appendChild(text("p", "bw-metaline", tr("Dekat juga dengan ", "Also close to ") + season.runnerUp.displayName + "."));
         var ev = c.evidence || {};
         var keys = text("div", "bw-keys");
         function key(dot, words) {
@@ -1689,19 +1781,19 @@
           k.appendChild(text("span", null, words));
           keys.appendChild(k);
         }
-        if (safeHex(ev.skin)) key(skinEl(ev.skin), "Kulitmu");
-        if (ev.hasHair && safeHex(ev.hair)) key(skinEl(ev.hair), "Rambutmu");
-        key(text("i", "bw-tone " + (c.undertone || "neutral")), "Undertone " + (UNDERTONE[c.undertone] || "netral"));
+        if (safeHex(ev.skin)) key(skinEl(ev.skin), tr("Kulitmu", "Your skin"));
+        if (ev.hasHair && safeHex(ev.hair)) key(skinEl(ev.hair), tr("Rambutmu", "Your hair"));
+        key(text("i", "bw-tone " + (c.undertone || "neutral")), LANG === "en" ? capital(UNDERTONE[c.undertone] || "neutral") + " undertone" : "Undertone " + (UNDERTONE[c.undertone] || "netral"));
         about.appendChild(keys);
 
         if ((c.attributes || []).length) {
-          var axes = section(p, "Yang menentukan musimmu");
+          var axes = section(p, tr("Yang menentukan musimmu", "What decides your season"));
           c.attributes.forEach(function (a) { scale(axes, a, a.negativeLabel, a.positiveLabel); });
         }
 
         var cats = (c.palette && c.palette.categories) || [];
         if (cats.length) {
-          var palette = section(p, "Palet makeup");
+          var palette = section(p, tr("Palet makeup", "Makeup palette"));
           cats.forEach(function (cat) {
             var row = text("div", "bw-pal");
             row.appendChild(text("span", null, cat.label));
@@ -1710,7 +1802,7 @@
             row.appendChild(chips);
             palette.appendChild(row);
           });
-          if (c.palette.status === "placeholder") palette.appendChild(text("p", "bw-caveat", "Palet ini masih versi awal dan akan terus disempurnakan."));
+          if (c.palette.status === "placeholder") palette.appendChild(text("p", "bw-caveat", tr("Palet ini masih versi awal dan akan terus disempurnakan.", "This palette is an early version and will keep improving.")));
         }
 
         // Real catalog shades closest to her palette, on a shelf she can swipe.
@@ -1719,12 +1811,12 @@
           (g.matches || []).slice(0, 3).forEach(function (m) { picks.push({ group: g.label, m: m }); });
         });
         if (picks.length) {
-          p.appendChild(text("div", "bw-label", "Dari katalog, paling dekat dengan paletmu"));
+          p.appendChild(text("div", "bw-label", tr("Dari katalog, paling dekat dengan paletmu", "From the catalog, closest to your palette")));
           var shelf = text("div", "bw-shelf");
           picks.forEach(function (x) {
             var m = x.m;
             var card = text("div", "bw-pc");
-            card.title = "Paling dekat dengan " + m.swatchName;
+            card.title = tr("Paling dekat dengan ", "Closest to ") + m.swatchName;
             var sw = swatch("div", safeHex(m.colorHex) || "#eee");
             sw.className = "sw";
             sw.appendChild(text("span", null, x.group));
@@ -1747,7 +1839,7 @@
         var f = r.faceShape || {};
         var shape = f.shape;
         if (!shape) {
-          retryCard(p, "shape", f.source && f.source.remedy, f.remedyText || "Bentuk wajahmu belum terbaca kali ini.");
+          retryCard(p, "shape", f.source && f.source.remedy, f.remedyText || tr("Bentuk wajahmu belum terbaca kali ini.", "Your face shape couldn't be read this time."));
           return;
         }
         var approximate = f.source && f.source.quality === "approximate";
@@ -1758,8 +1850,8 @@
         head.appendChild(art);
         var words = document.createElement("div");
         words.appendChild(text("h4", null, shape.displayName));
-        words.appendChild(text("p", "bw-metaline", (approximate ? "Perkiraan · " : "") +
-          (shape.alsoFits ? "juga mendekati " + shape.alsoFits.displayName : shape.confidencePercent + "% cocok")));
+        words.appendChild(text("p", "bw-metaline", (approximate ? tr("Perkiraan · ", "Estimate · ") : "") +
+          (shape.alsoFits ? tr("juga mendekati ", "also close to ") + shape.alsoFits.displayName : shape.confidencePercent + tr("% cocok", "% match"))));
         head.appendChild(words);
         top.appendChild(head);
         if (f.description) top.appendChild(text("p", "bw-text", f.description));
@@ -1767,13 +1859,13 @@
         if (f.coveredNote) top.appendChild(text("p", "bw-caveat", f.coveredNote));
 
         if ((f.axes || []).length) {
-          var axes = section(p, "Proporsi");
+          var axes = section(p, tr("Proporsi", "Proportions"));
           f.axes.forEach(function (a) { scale(axes, a, a.lowLabel, a.highLabel, a.midLabel); });
         }
 
         var looks = (f.looks && f.looks.ranked) || [];
         if (looks.length) {
-          var box = section(p, (f.looks && f.looks.title) || "Look yang cocok");
+          var box = section(p, (f.looks && f.looks.title) || tr("Look yang cocok", "Looks that suit you"));
           looks.forEach(function (l) {
             var row = text("div", "bw-look");
             var img = document.createElement("img");
@@ -1794,38 +1886,38 @@
       }
 
       var SKIN_FINDINGS = [
-        ["bersinar", "kilap"],
-        ["pori_besar", "pori terlihat"],
-        ["noda_hitam", "noda gelap"],
-        ["jerawat", "jerawat"],
-        ["garis_halus", "garis halus"],
+        ["bersinar", tr("kilap", "shine")],
+        ["pori_besar", tr("pori terlihat", "visible pores")],
+        ["noda_hitam", tr("noda gelap", "dark spots")],
+        ["jerawat", tr("jerawat", "acne")],
+        ["garis_halus", tr("garis halus", "fine lines")],
       ];
 
       /** What a region shows, and how much: lo (nothing stands out), mid, hi. */
       function regionFindings(d) {
-        if (!d.measured) return { words: "belum terbaca", level: "" };
+        if (!d.measured) return { words: tr("belum terbaca", "not read yet"), level: "" };
         var found = [];
         var level = "lo";
         SKIN_FINDINGS.forEach(function (f) {
           var v = d[f[0]];
-          if (v >= 0.6) { found.push(f[1] + " jelas"); level = "hi"; }
-          else if (v >= 0.3) { found.push(f[1] + " sedikit"); if (level === "lo") level = "mid"; }
+          if (v >= 0.6) { found.push(tr(f[1] + " jelas", "marked " + f[1])); level = "hi"; }
+          else if (v >= 0.3) { found.push(tr(f[1] + " sedikit", "slight " + f[1])); if (level === "lo") level = "mid"; }
         });
-        if (d.warna_kulit_merata < 0.5) { found.push("warna kurang merata"); if (level === "lo") level = "mid"; }
-        return { words: found.length ? found.join(", ") : "tidak ada yang menonjol", level: level };
+        if (d.warna_kulit_merata < 0.5) { found.push(tr("warna kurang merata", "uneven tone")); if (level === "lo") level = "mid"; }
+        return { words: found.length ? found.join(", ") : tr("tidak ada yang menonjol", "nothing stands out"), level: level };
       }
 
       function scoreBand(score) {
-        if (score >= 80) return "sangat baik";
-        if (score >= 60) return "baik";
-        if (score >= 40) return "cukup";
-        return "perlu perhatian";
+        if (score >= 80) return tr("sangat baik", "very good");
+        if (score >= 60) return tr("baik", "good");
+        if (score >= 40) return tr("cukup", "fair");
+        return tr("perlu perhatian", "needs attention");
       }
 
       function dial(value) {
         var v = Math.max(0, Math.min(100, Math.round(value)));
         var node = el('<div class="bw-dial"><svg viewBox="0 0 76 76" aria-hidden="true"><circle class="bg" cx="38" cy="38" r="32"/>' +
-          '<circle class="arc" cx="38" cy="38" r="32" pathLength="100" stroke-dasharray="' + v + ' 100"/></svg><div><b></b><small>dari 100</small></div></div>');
+          '<circle class="arc" cx="38" cy="38" r="32" pathLength="100" stroke-dasharray="' + v + ' 100"/></svg><div><b></b><small>' + tr("dari 100", "out of 100") + "</small></div></div>");
         node.querySelector("b").textContent = String(v);
         return node;
       }
@@ -1839,9 +1931,11 @@
         var head = text("div", "bw-skinhero");
         if (m) head.appendChild(dial(m.overall));
         var words = document.createElement("div");
-        words.appendChild(text("h4", null, capital(skinTypeWord(r)) || "Kulit"));
-        words.appendChild(text("p", "bw-metaline", "Perkiraan dari " + (fromSides ? "3 foto · tiap pipi dari foto samping yang menghadapnya" : "satu foto depan")));
-        if (m) words.appendChild(text("p", "bw-metaline", "Skor kulit " + scoreBand(m.overall)));
+        words.appendChild(text("h4", null, capital(skinTypeWord(r)) || tr("Kulit", "Skin")));
+        words.appendChild(text("p", "bw-metaline", (LANG === "en"
+          ? "Estimated from " + (fromSides ? "3 photos · each cheek from the side photo facing it" : "one front photo")
+          : "Perkiraan dari " + (fromSides ? "3 foto · tiap pipi dari foto samping yang menghadapnya" : "satu foto depan"))));
+        if (m) words.appendChild(text("p", "bw-metaline", tr("Skor kulit ", "Skin score: ") + scoreBand(m.overall)));
         head.appendChild(words);
         top.appendChild(head);
 
@@ -1850,9 +1944,9 @@
         if (shots.front) {
           var grid = text("div", "bw-photos");
           [
-            ["front", "Depan · dahi, hidung, dagu"],
-            ["right", "Toleh kanan · pipi kiri"],
-            ["left", "Toleh kiri · pipi kanan"],
+            ["front", tr("Depan · dahi, hidung, dagu", "Front · forehead, nose, chin")],
+            ["right", tr("Toleh kanan · pipi kiri", "Turned right · left cheek")],
+            ["left", tr("Toleh kiri · pipi kanan", "Turned left · right cheek")],
           ].forEach(function (x) {
             var info = poses.filter(function (q) { return q.pose === x[0]; })[0];
             var used = x[0] === "front" || (info && info.accepted);
@@ -1868,7 +1962,12 @@
             grid.appendChild(fig);
           });
           top.appendChild(grid);
-          var REASON = {
+          var REASON = LANG === "en" ? {
+            not_turned: "the head wasn't turned enough",
+            wrong_way: "the head turned the wrong way",
+            turned_too_far: "the head turned too far",
+            no_face: "no face was detected",
+          } : {
             not_turned: "kepala kurang menoleh",
             wrong_way: "kepala menoleh ke arah sebaliknya",
             turned_too_far: "kepala menoleh terlalu jauh",
@@ -1876,15 +1975,18 @@
           };
           poses.forEach(function (q) {
             if (q.pose === "front" || q.accepted) return;
-            top.appendChild(text("p", "bw-note warn", (q.pose === "right" ? "Foto toleh kanan" : "Foto toleh kiri") +
-              " tidak dipakai karena " + (REASON[q.reason] || q.reason) + ", jadi pipi itu dibaca dari foto depan."));
+            top.appendChild(text("p", "bw-note warn", LANG === "en"
+              ? (q.pose === "right" ? "The turned-right photo" : "The turned-left photo") +
+                " wasn't used because " + (REASON[q.reason] || q.reason) + ", so that cheek was read from the front photo."
+              : (q.pose === "right" ? "Foto toleh kanan" : "Foto toleh kiri") +
+                " tidak dipakai karena " + (REASON[q.reason] || q.reason) + ", jadi pipi itu dibaca dari foto depan."));
           });
         }
 
         if (detail.length) {
-          var areas = section(p, "Per area");
+          var areas = section(p, tr("Per area", "By area"));
           var legend = text("div", "bw-legend");
-          [["#5BB98B", "baik"], ["#E3A950", "sedikit"], ["#D8687A", "jelas"]].forEach(function (x) {
+          [["#5BB98B", tr("baik", "good")], ["#E3A950", tr("sedikit", "slight")], ["#D8687A", tr("jelas", "marked")]].forEach(function (x) {
             var item = document.createElement("span");
             item.appendChild(swatch("i", x[0]));
             item.appendChild(document.createTextNode(x[1]));
@@ -1896,7 +1998,7 @@
             var row = text("div", "bw-row2");
             row.appendChild(text("i", found.level));
             var name = text("span", null, d.label);
-            if (d.source && d.source !== "front") name.appendChild(text("small", null, "dari foto samping"));
+            if (d.source && d.source !== "front") name.appendChild(text("small", null, tr("dari foto samping", "from the side photo")));
             row.appendChild(name);
             row.appendChild(text("span", null, found.words));
             areas.appendChild(row);
@@ -1904,13 +2006,13 @@
         }
 
         if (m) {
-          var scores = section(p, "Skor kulit");
+          var scores = section(p, tr("Skor kulit", "Skin scores"));
           [
-            ["Hidrasi", m.hydration],
-            ["Elastisitas", m.elasticity],
-            ["Pigmentasi", m.pigmentation],
-            ["Tekstur", m.texture],
-            ["Pori-pori", m.pores],
+            [tr("Hidrasi", "Hydration"), m.hydration],
+            [tr("Elastisitas", "Elasticity"), m.elasticity],
+            [tr("Pigmentasi", "Pigmentation"), m.pigmentation],
+            [tr("Tekstur", "Texture"), m.texture],
+            [tr("Pori-pori", "Pores"), m.pores],
           ].forEach(function (x) {
             var row = el('<div class="bw-score"><div class="top"><span></span><span></span></div><div class="bar"><div></div></div></div>');
             var spans = row.querySelectorAll(".top span");
@@ -1932,15 +2034,16 @@
         var skinWord = skinTypeWord(r);
         var parts = [];
         if (season) parts.push(season.displayName);
-        if (shape) parts.push("wajah " + shape.displayName.toLowerCase());
-        if (skinWord) parts.push("kulit " + skinWord);
-        addBotText("Hasil scan-mu sudah aku simpan" + (parts.length ? ": " + parts.join(", ") + ". " : ". ") + "Tanya apa saja, aku jawab berdasarkan hasil itu.");
+        if (shape) parts.push(tr("wajah " + shape.displayName.toLowerCase(), shape.displayName.toLowerCase() + " face"));
+        if (skinWord) parts.push(tr("kulit " + skinWord, skinWord + " skin"));
+        addBotText(tr("Hasil scan-mu sudah aku simpan", "I've saved your scan") + (parts.length ? ": " + parts.join(", ") + ". " : ". ") +
+          tr("Tanya apa saja, aku jawab berdasarkan hasil itu.", "Ask me anything — I'll answer based on it."));
         var chips = [];
-        if (season) chips.push("Lipstik yang cocok untukku?");
+        if (season) chips.push(tr("Lipstik yang cocok untukku?", "Which lipstick suits me?"));
         var base = (r.catalogShades || []).filter(function (g) { return g.id === "base" && g.matches.length; })[0];
-        if (base) chips.push("Foundation yang pas untukku?");
-        if (shape) chips.push("Makeup untuk bentuk wajahku?");
-        if (skinWord) chips.push("Skincare untuk kulit " + skinWord);
+        if (base) chips.push(tr("Foundation yang pas untukku?", "Which foundation matches me?"));
+        if (shape) chips.push(tr("Makeup untuk bentuk wajahku?", "Makeup for my face shape?"));
+        if (skinWord) chips.push(tr("Skincare untuk kulit " + skinWord, "Skincare for " + skinWord + " skin"));
         addChips(chips);
       }
 
@@ -1976,28 +2079,67 @@
       }
       function addProducts(products) {
         if (!products || !products.length) return;
-        var row = el('<div class="bw-row bot" style="flex-direction:column;align-items:stretch;max-width:92%;"></div>');
-        products.slice(0, 4).forEach(function (p) {
+        var row = el('<div class="bw-row bot bw-prow"><div class="bw-prods"></div></div>');
+        var track = row.firstChild;
+        products.slice(0, 6).forEach(function (p) {
           var card = el(
-            '<div class="bw-card">' +
-              '<div class="bw-ic">&#10022;</div>' +
-              '<div class="bw-meta">' +
-                '<div class="bw-brand"></div>' +
+            '<div class="bw-pcard">' +
+              '<div class="bw-pimg"></div>' +
+              '<div class="bw-pinfo">' +
+                '<div class="bw-pbrand"></div>' +
                 '<div class="bw-pname"></div>' +
-                '<div class="bw-price"></div>' +
               "</div>" +
             "</div>"
           );
-          // A shade product shows its own colour instead of the generic icon.
-          if (safeHex(p.colorHex)) {
-            var ic = card.querySelector(".bw-ic");
-            ic.innerHTML = "";
-            ic.style.background = p.colorHex;
+          var media = card.querySelector(".bw-pimg");
+          var info = card.querySelector(".bw-pinfo");
+          var hex = safeHex(p.colorHex);
+          function placeholder() {
+            media.innerHTML = "";
+            // A shade product without a photo shows its own colour instead of the generic icon.
+            if (hex) media.style.background = hex;
+            else media.appendChild(el('<span class="bw-ph">&#10022;</span>'));
           }
-          card.querySelector(".bw-brand").textContent = p.brand || "";
+          if (typeof p.imageUrl === "string" && /^https?:\/\//.test(p.imageUrl)) {
+            var img = document.createElement("img");
+            img.alt = p.name || "";
+            img.loading = "lazy";
+            img.onerror = placeholder;
+            img.src = p.imageUrl;
+            media.appendChild(img);
+          } else {
+            placeholder();
+          }
+          var price = Number(p.price);
+          var listed = Number(p.listedPrice);
+          if (listed > price && price > 0) {
+            media.appendChild(text("span", "bw-pbadge", "-" + Math.round((1 - price / listed) * 100) + "%"));
+          }
+
+          card.querySelector(".bw-pbrand").textContent = p.brand || "";
           card.querySelector(".bw-pname").textContent = (p.colorName ? p.colorName + " · " : "") + (p.name || "");
-          card.querySelector(".bw-price").textContent = rupiah(p.price);
-          row.appendChild(card);
+          if (typeof p.rating === "number" && p.rating > 0) {
+            var rate = text("div", "bw-prate", "");
+            rate.appendChild(text("b", "", "\u2605 " + p.rating.toFixed(1)));
+            if (p.totalReview) rate.appendChild(document.createTextNode(" (" + Number(p.totalReview).toLocaleString("id-ID") + ")"));
+            info.appendChild(rate);
+          }
+          var palette = (Array.isArray(p.colorPalette) ? p.colorPalette : []).map(safeHex).filter(Boolean);
+          if (palette.length > 1) {
+            var sw = text("div", "bw-pswatch", "");
+            palette.slice(0, 5).forEach(function (c) {
+              var dot = document.createElement("i");
+              dot.style.background = c;
+              sw.appendChild(dot);
+            });
+            if (palette.length > 5) sw.appendChild(text("span", "", "+" + (palette.length - 5)));
+            info.appendChild(sw);
+          }
+          var priceRow = text("div", "bw-pprice", "");
+          priceRow.appendChild(text("b", "", rupiah(p.price)));
+          if (listed > price && price > 0) priceRow.appendChild(text("s", "", rupiah(listed)));
+          info.appendChild(priceRow);
+          track.appendChild(card);
         });
         body.appendChild(row);
         body.scrollTop = body.scrollHeight;
@@ -2023,11 +2165,11 @@
             addProducts(frame.payload.products);
           } else if (frame.type === "error") {
             typingRow.remove();
-            addBotText("Maaf, ada gangguan di server. Coba lagi sebentar lagi ya.");
+            addBotText(tr("Maaf, ada gangguan di server. Coba lagi sebentar lagi ya.", "Sorry, something went wrong on the server. Please try again shortly."));
           }
         }).catch(function () {
           typingRow.remove();
-          addBotText("Maaf, tidak bisa terhubung ke server sekarang.");
+          addBotText(tr("Maaf, tidak bisa terhubung ke server sekarang.", "Sorry, I can't reach the server right now."));
         });
       }
 
@@ -2055,8 +2197,8 @@
       });
 
       function greet() {
-        addBotText(state.config.greeting || "Hai! Ada yang bisa aku bantu?");
-        addChips([{ label: "Scan wajahku", onClick: openScanView }]);
+        addBotText(state.config.greeting || tr("Hai! Ada yang bisa aku bantu?", "Hi! How can I help?"));
+        addChips([{ label: tr("Scan wajahku", "Scan my face"), onClick: openScanView }]);
       }
       greet();
 

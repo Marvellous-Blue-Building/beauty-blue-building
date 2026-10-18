@@ -175,6 +175,7 @@ async def understand_chat_message(
     environmental_context: str | None = None,
     boost_keywords: list[str] | None = None,
     user_id: str | None = None,
+    language: str = "id",
 ) -> ChatUnderstanding:
     normalized_text = _normalize(text)
     recognized_entities = _recognize_entities(normalized_text)
@@ -303,24 +304,33 @@ async def understand_chat_message(
     else:
         confidence = "low"
 
-    # All agent-composed reply text here is in Bahasa Indonesia — the AI
-    # Advisor always responds in Indonesian regardless of the app's UI
-    # locale (same rule enforced in services/ai-advisor's SYSTEM_PROMPT for
-    # the Gemma/step-14 side of this pipeline).
+    # Agent-composed reply text is in Bahasa Indonesia by default — the AI
+    # Advisor responds in Indonesian regardless of the app's UI locale (same
+    # rule enforced in services/ai-advisor's SYSTEM_PROMPT for the
+    # Gemma/step-14 side of this pipeline). `language="en"` is only sent by
+    # the embeddable widget on an English host page; the ingredient facts are
+    # Indonesian-only, so in English those questions defer to Gemma instead.
+    english = language == "en"
     reply = None
     if intent == "ingredient_inquiry" and matched_fact:
-        reply = matched_fact
+        reply = None if english else matched_fact
     elif intent == "product_recommendation" and top_candidate:
         haystack = f"{top_candidate.name} {' '.join(i.name for i in top_candidate.inci)}".lower()
         hits = [e for e in recognized_entities if e in haystack]
-        why = f"Mengandung {' & '.join(hits[:2])}" if hits else f"Pilihan dengan rating bagus di kategori {top_candidate.category}"
+        if english:
+            why = f"Contains {' & '.join(hits[:2])}" if hits else f"A highly rated pick in {top_candidate.category}"
+        else:
+            why = f"Mengandung {' & '.join(hits[:2])}" if hits else f"Pilihan dengan rating bagus di kategori {top_candidate.category}"
         reply = f"{top_candidate.name} — {why}"
     elif intent == "routine_advice":
         reply = (
+            "Morning: cleanse → treatment (serum) → moisturiser → SPF (always the last step). "
+            "Night: cleanse → treatment → moisturiser (no SPF needed)."
+        ) if english else (
             "Pagi: bersihkan wajah → treatment (serum) → pelembap → SPF (selalu di langkah terakhir). "
             "Malam: bersihkan wajah → treatment → pelembap (tidak perlu SPF)."
         )
-    elif matched_fact:
+    elif matched_fact and not english:
         reply = matched_fact
 
     is_ambiguous = confidence == "low" or reply is None

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { isAdminRequest } from "@/lib/auth/admin-session";
+import { extractImageUrl } from "@/lib/rag/image-url";
 
 /**
  * Overview dashboard data — every number is read from the database, nothing
@@ -87,6 +88,7 @@ export async function GET() {
     totals: totals.rows[0],
     daily: daily.rows,
     categories: categories.rows,
-    recentProducts: recent.rows,
+    // image_url wraps the real origin in a dead resize proxy — unwrap it (lib/rag/image-url.ts).
+    recentProducts: recent.rows.map((p) => ({ ...p, image_url: extractImageUrl(p.image_url) })),
   });
 }

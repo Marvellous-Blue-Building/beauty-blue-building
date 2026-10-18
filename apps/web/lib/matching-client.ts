@@ -38,7 +38,8 @@ export async function callChatUnderstand(
   conversationId: string | null,
   text: string,
   environmentalContext?: EnvironmentalContext | null,
-  userId?: string | null
+  userId?: string | null,
+  language: "id" | "en" = "id"
 ): Promise<ChatUnderstanding> {
   const res = await fetch(`${MATCHING_SERVICE_URL}/chat/understand`, {
     method: "POST",
@@ -49,6 +50,7 @@ export async function callChatUnderstand(
       environmentalContext: environmentalContext?.guidanceText ?? null,
       boostKeywords: environmentalContext?.boostKeywords ?? [],
       userId: userId ?? null,
+      language,
     }),
   });
   if (!res.ok) {

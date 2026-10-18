@@ -20,6 +20,7 @@ def advise(payload: AdviseRequest):
             recognized_entities=payload.recognizedEntities,
             candidate_products=payload.candidateProducts,
             conversation_context=payload.conversationContext,
+            language=payload.language,
         )
     except Exception as exc:  # missing credentials / Gemini API failure — surface as 503, not a 500 stack trace
         raise HTTPException(status_code=503, detail=f"Gemini unavailable: {exc}") from exc

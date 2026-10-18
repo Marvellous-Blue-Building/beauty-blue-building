@@ -87,18 +87,20 @@ async function adminShots(browser, locale) {
 }
 
 async function widgetShot(browser) {
-  // demo-retailer.html is a static Indonesian sample store — captured once, used by both locales.
-  const ctx = await browser.newContext({ ...DESKTOP, locale: "id" });
+  // demo-retailer.html is a static English sample store (the widget follows its <html lang>) —
+  // captured once, used by both locales.
+  const ctx = await browser.newContext({ ...DESKTOP, locale: "en" });
   const page = await ctx.newPage();
   await page.goto(`${BASE_URL}/demo-retailer.html`);
   await settle(page);
   await page.click(".bw-launcher");
   await page.waitForTimeout(800);
   const input = page.locator("#bw-widget-host").locator("input, textarea").first();
-  await input.fill("Rekomendasi serum untuk kulit kering dong");
+  await input.fill("I need a hydrating serum with hyaluronic acid");
   await input.press("Enter");
-  // Real pipeline reply (matching-service / ai-advisor) — give it time.
-  await page.waitForTimeout(15000);
+  // Real pipeline reply (matching-service / ai-advisor) — wait for its product cards.
+  await page.locator("#bw-widget-host .bw-pcard").first().waitFor({ timeout: 90000 });
+  await page.waitForTimeout(2500);
   await settle(page);
   for (const locale of LOCALES) await shot(page, locale, "desktop-widget");
   await ctx.close();

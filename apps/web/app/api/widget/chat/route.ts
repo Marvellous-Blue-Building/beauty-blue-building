@@ -23,7 +23,7 @@ function sseFrame(type: string, payload: unknown): string {
 }
 
 export async function POST(req: NextRequest) {
-  let body: { message?: string; conversationId?: string | null; sessionId?: string };
+  let body: { message?: string; conversationId?: string | null; sessionId?: string; lang?: string };
   try {
     const raw = await req.text();
     body = JSON.parse(raw);
@@ -35,6 +35,8 @@ export async function POST(req: NextRequest) {
   }
 
   const { message, sessionId } = body;
+  // The widget sends its page language; anything but "en" keeps the default Indonesian replies.
+  const language = body.lang === "en" ? "en" : "id";
   const conversationIdIn = body.conversationId ?? null;
 
   if (!sessionId || !message || !message.trim()) {
@@ -62,7 +64,7 @@ export async function POST(req: NextRequest) {
       await saveWidgetMessage({ conversationId, role: "user", text: message });
 
       try {
-        const reply = await generateWidgetBotReply(conversationId, message, sessionId);
+        const reply = await generateWidgetBotReply(conversationId, message, sessionId, language);
         await saveWidgetMessage({
           conversationId,
           role: "bot",
