@@ -1,0 +1,21 @@
+{
+  "duration": 109.638,
+  "frames": 1203,
+  "marks": {
+    "overview": 0,
+    "openInsight": 5.242,
+    "typeQ1": 9.09,
+    "sentQ1": 11.943,
+    "answerQ1": 29.379,
+    "typeQ2": 39.406,
+    "sentQ2": 41.991,
+    "answerQ2": 49.335,
+    "openForecasting": 62.957,
+    "insightCard": 64.825,
+    "forecastChart": 72.87,
+    "planner": 81.306,
+    "eventDetail": 86.573,
+    "attribution": 96.121,
+    "end": 109.638
+  }
+}

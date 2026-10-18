@@ -6,9 +6,13 @@
   "scripts": {
     "camera": "bash scripts/make-fake-camera.sh",
     "record": "node scripts/record-demo.mjs",
+    "record:admin": "node --env-file=../web/.env.local scripts/record-admin.mjs",
+    "voice": "node --env-file=.env scripts/make-voice.mjs",
     "assets": "node scripts/prepare-assets.mjs",
     "studio": "remotion studio",
-    "render": "remotion render Promo out/ai-beauty-advisor-promo.mp4 --codec=h264 --crf=18"
+    "render": "remotion render Promo out/ai-beauty-advisor-promo.mp4 --codec=h264 --crf=18",
+    "render:wide": "remotion render GlowOpsWide out/glowops-promo-16x9.mp4 --codec=h264 --crf=18",
+    "render:wide-silent": "remotion render GlowOpsWideSilent out/glowops-promo-16x9-silent.mp4 --codec=h264 --crf=18 --muted"
   },
   "dependencies": {
     "@remotion/cli": "4.0.531",

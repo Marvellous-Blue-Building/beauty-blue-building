@@ -32,5 +32,35 @@ installed Google Chrome.
   captions and callouts) → Retailers (snippet + dashboard shots, demo data)
   → Outro. Theme tokens match the app's glassmorphism (`src/theme.ts`).
 
+## 16:9 GlowOps promo (with and without voice-over)
+
+A 1920×1080, ~3:33 cut around the three pillars: intro → Personalized Beauty
+Advisor (the same shopper recording, in a phone) → Sales Intelligence → Forecasting
+& Demand Signal (a dashboard recording) → outro. Captioned throughout; one render
+adds an ElevenLabs voice-over (voice "Jessica"), the other is silent.
+
+```bash
+npm run record          # shopper flow, as above
+npm run record:admin    # → .recording/admin.mp4 + admin-marks.json (ADMIN_PASSWORD from ../web/.env.local)
+npm run voice           # → public/voice/*.mp3 + src/wide/voice-durations.json (ELEVENLABS_API_KEY in .env)
+npm run assets
+npm run render:wide         # → out/glowops-promo-16x9.mp4
+npm run render:wide-silent  # → out/glowops-promo-16x9-silent.mp4
+```
+
+- **Dashboard recording** (`scripts/record-admin.mjs`): logs in, types the 9.9
+  and 11.11 questions into Sales Intelligence and waits for Gemini's real
+  answers (ai-advisor needs Gemini credentials; it fails loudly instead of
+  recording the "couldn't be reached" card), then walks Forecasting. It needs
+  `data/22_demo_sales.sql` applied. Two things are staged in the
+  `/api/admin/events/analytics` response only: the timeline keeps just the
+  8.8 → 9.9 → 10.10 → 11.11 story, and those promo codes get sample session
+  counts (the video labels them as sample figures).
+- **Voice-over** (`src/wide/voice-lines.json` → `scripts/make-voice.mjs`): one
+  take per line, regenerated only when its text changes. Each line is placed on
+  a recording beat in `src/wide/timeline.ts`, which also cuts Gemini's waiting
+  time out of the dashboard clip; the studio console warns if a line would run
+  into the next one after a re-record.
+
 Remotion is free for individuals and companies of up to 3 people; larger teams
 need a [company license](https://www.remotion.dev/license).
