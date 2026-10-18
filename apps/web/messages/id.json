@@ -586,7 +586,7 @@
     },
     "header": {
       "greeting": "Hi, Admin",
-      "welcome": "Selamat datang kembali di AI Beauty Advisor 👋",
+      "welcome": "Selamat datang kembali di GlowOps 👋",
       "searchProducts": "Cari produk",
       "alerts": "{count} alert demand signal",
       "noAlerts": "Tidak ada alert demand signal",
@@ -596,7 +596,7 @@
       "closeMenu": "Tutup menu"
     },
     "sidebar": {
-      "appName": "AI Beauty Advisor",
+      "appName": "GlowOps",
       "tenantDashboard": "Tenant Dashboard",
       "logout": "Keluar",
       "searchPlaceholder": "Cari produk...",
@@ -1002,27 +1002,43 @@
   },
   "landing": {
     "nav": {
-      "features": "Fitur",
+      "features": "Beauty Advisor",
       "how": "Cara kerja",
-      "retailers": "Untuk retailer",
+      "retailers": "Mulai sekarang",
       "faq": "FAQ",
       "pricing": "Harga",
       "about": "Tentang Kami",
       "contact": "Kontak",
       "login": "Masuk",
-      "tryScan": "Live Demo"
+      "tryScan": "Lihat sisi customer"
     },
     "hero": {
-      "eyebrow": "AI skin & beauty advisor",
-      "title": "Kulitmu, terbaca dalam tiga pose",
-      "subtitle": "Satu kali scan kamera membaca kondisi kulit, colour season, dan bentuk wajahmu. AI advisor lalu mencocokkan produk dari katalog nyata dan menyusun rutinitasmu.",
-      "ctaPrimary": "Live Demo",
-      "ctaSecondary": "Untuk retailer",
+      "eyebrow": "Buat brand beauty & seller",
+      "title": "Jalankan brand beauty-mu pakai AI",
+      "subtitle": "Sales Intelligence jelasin apa yang terjadi dan kenapa. Forecasting Demand Signal nunjukin apa yang bakal datang. Beauty Advisor personalisasi kasih tiap customer analisis kulit dan warna sendiri, sampai ke shade eyeshadow yang pas.",
+      "ctaPrimary": "Lihat sisi customer",
+      "ctaSecondary": "Mulai sekarang",
       "chipSeason": "Colour season",
       "chipFace": "Bentuk wajah",
       "chipSkin": "Jenis kulit",
-      "shotAlt": "Dashboard tenant AI Beauty Advisor",
+      "shotAlt": "Dashboard tenant GlowOps",
       "phoneAlt": "Layar skin scan tiga pose"
+    },
+    "pillars": {
+      "eyebrow": "3 pilar utama",
+      "title": "Semua yang brand beauty-mu butuhin, dalam satu tempat",
+      "p1": {
+        "name": "Sales Intelligence",
+        "body": "Chat sama data penjualanmu pakai bahasa biasa, dapat penyebab asli di balik tiap lonjakan atau penurunan, plus strategi konkret buat selanjutnya."
+      },
+      "p2": {
+        "name": "Forecasting & Demand Signal",
+        "body": "Demand signal real-time per SKU dan planner event dengan deadline, jadi kamu lihat apa yang bakal bergerak sebelum beneran terjadi."
+      },
+      "p3": {
+        "name": "Personalized Beauty Advisor",
+        "body": "AI advisor berlabel brand kamu sendiri buat customer-mu. Skin analysis dan color analysis langsung ngarah ke eyeshadow, lipstick, blush, dan shade foundation terbaik buat mereka, plus rekomendasi tren makeup berdasarkan hasil bentuk wajah."
+      }
     },
     "facts": {
       "products": "produk di katalog",
@@ -1031,26 +1047,41 @@
       "script": "baris script untuk dipasang di toko mana pun"
     },
     "features": {
-      "title": "Dari scan sampai checkout",
-      "subtitle": "Dibangun di atas computer vision dan katalog produk nyata — bukan jawaban tiruan.",
+      "eyebrow": "Personalized Beauty Advisor",
+      "title": "Kasih tiap customer Beauty Advisor mereka sendiri",
+      "subtitle": "Skin analysis dan color analysis langsung ngarah ke shade terbaik di tiap kategori, di toko kamu sendiri. Dibangun di atas computer vision dan katalog produk nyata, bukan jawaban tiruan.",
       "scan": {
-        "title": "Skin & beauty scan",
+        "title": "Skin analysis & color analysis",
         "body": "Pose depan, kanan, dan kiri. Membaca hidrasi, jerawat, dan pigmentasi, plus colour season, bentuk wajah, dan jenis kulit.",
         "alt": "Layar awal skin scan dengan langkah tiga pose"
       },
       "chat": {
-        "title": "Chat AI advisor",
-        "body": "Tanya dengan bahasa sehari-hari — advisor merekomendasikan produk dari katalog lengkap dengan harga, berdasarkan hasil scan-mu.",
+        "title": "Rekomendasi warna terbaik",
+        "body": "Tanya dengan bahasa sehari-hari. Advisor merekomendasikan eyeshadow, lipstick, blush, dan shade foundation atau bedak terbaik dari katalog, lengkap dengan harga, berdasarkan hasil scan.",
         "alt": "Chat AI advisor merekomendasikan serum di website toko"
       },
       "routine": {
-        "title": "Rutinitas & pencocokan produk",
-        "body": "Hasil scan dan kuis dicocokkan dengan katalog menjadi rutinitas pagi dan malam yang bisa langsung dibeli."
+        "title": "Tren makeup sesuai bentuk wajah",
+        "body": "Hasil bentuk wajah dicocokkan jadi rekomendasi tren makeup dan rutinitas lengkap yang bisa langsung dibeli customer, pagi dan malam."
       },
       "progress": {
         "title": "Progress tracker",
         "body": "Scan ulang dari waktu ke waktu dan bandingkan hasilnya, lengkap dengan report PDF untuk tiap scan."
       }
+    },
+    "salesIntel": {
+      "eyebrow": "Sales Intelligence",
+      "title": "Tanya apa aja soal data penjualanmu",
+      "subtitle": "Nggak perlu baca-baca dashboard. Tulis pertanyaan pakai bahasa biasa dan dapat jawaban yang berdasarkan angka asli di baliknya.",
+      "shotAlt": "Chat Sales Intelligence jawab kenapa event 9.9 kurang maksimal",
+      "sampleQ": "\"Kenapa penjualan di event 9.9 menurun?\""
+    },
+    "demandSignal": {
+      "eyebrow": "Forecasting & Demand Signal",
+      "title": "Lihat apa yang bakal bergerak sebelum beneran terjadi",
+      "subtitle": "Demand signal real-time per SKU, perencanaan event dengan deadline, dan insight AI begitu kamu buka tab-nya.",
+      "shotAlt": "Dashboard forecasting dengan insight utama hari ini",
+      "demoNote": "Angka penjualan di screenshot ini memakai data sampel."
     },
     "how": {
       "title": "Cara kerja",
@@ -1064,44 +1095,37 @@
       },
       "s3": {
         "title": "Dapatkan rekomendasi",
-        "body": "Terima pilihan produk, shade sesuai season-mu, dan rutinitas — lalu lanjutkan chat dengan advisor."
+        "body": "Terima pilihan produk, shade sesuai season-mu, dan rutinitas. Lalu lanjutkan chat dengan advisor."
       }
     },
     "retailers": {
-      "eyebrow": "Untuk retailer",
+      "eyebrow": "Mulai sekarang",
       "title": "Pasang beauty advisor di tokomu dengan satu baris",
       "subtitle": "Widget berjalan di dalam website-mu sendiri dan memakai pipeline AI yang sama dengan aplikasi utama.",
-      "b1": "Beauty AI Advisor kasih tiap pengunjung chat melayang dan scan buat skin analysis, rekomendasi warna terbaik, dan pilihan produk",
-      "b2": "AI Sales Insight jawab pertanyaan soal data penjualan pakai bahasa biasa dan kasih strategi konkret, bukan cuma grafik",
-      "b3": "Forecasting & Marketing Strategy nyakup forecasting demand signal, perencanaan event, dan attribution kanal marketing dalam satu dashboard",
       "snippetLabel": "Tempel sebelum '</body>'",
-      "cta": "Buka dashboard",
-      "widgetAlt": "Widget AI advisor terbuka di toko contoh",
-      "forecastAlt": "Dashboard forecasting dengan chart demand signal",
-      "convAlt": "Riwayat percakapan pengunjung widget",
-      "demoNote": "Screenshot dashboard memakai data demo."
+      "cta": "Buka dashboard"
     },
     "faq": {
       "title": "Pertanyaan yang sering diajukan",
-      "q1": "Apa saja yang diukur oleh scan?",
-      "a1": "Skor hidrasi, jerawat, dan pigmentasi, plus colour season (dengan undertone), bentuk wajah, dan jenis kulit — semuanya dari satu scan tiga pose.",
-      "q2": "Apakah foto saya disimpan?",
-      "a2": "Kalau kamu login, foto scan disimpan di akunmu bersama hasilnya supaya Progress Tracker dan report PDF bisa menampilkannya. Scan lewat widget toko hanya menyimpan hasil analisis untuk sesi tersebut, tanpa foto.",
-      "q3": "Apakah perlu punya akun?",
-      "a3": "Kamu bisa langsung mulai scan. Untuk menyimpan rutinitas, keranjang, produk favorit, dan riwayat progress, perlu login dengan Google.",
+      "q1": "Ini buat saya atau buat customer saya?",
+      "a1": "Dua-duanya. Sales Intelligence dan Forecasting & Demand Signal itu tools kamu sendiri, di dashboard kamu. Beauty Advisor itu yang dipakai customer-mu di toko kamu, dengan brand kamu sendiri.",
+      "q2": "Apa saja yang diukur oleh scan?",
+      "a2": "Skor hidrasi, jerawat, dan pigmentasi, plus colour season (dengan undertone), bentuk wajah, dan jenis kulit customer, semuanya dari satu scan tiga pose.",
+      "q3": "Apakah foto customer disimpan?",
+      "a3": "Foto scan customer yang login disimpan di akun mereka sendiri bersama hasilnya. Scan lewat widget tokomu hanya menyimpan hasil analisis untuk sesi itu, tanpa foto.",
       "q4": "Bahasa apa saja yang didukung?",
-      "a4": "Inggris dan Indonesia, baik untuk aplikasi maupun jawaban advisor.",
+      "a4": "Inggris dan Indonesia, baik untuk dashboard maupun jawaban advisor.",
       "q5": "Bagaimana cara memasang widget di toko saya?",
       "a5": "Tempel satu tag '<script>' sebelum '</body>' di website-mu. Widget muncul sebagai tombol melayang; tidak ada bagian lain dari website-mu yang berubah."
     },
     "cta": {
-      "title": "Lihat apa kata kulitmu",
-      "subtitle": "Cukup tiga pose dan sekitar satu menit.",
-      "primary": "Live Demo",
+      "title": "Siap jalankan brand beauty-mu pakai AI?",
+      "subtitle": "Setup Sales Intelligence dan Forecasting hari ini, dan kasih customer-mu Beauty Advisor mereka sendiri.",
+      "primary": "Lihat sisi customer",
       "secondary": "Masuk ke dashboard"
     },
     "footer": {
-      "rights": "AI Beauty Advisor"
+      "rights": "GlowOps"
     }
   }
 }

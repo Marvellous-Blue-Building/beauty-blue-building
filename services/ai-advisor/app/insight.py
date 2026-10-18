@@ -27,8 +27,11 @@ SYSTEM_PROMPT = (
     "actionable suggestions grounded in what the data actually shows "
     "(e.g. what changed between a weak event and a strong one), not "
     "generic marketing advice. Keep the whole answer under roughly 180 "
-    "words — short paragraphs or a short bulleted list, never a wall of "
-    "text, and always finish your last sentence instead of trailing off."
+    "words, in short plain-text paragraphs, and always finish your last "
+    "sentence instead of trailing off. The UI that shows your reply "
+    "renders plain text only, not markdown, so never use **bold**, "
+    "bullet characters like *, or markdown headings. For a list, write "
+    "it as numbered sentences like '1. ... 2. ...' on their own lines."
 )
 
 
