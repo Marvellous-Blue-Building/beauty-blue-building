@@ -2,7 +2,7 @@
 
 ## What changed
 
-The original five 0–100 health scores used provisional contrast thresholds. Low or absent detail could saturate at 99. There was no labeled validation set establishing that these scores corresponded to skin health. Version 3 therefore returns `null` for hydration, elasticity, pigmentation, texture, pores and overall. It does not replace those scores with another arbitrary scale.
+The original five 0–100 health scores used provisional contrast thresholds. Low or absent detail could saturate at 99. There was no labeled validation set establishing that these scores corresponded to skin health. Version 3 therefore returns `null` for hydration, elasticity, pigmentation, texture, pores and overall. Those backend health fields remain null. The UI now offers a display-only provisional visual score, as described below.
 
 `measurements` contains real image statistics with status, unavailable reason, front-photo source, region names, usable pixel count and sample coverage. Units are **100 × natural-log linear-luminance contrast**, with the existing 0.005 luminance offset. They are image units, not percentages of skin health, pore counts, pore diameter, moisture content, elasticity, diagnoses, or calibrated probabilities.
 
@@ -13,6 +13,12 @@ The original five 0–100 health scores used provisional contrast thresholds. Lo
 - Nose detail contrast: robust spread of fine + mid-frequency nose residual. This is not a pore-size measurement.
 
 The skin-type and per-area findings remain explicitly **visual estimates** from provisional rules. They are not validated diagnostic labels. Missing required areas produce an unknown type and null findings, not normal skin. V3 image estimates do not automatically boost active ingredients in the recommendation pipeline; user preferences/concerns and the questionnaire still work.
+
+## Visual score presentation
+
+At the user’s request, the widget, app report and PDF show appearance scores and gradient bars again. The display-only `visualScore` uses the legacy contrast mapping: `round(clamp(95 - 50 * (raw - lower) / (upper - lower), 5, 99))`. Anchors are surface 1.2–3.5, lines 1.8–5, tone 4–12, texture 1.8–5, nose 2.5–6.5. These anchors remain provisional, not calibrated health thresholds. Higher means less visible contrast; genuine low contrast can still produce 99. Camera smoothing and lighting can raise scores. No “very good” health grade, hydration/elasticity score or overall grade is inferred.
+
+Only measured finite nonnegative front-photo log-contrast readings with no failure reason, at least 120 sample pixels and 50–100% coverage qualify. Unknown keys, null, invalid or unavailable readings have no score or filled bar. Raw measurements and coverage remain available in expandable details. These display values are never persisted into health fields or used for ingredient recommendations. Regression checks cover standalone-widget/app parity and missing-data handling: `cd apps/web && node scripts/check-visual-scores.cjs`.
 
 ## Eligibility and missing data
 

@@ -693,7 +693,7 @@
       ".bw-measure-status{font-size:10px;color:var(--bw-muted);white-space:nowrap;}" +
       ".bw-measure-value{font-size:25px;font-variant-numeric:tabular-nums;margin-top:7px;}.bw-measure-value small{font-size:10px;color:var(--bw-muted);margin-left:6px;}" +
       ".bw-measure-coverage{height:4px;margin-top:6px;overflow:hidden;border-radius:4px;background:var(--bw-line);}.bw-measure-coverage i{display:block;height:100%;background:var(--bw-primary);}" +
-      ".bw-score{padding:9px 0;}" +
+      ".bw-score{padding:9px 0;}.bw-measure.bw-score{padding:16px;}.bw-measure.bw-score .bw-measure-value{font-size:14px;margin-top:0;white-space:nowrap;color:var(--bw-primary);}.bw-measure summary{cursor:pointer;}" +
       ".bw-score .top{display:flex;justify-content:space-between;font-size:12.5px;}" +
       ".bw-score .top span:last-child{color:var(--bw-muted);font-variant-numeric:tabular-nums;}" +
       ".bw-score .bar{height:6px;border-radius:6px;background:color-mix(in srgb,var(--bw-primary) 10%,#fff);margin-top:7px;overflow:hidden;}" +
@@ -1894,24 +1894,32 @@
         return { words: found.length ? found.join(", ") : tr("tidak terdeteksi pada foto", "not detected in this photo"), level: level };
       }
 
+      // Display-only provisional scale; parity tested against measurement-copy.ts.
+      function visualScore(reading) {
+        var anchors = { cheek_roughness: [1.2, 3.5], fine_lines: [1.8, 5], tone_spots: [4, 12], cheek_texture: [1.8, 5], nose_pores: [2.5, 6.5] };
+        var range = anchors[reading.key];
+        if (!range || reading.status !== "measured" || typeof reading.value !== "number" || !Number.isFinite(reading.value) || reading.value < 0 || reading.unit !== "log_contrast" || reading.source !== "front" || reading.reason != null || !Number.isFinite(reading.samplePixels) || reading.samplePixels < 120 || !Number.isFinite(reading.coverage) || reading.coverage < 0.5 || reading.coverage > 1) return null;
+        return Math.round(Math.max(5, Math.min(99, 95 - 50 * (reading.value - range[0]) / (range[1] - range[0]))));
+      }
+
       function renderMeasurements(parent, metrics) {
-        var block = section(parent, tr("Yang terlihat di foto", "What the photo shows"));
+        var block = section(parent, tr("Skor tampilan kulit", "Skin appearance scores"));
         block.appendChild(text("p", "bw-text", tr(
-          "Kontras detail dari foto depan, bukan skor kesehatan. Nilai rendah tidak berarti kulit sempurna; kamera dan pencahayaan memengaruhi detail.",
-          "Detail contrast from the front photo, not a health score. Low values do not mean perfect skin; camera processing and lighting affect visible detail.")));
+          "Estimasi visual dari foto depan. Skor lebih tinggi berarti kontras detail lebih rendah, bukan kulit lebih sehat.",
+          "Visual estimates from your front photo. Higher scores mean less detail contrast, not healthier skin.")));
         var explanation = document.createElement("details");
         explanation.className = "bw-metaline";
         explanation.appendChild(text("summary", null, tr("Cara membaca angka ini", "How to read these numbers")));
         explanation.appendChild(text("p", null, tr(
-          "Angka lebih tinggi berarti kontras detail lebih kuat, bukan otomatis kulit lebih buruk. Belum ada batas normal atau tidak normal. Penghalusan kamera dapat menyembunyikan detail.",
-          "Higher values mean stronger detail contrast, not necessarily worse skin. No normal or abnormal cutoffs have been established. Camera smoothing can hide detail.")));
+          "Angka kontras mentah pada rincian berlawanan arah dengan skor: angka mentah lebih tinggi berarti kontras detail lebih kuat, bukan otomatis kulit lebih buruk. Belum ada batas normal atau tidak normal. Penghalusan kamera dapat menyembunyikan detail.",
+          "The raw contrast readings in the details run in the opposite direction to the scores: higher raw values mean stronger detail contrast, not necessarily worse skin. No normal or abnormal cutoffs have been established. Camera smoothing can hide detail.")));
         block.appendChild(explanation);
         var labels = {
-          cheek_roughness: tr("Detail halus permukaan", "Fine surface detail"),
-          fine_lines: tr("Kontras garis terlihat", "Visible line contrast"),
-          tone_spots: tr("Kontras bercak gelap", "Dark-mark contrast"),
-          cheek_texture: tr("Kontras tekstur pipi", "Cheek texture contrast"),
-          nose_pores: tr("Kontras detail hidung", "Nose detail contrast"),
+          cheek_roughness: tr("Kehalusan permukaan", "Surface smoothness"),
+          fine_lines: tr("Kelembutan garis", "Line softness"),
+          tone_spots: tr("Kerataan warna", "Tone evenness"),
+          cheek_texture: tr("Kehalusan tekstur", "Texture smoothness"),
+          nose_pores: tr("Tampilan pori", "Pore appearance"),
         };
         var reasons = {
           low_resolution: tr("Dekatkan wajah; detail terlalu kecil pada foto asli.", "Move closer; detail is too small in the original photo."),
@@ -1922,24 +1930,30 @@
         };
         var readings = (metrics && metrics.measurements) || [];
         readings.forEach(function (reading) {
-          var measured = reading.status === "measured" && typeof reading.value === "number" && isFinite(reading.value) && reading.value >= 0;
-          var card = text("div", "bw-measure");
+          var score = visualScore(reading);
+          var measured = score !== null;
+          var card = text("div", "bw-measure bw-score");
           var top = text("div", "top");
           top.appendChild(text("b", null, labels[reading.key] || reading.key));
-          top.appendChild(text("span", "bw-measure-status", measured ? tr("Terukur", "Measured") : tr("Belum terukur", "Not measured")));
+          top.appendChild(text("span", "bw-measure-value", measured ? score + " / 100" : tr("Belum terukur", "Not measured")));
           card.appendChild(top);
-          var value = text("div", "bw-measure-value", measured ? reading.value.toFixed(2) : "—");
-          if (measured) value.appendChild(text("small", null, tr("unit kontras", "contrast units")));
-          card.appendChild(value);
-          card.appendChild(text("p", "bw-metaline", tr("Foto depan", "Front photo") + " · " + reading.samplePixels.toLocaleString(LANG === "en" ? "en-US" : "id-ID") + tr(" piksel", " pixels")));
           if (measured) {
-            var coverage = Math.round(Math.max(0, Math.min(1, reading.coverage)) * 100);
-            card.appendChild(text("p", "bw-metaline", tr("Area sampel yang dapat dibaca", "Usable sample area") + " · " + coverage + "%"));
-            var bar = text("div", "bw-measure-coverage");
-            var fill = document.createElement("i");
-            fill.style.width = coverage + "%";
+            var bar = text("div", "bar");
+            bar.setAttribute("role", "meter");
+            bar.setAttribute("aria-label", labels[reading.key] || reading.key);
+            bar.setAttribute("aria-valuemin", "0");
+            bar.setAttribute("aria-valuemax", "100");
+            bar.setAttribute("aria-valuenow", String(score));
+            var fill = document.createElement("div");
+            fill.style.width = score + "%";
             bar.appendChild(fill);
             card.appendChild(bar);
+            var detail = document.createElement("details");
+            detail.className = "bw-metaline";
+            detail.appendChild(text("summary", null, tr("Terukur · Foto depan", "Measured · Front photo")));
+            detail.appendChild(text("p", null, reading.value.toFixed(2) + tr(" unit kontras", " contrast units") + " · " + reading.samplePixels.toLocaleString(LANG === "en" ? "en-US" : "id-ID") + tr(" piksel", " pixels")));
+            detail.appendChild(text("p", null, tr("Area sampel yang dapat dibaca", "Usable sample area") + " · " + Math.round(reading.coverage * 100) + "%"));
+            card.appendChild(detail);
           } else card.appendChild(text("p", "bw-metaline", reasons[reading.reason] || reasons.invalid_signal));
           block.appendChild(card);
         });
@@ -1947,8 +1961,8 @@
           "Laporan lama memakai skor perkiraan. Pindai ulang untuk melihat pengukuran visual dan kualitas sampelnya.",
           "This older report used estimated scores. Scan again for visual measurements and sample-quality information.")));
         block.appendChild(text("p", "bw-note", tr(
-          "Hidrasi dan elastisitas tidak diukur oleh kamera ini. Skor kesehatan 0–100 tidak ditampilkan karena belum tervalidasi. Persentase area bukan tingkat akurasi.",
-          "Hydration and elasticity are not measured by this camera. We do not show an unvalidated 0–100 health score. Sample coverage is not an accuracy percentage.")));
+          "Hidrasi dan elastisitas tidak diukur oleh kamera ini. Skala visual ini masih sementara dan belum tervalidasi. Pencahayaan dan penghalusan kamera dapat meningkatkan skor.",
+          "Hydration and elasticity are not measured by this camera. This visual scale is provisional and has not been validated. Lighting and camera smoothing can raise scores.")));
       }
 
       function renderSkinTab(p, r) {

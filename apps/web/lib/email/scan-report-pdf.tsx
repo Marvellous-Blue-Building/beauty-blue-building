@@ -1,5 +1,5 @@
 import { Document, Page, View, Text, Image, StyleSheet } from "@react-pdf/renderer";
-import { isMeasured, measurementCopy } from "@/lib/scan/measurement-copy";
+import { isMeasured, measurementCopy, visualScore } from "@/lib/scan/measurement-copy";
 import type { ScanReport } from "@/types/scan";
 
 const styles = StyleSheet.create({
@@ -30,7 +30,9 @@ export function ScanReportPdf({ report, locale, imageBase64 }: {
     )}
     {(report.measurements ?? []).map(reading => <View key={reading.key} style={styles.card} wrap={false}>
       <Text style={styles.label}>{copy.labels[reading.key] ?? reading.key}</Text>
-      <Text style={styles.value}>{isMeasured(reading) ? `${reading.value.toFixed(2)} ${copy.unit}` : copy.unavailable}</Text>
+      <Text style={styles.value}>{visualScore(reading) !== null ? `${visualScore(reading)} / 100` : copy.unavailable}</Text>
+      {visualScore(reading) !== null && <View style={{ height: 5, borderRadius: 3, backgroundColor: "#ecdde2", marginBottom: 5 }}><View style={{ height: 5, borderRadius: 3, backgroundColor: "#d26287", width: `${visualScore(reading)}%` }} /></View>}
+      {isMeasured(reading) && <Text style={styles.text}>{reading.value.toFixed(2)} {copy.unit}</Text>}
       <Text style={styles.text}>{copy.source} · {reading.samplePixels} {copy.pixels}</Text>
       <Text style={styles.text}>{isMeasured(reading) ? `${copy.coverage}: ${Math.round(reading.coverage * 100)}%` : copy.reasons[reading.reason ?? ""] ?? copy.reasons.invalid_signal}</Text>
     </View>)}
