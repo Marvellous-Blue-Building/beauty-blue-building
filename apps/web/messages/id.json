@@ -319,7 +319,7 @@
       "regionsTitle": "Yang terbaca di tiap area",
       "fromSide": "foto samping",
       "regionNotRead": "Belum terbaca",
-      "nothingStandsOut": "Tidak ada yang menonjol",
+      "nothingStandsOut": "Tidak terdeteksi pada foto",
       "findingHigh": "{finding} — jelas",
       "findingSome": "{finding} — sedikit",
       "finding": {
@@ -500,6 +500,7 @@
     "clearConfirm": "Ini akan memulai percakapan baru. Obrolan Anda saat ini tersimpan dan masih dapat dilihat di Riwayat Percakapan."
   },
   "progress": {
+    "scoreUnavailable": "Skor kesehatan tervalidasi belum tersedia untuk pemindaian ini.",
     "stepLabel": "Pembangun & Pelacak Rutinitas",
     "title": "Kemajuan Anda",
     "subtitle": "Check-in foto mingguan dibandingkan dengan pindai awal Anda.",

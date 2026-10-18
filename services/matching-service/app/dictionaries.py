@@ -228,15 +228,15 @@ def scan_metric_keywords(scan: Optional[dict]) -> list[str]:
     if not scan:
         return []
     boosts: list[str] = []
-    if scan["hydration"] < SCAN_METRIC_BOOST_THRESHOLD:
+    if isinstance(scan.get("hydration"), (int, float)) and 0 <= scan["hydration"] < SCAN_METRIC_BOOST_THRESHOLD:
         boosts += ["hyaluronic acid", "glycerin", "ceramide", "squalane"]
-    if scan["elasticity"] < SCAN_METRIC_BOOST_THRESHOLD:
+    if isinstance(scan.get("elasticity"), (int, float)) and 0 <= scan["elasticity"] < SCAN_METRIC_BOOST_THRESHOLD:
         boosts += ["peptide", "retinol", "collagen"]
-    if scan["pigmentation"] < SCAN_METRIC_BOOST_THRESHOLD:
+    if isinstance(scan.get("pigmentation"), (int, float)) and 0 <= scan["pigmentation"] < SCAN_METRIC_BOOST_THRESHOLD:
         boosts += ["vitamin c", "niacinamide", "alpha arbutin"]
-    if scan["texture"] < SCAN_METRIC_BOOST_THRESHOLD:
+    if isinstance(scan.get("texture"), (int, float)) and 0 <= scan["texture"] < SCAN_METRIC_BOOST_THRESHOLD:
         boosts += ["salicylic acid", "niacinamide"]
-    if scan["pores"] < SCAN_METRIC_BOOST_THRESHOLD:
+    if isinstance(scan.get("pores"), (int, float)) and 0 <= scan["pores"] < SCAN_METRIC_BOOST_THRESHOLD:
         boosts += ["niacinamide", "salicylic acid", "clay"]
     return boosts
 

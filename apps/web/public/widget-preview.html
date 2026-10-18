@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Beauty Advisor simulator</title>
+  <style>html,body{margin:0;height:100%;background:#fbf6f2;}</style>
+</head>
+<body>
+  <script>
+    var language = new URLSearchParams(location.search).get("lang");
+    document.documentElement.lang = language === "id" ? "id" : "en";
+  </script>
+  <!-- The same widget used by retailer embeds, presented as an open panel. -->
+  <script src="/widget-loader.js" data-display="inline"></script>
+</body>
+</html>

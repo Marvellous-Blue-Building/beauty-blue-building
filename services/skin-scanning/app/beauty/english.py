@@ -224,6 +224,7 @@ def _shape(f: dict) -> None:
 # ---------------------------------------------------------------- skin (translated)
 
 SKIN_TYPE = {
+    "unknown": "Skin type could not be estimated",
     "normal": "Normal Skin", "kering": "Dry Skin", "berminyak": "Oily Skin",
     "sensitif": "Sensitive Skin", "kombinasi": "Combination Skin",
 }

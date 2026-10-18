@@ -428,7 +428,8 @@ function SkinTab({
     const words: string[] = [];
     let level: Level = "lo";
     for (const [key, word] of FINDINGS) {
-      const v = d[key] as number;
+      const v = d[key];
+      if (typeof v !== "number") continue;
       if (v >= 0.6) {
         words.push(t("findingHigh", { finding: t(`finding.${word}`) }));
         level = "hi";
@@ -437,7 +438,7 @@ function SkinTab({
         if (level === "lo") level = "mid";
       }
     }
-    if (d.warna_kulit_merata < 0.5) {
+    if (d.warna_kulit_merata != null && d.warna_kulit_merata < 0.5) {
       words.push(t("finding.uneven"));
       if (level === "lo") level = "mid";
     }

@@ -34,22 +34,37 @@ class FlaggedZone(BaseModel):
     y: float | None = None
 
 
+class SkinMeasurement(BaseModel):
+    key: str
+    value: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    unit: Literal["log_contrast"] = "log_contrast"
+    status: Literal["measured", "unavailable"]
+    reason: str | None = None
+    source: Literal["front"] = "front"
+    regions: list[str]
+    samplePixels: int = Field(ge=0)
+    coverage: float = Field(ge=0, le=1)
+
+
 class ScanMetrics(BaseModel):
-    hydration: float
-    elasticity: float
-    pigmentation: float
-    texture: float
-    pores: float
-    overall: float
+    hydration: float | None = None
+    elasticity: float | None = None
+    pigmentation: float | None = None
+    texture: float | None = None
+    pores: float | None = None
+    overall: float | None = None
 
 
 # Bumped whenever the scoring changes, so scores from different versions
 # aren't compared as if they were on the same scale.
-SCORING_VERSION = 2
+SCORING_VERSION = 3
 
 
 class ScanReport(ScanMetrics):
     scoringVersion: int = SCORING_VERSION
+    measurementVersion: str = "image-contrast-v1"
+    measurementStatus: Literal["complete", "partial", "unavailable"] = "unavailable"
+    measurements: list[SkinMeasurement] = Field(default_factory=list)
     scanId: str
     status: str
     createdAt: datetime

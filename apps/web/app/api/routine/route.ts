@@ -5,7 +5,7 @@ import { callMatchingService } from "@/lib/matching-client";
 import { getEnvironmentalContext } from "@/lib/geotagging-weather-client";
 import { isQuestionnaireComplete, isScanComplete } from "@/lib/onboarding-complete";
 import type { QuizAnswers } from "@/types/quiz";
-import type { ScanMetrics } from "@/types/scan";
+import type { ScanReport } from "@/types/scan";
 
 /**
  * Recomputes the routine LIVE from this user's own latest persisted
@@ -30,14 +30,7 @@ export async function GET() {
   if (!raw || !raw.questionnaire) return NextResponse.json(null);
 
   const quiz = raw.questionnaire as QuizAnswers;
-  const scan: ScanMetrics = {
-    hydration: raw.hydration as number,
-    elasticity: raw.elasticity as number,
-    pigmentation: raw.pigmentation as number,
-    texture: raw.texture as number,
-    pores: raw.pores as number,
-    overall: raw.overall as number,
-  };
+  const scan = raw as unknown as ScanReport;
 
   if (!isQuestionnaireComplete(quiz) || !isScanComplete(scan)) return NextResponse.json(null);
 

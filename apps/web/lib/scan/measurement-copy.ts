@@ -1,0 +1,18 @@
+import type { SkinMeasurement } from "@/types/scan";
+
+export const measurementCopy = (locale: string) => locale === "id" ? {
+  title: "Yang terlihat di foto", badge: "Pengukuran visual", intro: "Angka ini mengukur kontras detail dalam foto depan, bukan kesehatan kulit. Nilai rendah tidak berarti kulit sempurna; kamera dan pencahayaan memengaruhi detail yang terlihat.",
+  unavailable: "Belum terukur", measured: "Terukur", coverage: "Area sampel yang dapat dibaca", pixels: "piksel", source: "Foto depan", unit: "unit kontras", details: "Cara membaca angka ini", interpretation: "Angka lebih tinggi berarti kontras detail lebih kuat, bukan otomatis kulit lebih buruk. Belum ada batas normal atau tidak normal. Penghalusan kamera dapat menyembunyikan detail.", noScores: "Hidrasi dan elastisitas tidak diukur oleh pemindaian ini. Skor kesehatan 0–100 tidak ditampilkan karena belum tervalidasi. Persentase area bukan tingkat akurasi.", legacy: "Laporan ini memakai skor perkiraan versi lama. Pindai ulang untuk melihat pengukuran visual beserta kualitas sampelnya.",
+  labels: { cheek_roughness: "Detail halus permukaan", fine_lines: "Kontras garis terlihat", tone_spots: "Kontras bercak gelap", cheek_texture: "Kontras tekstur pipi", nose_pores: "Kontras detail hidung" } as Record<string, string>,
+  reasons: { low_resolution: "Dekatkan wajah; detail terlalu kecil pada foto asli.", missing_region: "Area yang diperlukan tidak terlihat. Singkirkan penghalang lalu pindai ulang.", insufficient_skin: "Terlalu sedikit kulit yang dapat dibaca. Kurangi pantulan dan periksa posisi wajah.", overexposed: "Cahaya terlalu terang menghilangkan detail. Gunakan cahaya lembut.", invalid_signal: "Detail tidak dapat diukur dengan andal. Ambil foto baru." } as Record<string, string>,
+} : {
+  title: "What the photo shows", badge: "Visual measurements", intro: "These readings measure detail contrast in the front photo, not skin health. A low value does not mean perfect skin; camera processing and lighting affect visible detail.",
+  unavailable: "Not measured", measured: "Measured", coverage: "Usable sample area", pixels: "pixels", source: "Front photo", unit: "contrast units", details: "How to read these numbers", interpretation: "Higher values mean stronger detail contrast, not necessarily worse skin. No normal or abnormal cutoffs have been established. Camera smoothing can hide detail.", noScores: "Hydration and elasticity are not measured by this scan. We do not show a 0–100 health score because that scale has not been validated. Sample coverage is not an accuracy percentage.", legacy: "This report uses an older estimated score. Scan again for visual measurements with sample-quality information.",
+  labels: { cheek_roughness: "Fine surface detail", fine_lines: "Visible line contrast", tone_spots: "Dark-mark contrast", cheek_texture: "Cheek texture contrast", nose_pores: "Nose detail contrast" } as Record<string, string>,
+  reasons: { low_resolution: "Move closer; detail is too small in the original photo.", missing_region: "A required area is not visible. Remove obstructions and scan again.", insufficient_skin: "Too little usable skin detail. Reduce glare and check face position.", overexposed: "Bright light has washed out detail. Use softer lighting.", invalid_signal: "Detail could not be measured reliably. Take a new photo." } as Record<string, string>,
+};
+
+export function isMeasured(reading: SkinMeasurement): reading is SkinMeasurement & { value: number } {
+  return reading.status === "measured" && typeof reading.value === "number" && Number.isFinite(reading.value) && reading.value >= 0;
+}
+

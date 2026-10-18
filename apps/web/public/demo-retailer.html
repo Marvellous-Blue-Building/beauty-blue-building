@@ -253,6 +253,11 @@
   });
 </script>
 
+<!-- The admin preview passes its selected language; standalone demo defaults to English. -->
+<script>
+  var previewLanguage = new URLSearchParams(location.search).get("lang");
+  if (previewLanguage === "en" || previewLanguage === "id") document.documentElement.lang = previewLanguage;
+</script>
 <!-- The only change a store owner makes to enable the AI Beauty Advisor: -->
 <script src="/widget-loader.js" async></script>
 </body>

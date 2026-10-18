@@ -1,6 +1,5 @@
-"""Prints the raw measurements behind each score for a folder of face photos,
-to tune the anchors in app/metrics.py (REFERENCE) and the thresholds in
-app/quality.py against real captures.
+"""Prints v3 image measurements and eligibility reasons for a folder of photos.
+This is a data inspection tool, not a clinical calibration or accuracy test.
 
     python scripts/calibrate.py photos/ [--overlay out/]
 
@@ -18,9 +17,8 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 from app.alignment import align_face  # noqa: E402
 from app.face_landmarks import detect_face  # noqa: E402
-from app.flags import compute_flagged_zones  # noqa: E402
-from app.metrics import compute_metrics, raw_measures, skin_signals  # noqa: E402
-from app.quality import measure_sharpness  # noqa: E402
+from app.metrics import measurement_report, raw_measures, skin_signals  # noqa: E402
+from app.quality import check_photo_quality, measure_sharpness, PhotoQualityError  # noqa: E402
 from app.zones import extract_zones  # noqa: E402
 
 ZONE_COLORS = {
@@ -53,14 +51,20 @@ def main() -> None:
         signals = skin_signals(face)
         zones = extract_zones(face)
         raw = raw_measures(signals, zones)
-        scores = compute_metrics(raw)
-        flags = compute_flagged_zones(face, signals, zones, raw)
+        try:
+            check_photo_quality(face, signals)
+        except PhotoQualityError as error:
+            print(f"{path.name}: rejected ({error.code})")
+            continue
+        report = measurement_report(face, signals, zones)
 
         print(f"\n{path.name}  (eye distance {face.iod_px:.0f}px, "
               f"sharpness {measure_sharpness(face, signals):.1f}, zones {sorted(zones)})")
-        print("  raw    " + "  ".join(f"{k}={v:.2f}" for k, v in raw.items()))
-        print("  scores " + "  ".join(f"{k}={v}" for k, v in scores.items()))
-        print("  flags  " + ("; ".join(f"{f.key} {f.score:.0f} ({f.severity})" for f in flags) or "none"))
+        print("  raw    " + "  ".join(f"{k}={v:.3f}" if v is not None else f"{k}=unavailable" for k, v in raw.items()))
+        for reading in report["measurements"]:
+            print(f"  {reading['key']}: {reading['value']} ({reading['status']}, "
+                  f"reason={reading['reason']}, pixels={reading['samplePixels']}, "
+                  f"coverage={reading['coverage']})")
 
         if args.overlay:
             args.overlay.mkdir(parents=True, exist_ok=True)

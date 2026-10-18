@@ -67,21 +67,21 @@ export default function ProgressPage() {
       </p>
       <DayPhotoCards snapshots={snapshots} activeDay={activeDay} onSelect={setActiveDay} />
       <div className="flex justify-center gap-2 my-[10px]">
-        <ScoreRing score={active.overall ?? 0} size={112} />
+        {active.overall != null ? <ScoreRing score={active.overall} size={112} /> : <p className="text-sm text-text-muted">{t("scoreUnavailable")}</p>}
       </div>
       <MetricBar
         label="Hydration"
-        value={active.hydration ?? 0}
+        value={active.hydration}
         displayValue={metricDisplay(baseline.hydration, active.hydration)}
       />
       <MetricBar
         label="Texture"
-        value={active.texture ?? 0}
+        value={active.texture}
         displayValue={metricDisplay(baseline.texture, active.texture)}
       />
       <MetricBar
         label="Pigmentation"
-        value={active.pigmentation ?? 0}
+        value={active.pigmentation}
         displayValue={metricDisplay(baseline.pigmentation, active.pigmentation)}
       />
       <Link

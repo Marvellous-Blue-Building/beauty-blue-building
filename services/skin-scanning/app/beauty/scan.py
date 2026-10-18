@@ -26,8 +26,7 @@ from app.alignment import align_face
 from app.beauty import colour, face_shape, poses, skin
 from app.beauty.face_shape import head_pose, is_neutral, pose_allows_reading, pose_allows_shape
 from app.beauty.vision import FaceFrame, analyse_frame, segmenter_available
-from app.flags import compute_flagged_zones
-from app.metrics import compute_metrics, raw_measures, skin_signals
+from app.metrics import measurement_report, skin_signals
 from app.quality import check_photo_quality
 from app.schemas import ScanReport
 from app.zones import extract_zones
@@ -122,14 +121,13 @@ def analyse(images: list[np.ndarray], sides: dict[str, list[np.ndarray]] | None 
     signals = skin_signals(aligned)
     check_photo_quality(aligned, signals)
     zones = extract_zones(aligned)
-    raw = raw_measures(signals, zones)
     metrics = ScanReport(
         scanId=str(uuid.uuid4()),
         status="SUCCESS",
         createdAt=datetime.now(timezone.utc),
         ragTriggerStatus="READY_FOR_RECOMMENDATION",
-        flaggedZones=compute_flagged_zones(aligned, signals, zones, raw),
-        **compute_metrics(raw),
+        flaggedZones=[],
+        **measurement_report(aligned, signals, zones),
     )
 
     side_frames: dict[str, FaceFrame] = {}

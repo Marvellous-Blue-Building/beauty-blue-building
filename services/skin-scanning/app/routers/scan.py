@@ -22,8 +22,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.alignment import align_face
 from app.face_landmarks import detect_face
-from app.flags import compute_flagged_zones
-from app.metrics import compute_metrics, raw_measures, skin_signals
+from app.metrics import measurement_report, skin_signals
 from app.quality import PhotoQualityError, check_photo_quality
 from app.schemas import ScanAnalyzeRequest, ScanReport
 from app.zones import extract_zones
@@ -67,13 +66,12 @@ async def analyze(body: ScanAnalyzeRequest) -> ScanReport:
         raise _unprocessable(error.code, error.message) from error
 
     zones = extract_zones(face)
-    raw = raw_measures(signals, zones)
 
     return ScanReport(
         scanId=str(uuid.uuid4()),
         status="SUCCESS",
         createdAt=datetime.now(timezone.utc),
         ragTriggerStatus="READY_FOR_RECOMMENDATION",
-        flaggedZones=compute_flagged_zones(face, signals, zones, raw),
-        **compute_metrics(raw),
+        flaggedZones=[],
+        **measurement_report(face, signals, zones),
     )

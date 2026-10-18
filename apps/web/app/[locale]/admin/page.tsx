@@ -110,11 +110,6 @@ interface EventAnalyticsRow {
   upcomingUplift: { upliftEstimasi: number | null; basis: "lookup" | "estimasi_kasar" } | null;
   attribution: { sessions: number; mentions: number; costPerSession: number | null } | null;
 }
-interface SimMessage {
-  role: "user" | "bot";
-  text: string;
-  products?: { name: string; brand?: string; price?: number; imageUrl?: string | null; colorPalette?: string[]; sizeLabel?: string | null }[];
-}
 
 const inputCls = glassFieldCls;
 const thCls = thGlassCls;
@@ -1583,79 +1578,6 @@ function ForecastingSection({ onOpenInsight }: { onOpenInsight: () => void }) {
 function SimulatorSection() {
   const t = useTranslations("admin.simulator");
   const locale = useLocale();
-  const [messages, setMessages] = useState<SimMessage[]>([]);
-  const [input, setInput] = useState("");
-  const [sending, setSending] = useState(false);
-  const [greeting, setGreeting] = useState<string | null>(null);
-  const sessionRef = useRef<string | null>(null);
-  const conversationRef = useRef<string | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Same greeting + "Scan my face" chip a real visitor sees when the
-  // widget first opens (see public/widget-loader.js's openWidget) —
-  // fetched from the same /api/widget/config a real embed calls, not
-  // hardcoded, so it stays in sync with WIDGET_GREETING/WIDGET_GREETING_EN.
-  useEffect(() => {
-    fetch(`/api/widget/config${locale === "en" ? "?lang=en" : ""}`)
-      .then((r) => r.json())
-      .then((d: { greeting?: string }) => setGreeting(d.greeting ?? null))
-      .catch(() => {});
-  }, [locale]);
-
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [messages]);
-
-  async function ensureSession() {
-    if (sessionRef.current) return sessionRef.current;
-    const res = await fetch("/api/widget/session", { method: "POST" });
-    const data = await res.json();
-    sessionRef.current = data.sessionId;
-    return data.sessionId as string;
-  }
-
-  async function send(override?: string) {
-    const text = (override ?? input).trim();
-    if (!text || sending) return;
-    setInput("");
-    setMessages((m) => [...m, { role: "user", text }]);
-    setSending(true);
-    try {
-      const sessionId = await ensureSession();
-      const res = await fetch("/api/widget/chat", {
-        method: "POST",
-        headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify({ sessionId, conversationId: conversationRef.current, message: text }),
-      });
-      const reader = res.body!.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const parts = buffer.split("\n\n");
-        buffer = parts.pop() ?? "";
-        for (const part of parts) {
-          const line = part.trim();
-          if (!line.startsWith("data:")) continue;
-          const frame = JSON.parse(line.slice(5).trim());
-          if (frame.type === "start") conversationRef.current = frame.payload.conversationId;
-          if (frame.type === "done") {
-            const answer = String(frame.payload.answer ?? "").trim();
-            setMessages((m) => [...m, { role: "bot", text: answer, products: frame.payload.products }]);
-          }
-          if (frame.type === "error") {
-            setMessages((m) => [...m, { role: "bot", text: t("serverError") }]);
-          }
-        }
-      }
-    } catch {
-      setMessages((m) => [...m, { role: "bot", text: t("connectionError") }]);
-    } finally {
-      setSending(false);
-    }
-  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -1664,108 +1586,13 @@ function SimulatorSection() {
         <p className="mt-1 text-sm text-neutral-500">{t.rich("subtitle", { code: (chunks) => <code>{chunks}</code> })}</p>
       </div>
       <div className="glass-card mx-auto w-full max-w-2xl overflow-hidden rounded-[24px]">
-        <div ref={scrollRef} className="no-scrollbar flex h-[520px] flex-col gap-3 overflow-y-auto p-5">
-          {messages.length === 0 && (
-            <div className="flex flex-col gap-3">
-              {greeting && (
-                <div className="flex items-end gap-2 justify-start">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-admin-accent text-white">
-                    <IconSparkle size={14} />
-                  </span>
-                  <div className="max-w-[80%] rounded-2xl rounded-bl-md border border-white/80 bg-white/70 px-4 py-2 text-sm text-neutral-700">
-                    {greeting}
-                  </div>
-                </div>
-              )}
-              <button
-                onClick={() => send(t("scanChip"))}
-                disabled={sending}
-                className="ml-9 flex w-[150px] flex-col overflow-hidden rounded-[12px] border border-white/80 bg-white/70 text-left transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element -- local scan illustration, fixed size */}
-                <img src="/face_scan.png" alt={t("skinTool")} className="h-auto w-full object-cover" />
-                <span className="whitespace-nowrap px-3 py-2 text-center text-xs font-medium text-neutral-700">{t("scanChip")}</span>
-              </button>
-            </div>
-          )}
-          {messages.map((m, i) => (
-            <div key={i} className={`flex items-end gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              {m.role === "bot" && (
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-admin-accent text-white">
-                  <IconSparkle size={14} />
-                </span>
-              )}
-              <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${m.role === "user" ? "rounded-br-md bg-admin-accent text-white" : "rounded-bl-md border border-white/80 bg-white/70 text-neutral-700"}`}>
-                {m.text?.includes("[Skin Scanning Analysis Tool]") ? (
-                  <div className="flex flex-col items-center gap-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- static asset, fixed small size */}
-                    <img src="/face_scan.png" alt={t("skinTool")} className="h-auto w-[100px] rounded-[10px] object-cover shadow-sm" />
-                    <span className="text-[11px] font-medium text-neutral-500">{t("skinTool")}</span>
-                  </div>
-                ) : m.text?.includes("[Track Your Progress]") ? (
-                  <div className="flex flex-col items-center gap-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- static asset, fixed small size */}
-                    <img src="/assets/chat/track-progress.png" alt={t("trackProgress")} className="h-auto w-[100px] rounded-[10px] object-cover shadow-sm" />
-                    <span className="text-[11px] font-medium text-neutral-500">{t("trackProgress")}</span>
-                  </div>
-                ) : (
-                  <>
-                    {m.text}
-                    {m.products && m.products.length > 0 && (
-                      <div className="no-scrollbar mt-2 flex gap-2 overflow-x-auto pb-1">
-                        {m.products.slice(0, 3).map((p, j) => (
-                          <div key={j} className="w-32 shrink-0 rounded-xl border border-white/80 bg-white/70 p-2 text-neutral-700">
-                            {/* eslint-disable-next-line @next/next/no-img-element -- remote retailer CDN, not in next/image remotePatterns */}
-                            <img src={p.imageUrl || "/product.png"} alt={p.name} className="mb-2 h-20 w-full rounded-lg bg-white/60 object-cover" />
-                            <div className="truncate text-[10px] font-bold">{p.name}</div>
-                            <div className="truncate text-[9px] text-neutral-500">{p.brand}</div>
-                            <div className="mt-1 flex flex-col gap-1">
-                              {p.colorPalette && p.colorPalette.length > 0 && (
-                                <div className="flex flex-wrap gap-1">
-                                  {p.colorPalette.map((hex, idx) => (
-                                    <div key={idx} className="h-2 w-2 rounded-full border border-white/90 ring-1 ring-black/10" style={{ backgroundColor: hex }} title={hex} />
-                                  ))}
-                                </div>
-                              )}
-                              {p.sizeLabel && <div className="truncate text-[8px] font-medium italic text-neutral-500">{p.sizeLabel}</div>}
-                            </div>
-                            <div className="mt-1 text-[10px] font-semibold text-admin-accent-strong">
-                              {p.price != null ? `Rp ${Number(p.price).toLocaleString("id-ID")}` : ""}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          ))}
-          {sending && (
-            <div className="flex items-end justify-start gap-2">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-admin-accent text-white">
-                <IconSparkle size={14} />
-              </span>
-              <div className="flex items-center gap-1 rounded-2xl rounded-bl-md border border-white/80 bg-white/70 px-4 py-3">
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.3s]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.15s]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400" />
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="flex gap-2 border-t border-white/60 bg-white/25 p-4">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && send()}
-            placeholder={t("placeholder")}
-            className={`${inputCls} flex-1`}
-          />
-          <button onClick={() => send()} disabled={sending} className={btnPrimaryCls}>
-            {t("send")}
-          </button>
-        </div>
+        <iframe
+          key={locale}
+          src={`/widget-preview.html?lang=${encodeURIComponent(locale)}`}
+          allow="camera"
+          className="block h-[700px] max-h-[80dvh] w-full border-0"
+          title={t("title")}
+        />
       </div>
     </div>
   );
@@ -1773,9 +1600,10 @@ function SimulatorSection() {
 
 function IntegrationSection() {
   const t = useTranslations("admin.integration");
+  const locale = useLocale();
   const [origin, setOrigin] = useState("");
   useEffect(() => setOrigin(window.location.origin), []);
-  const snippet = `<script src="${origin}/widget-loader.js" async></script>`;
+  const snippet = `<script src="${origin}/widget-loader.js" data-lang="${locale}" async></script>`;
 
   function copy() {
     navigator.clipboard?.writeText(snippet).catch(() => {});
@@ -1792,7 +1620,7 @@ function IntegrationSection() {
       </Card>
       <Card title={t("previewCardTitle")} subtitle={t("previewCardSubtitle")}>
         <div className="overflow-hidden rounded-2xl border border-white/70">
-          <iframe src="/demo-retailer.html" className="h-[520px] w-full" title="Widget preview" />
+          <iframe src={`/demo-retailer.html?lang=${encodeURIComponent(locale)}`} allow="camera" className="h-[700px] max-h-[80dvh] w-full" title={t("previewCardTitle")} />
         </div>
       </Card>
     </div>
