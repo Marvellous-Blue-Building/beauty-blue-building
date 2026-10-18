@@ -607,8 +607,9 @@
       "nav": {
         "overview": { "label": "Overview", "hint": "Ringkasan aktivitas" },
         "catalog": { "label": "Katalog", "hint": "Produk, harga, stok" },
-        "marketing": { "label": "Marketing & Trend", "hint": "Boost keyword" },
+        "marketing": { "label": "Trend Boost", "hint": "Boost keyword" },
         "forecasting": { "label": "Forecasting", "hint": "Demand signal" },
+        "insight": { "label": "Vera Intelligence", "hint": "Tanya soal penjualan & event" },
         "simulator": { "label": "Chat Simulator", "hint": "Uji widget" },
         "integration": { "label": "Integrasi", "hint": "Embed widget" },
         "conversations": { "label": "Conversation history", "hint": "Riwayat percakapan" }
@@ -678,9 +679,9 @@
       "columns": { "product": "Produk", "price": "Harga", "stock": "Stok", "category": "Kategori" }
     },
     "marketing": {
-      "title": "Marketing & Trend Boost",
+      "title": "Trend Boost",
       "cardTitle": "Trend / Merchandising Boost",
-      "cardSubtitle": "Keyword di sini ikut menaikkan ranking produk di rekomendasi chat (ranking-only, tidak pernah jadi syarat mutlak) — langsung aktif, tanpa perlu ubah kode.",
+      "cardSubtitle": "Keyword di sini ikut menaikkan ranking produk di rekomendasi chat. Sifatnya ranking-only, tidak pernah jadi syarat mutlak, dan langsung aktif tanpa perlu ubah kode. Bobot (1-5) nentuin seberapa kuat keyword itu dihitung sebagai sinyal ranking, jadi bobot 5 mendorong produk terkait lebih tinggi dibanding bobot 1.",
       "keywordPlaceholder": "mis. glass skin, bold red lip",
       "weightOption": "Bobot {w}",
       "addButton": "Tambah",
@@ -692,8 +693,10 @@
     },
     "simulator": {
       "skinTool": "Alat Analisis Skin Scanning",
+      "trackProgress": "Lacak Progres Kamu",
+      "scanChip": "Scan wajahku",
       "title": "Chat Simulator",
-      "subtitle": "Memanggil endpoint widget yang sama persis (<code>/api/widget/chat</code>) yang dipakai pengunjung sungguhan — bukan simulasi terpisah, jadi apa yang Anda lihat di sini adalah apa yang pelanggan lihat.",
+      "subtitle": "Memanggil endpoint widget yang sama persis (<code>/api/widget/chat</code>) yang dipakai pengunjung sungguhan. Ini bukan simulasi terpisah, jadi apa yang Anda lihat di sini adalah apa yang pelanggan lihat.",
       "placeholder": "Tulis pertanyaan seperti pelanggan…",
       "send": "Kirim",
       "typing": "Mengetik…",
@@ -724,7 +727,7 @@
     },
     "forecasting": {
       "title": "Forecasting",
-      "intro": "Mengacu ke roadmap internal 3-fase (Knowledge Base Sistem Analitik Forecasting & Marketing Beauty) dan layout dari \"Wireframe Forecasting & Marketing Strategy\". Semua angka di bawah berasal dari data nyata project ini (cart/chat, kalender event, teks chat) — bukan placeholder. Bagian yang butuh data warehouse, integrasi iklan per kanal, dan 12–24 bulan histori penjualan (forecast ML, Marketing Mix Modeling) ditandai jujur di tab Strategi Marketing, bukan dikerjakan dengan data palsu.",
+      "intro": "Pantau demand signal, rencanakan event & promo kamu, dan dapatkan insight AI soal apa yang mendorong penjualanmu, semua dari data toko kamu sendiri. Forecast Overview nunjukin tren demand hari ini, SKU Detail breakdown per produk, Event & Promo Planner bantu kamu rencanain langkah berikutnya, dan Marketing Strategy nunjukin attribution per kanal.",
       "tabs": {
         "overview": "Forecast Overview",
         "sku": "Detail SKU",
@@ -953,7 +956,7 @@
       },
       "marketing": {
         "title": "Strategi Marketing — status per kanal",
-        "intro": "Wireframe aslinya menampilkan diagnosis iROAS/CAC per kanal iklan (TikTok Ads, Meta Ads, Influencer, dst) dan alokasi budget MMM. Project ini hanya punya satu kanal yang benar-benar bisa diukur: kode promo yang ditempel di event (Fase 2). Sisanya butuh integrasi API iklan dan data penjualan per transaksi yang belum ada — ditandai jujur di bawah, bukan diisi angka contoh.",
+        "intro": "Lihat kanal marketing mana yang beneran mendorong hasil. Sekarang ini attribution lewat kode promo per event, satu-satunya kanal yang didukung data transaksi real saat ini. ROAS/CAC per kanal iklan, alokasi budget Marketing Mix Modeling, dan incrementality testing ada di roadmap begitu integrasi platform iklan tersedia.",
         "statusLive": "Terukur",
         "statusPlanned": "Belum tersedia",
         "measurableCard": {
@@ -974,6 +977,26 @@
           "sessionsSuffix": " sesi",
           "viewDetail": "Lihat detail attribution →"
         }
+      }
+    },
+    "insight": {
+      "title": "Vera Intelligence",
+      "subtitle": "Tanya soal penjualan, event, dan alert demand-signal. Jawabannya berdasarkan data tenant kamu.",
+      "empty": "Tanya apa saja soal penjualan, event, atau alert kamu.",
+      "placeholder": "Tanya Vera Intelligence...",
+      "send": "Kirim",
+      "thinking": "Vera Intelligence sedang berpikir...",
+      "error": "Vera Intelligence sedang tidak bisa dihubungi. Coba lagi sebentar lagi.",
+      "suggestions": [
+        "Kenapa penjualan di event 9.9 menurun?",
+        "Strategi apa yang bisa dipakai di 11.11?",
+        "Bandingkan performa 8.8, 9.9, dan 10.10"
+      ],
+      "dailyCard": {
+        "title": "Insight utama hari ini",
+        "loading": "Vera Intelligence sedang meninjau data kamu...",
+        "refresh": "Refresh",
+        "askMore": "Tanya lebih lanjut ke Vera Intelligence →"
       }
     }
   },

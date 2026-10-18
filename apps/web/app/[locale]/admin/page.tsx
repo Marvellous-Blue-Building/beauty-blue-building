@@ -16,6 +16,8 @@ import {
   thGlassCls,
 } from "@/components/admin/glass";
 import { OverviewSection } from "@/components/admin/OverviewSection";
+import { InsightSection } from "@/components/admin/InsightSection";
+import { IconSparkle } from "@/components/admin/icons";
 import { ProductCardRow, type ProductCardData } from "@/components/admin/ProductCardRow";
 import { useLocale, useTranslations } from "next-intl";
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts";
@@ -1450,7 +1452,50 @@ function MarketingTab({
   );
 }
 
-function ForecastingSection() {
+/** Auto-generated top insight shown at the top of Forecasting — refreshed
+ * at most once a day server-side (lib/admin/insight-summary-cache.ts).
+ * Reuses the same Vera Intelligence backend as the full chat section. */
+function DailyInsightCard({ onOpenInsight }: { onOpenInsight: () => void }) {
+  const t = useTranslations("admin.insight");
+  const [text, setText] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  function load(refresh = false) {
+    setLoading(true);
+    fetch(`/api/admin/insight/summary${refresh ? "?refresh=1" : ""}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d: { text: string }) => setText(d.text))
+      .catch(() => setText(t("error")))
+      .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div className={`${subtlePanelCls} flex flex-col gap-2 p-4`}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-admin-ink">
+          <IconSparkle size={16} />
+          {t("dailyCard.title")}
+        </div>
+        <div className="flex items-center gap-3">
+          <button onClick={() => load(true)} disabled={loading} className={linkAccentCls}>
+            {t("dailyCard.refresh")}
+          </button>
+          <button onClick={onOpenInsight} className={linkAccentCls}>
+            {t("dailyCard.askMore")}
+          </button>
+        </div>
+      </div>
+      <p className="text-sm leading-relaxed text-neutral-600">{loading ? t("dailyCard.loading") : text}</p>
+    </div>
+  );
+}
+
+function ForecastingSection({ onOpenInsight }: { onOpenInsight: () => void }) {
   const t = useTranslations("admin.forecasting");
   const [analytics, setAnalytics] = useState<AnalyticsRow[]>([]);
   const [events, setEvents] = useState<EventAnalyticsRow[]>([]);
@@ -1501,6 +1546,8 @@ function ForecastingSection() {
         <p className="mt-1 max-w-3xl text-sm text-neutral-500">{t("intro")}</p>
       </div>
 
+      <DailyInsightCard onOpenInsight={onOpenInsight} />
+
       <div className="flex flex-wrap gap-2 border-b border-white/60 pb-3">
         {UPLIFT_TAB_IDS.map((id) => (
           <button
@@ -1535,12 +1582,25 @@ function ForecastingSection() {
 
 function SimulatorSection() {
   const t = useTranslations("admin.simulator");
+  const locale = useLocale();
   const [messages, setMessages] = useState<SimMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [greeting, setGreeting] = useState<string | null>(null);
   const sessionRef = useRef<string | null>(null);
   const conversationRef = useRef<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Same greeting + "Scan my face" chip a real visitor sees when the
+  // widget first opens (see public/widget-loader.js's openWidget) —
+  // fetched from the same /api/widget/config a real embed calls, not
+  // hardcoded, so it stays in sync with WIDGET_GREETING/WIDGET_GREETING_EN.
+  useEffect(() => {
+    fetch(`/api/widget/config${locale === "en" ? "?lang=en" : ""}`)
+      .then((r) => r.json())
+      .then((d: { greeting?: string }) => setGreeting(d.greeting ?? null))
+      .catch(() => {});
+  }, [locale]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -1554,8 +1614,8 @@ function SimulatorSection() {
     return data.sessionId as string;
   }
 
-  async function send() {
-    const text = input.trim();
+  async function send(override?: string) {
+    const text = (override ?? input).trim();
     if (!text || sending) return;
     setInput("");
     setMessages((m) => [...m, { role: "user", text }]);
@@ -1582,7 +1642,7 @@ function SimulatorSection() {
           const frame = JSON.parse(line.slice(5).trim());
           if (frame.type === "start") conversationRef.current = frame.payload.conversationId;
           if (frame.type === "done") {
-            const answer = String(frame.payload.answer ?? "").replace(/\[Track Your Progress\]/g, "").trim();
+            const answer = String(frame.payload.answer ?? "").trim();
             setMessages((m) => [...m, { role: "bot", text: answer, products: frame.payload.products }]);
           }
           if (frame.type === "error") {
@@ -1605,15 +1665,48 @@ function SimulatorSection() {
       </div>
       <div className="glass-card mx-auto w-full max-w-2xl overflow-hidden rounded-[24px]">
         <div ref={scrollRef} className="no-scrollbar flex h-[520px] flex-col gap-3 overflow-y-auto p-5">
-          {messages.length === 0 && <p className="text-center text-sm text-neutral-400">{t("emptyState")}</p>}
+          {messages.length === 0 && (
+            <div className="flex flex-col gap-3">
+              {greeting && (
+                <div className="flex items-end gap-2 justify-start">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-admin-accent text-white">
+                    <IconSparkle size={14} />
+                  </span>
+                  <div className="max-w-[80%] rounded-2xl rounded-bl-md border border-white/80 bg-white/70 px-4 py-2 text-sm text-neutral-700">
+                    {greeting}
+                  </div>
+                </div>
+              )}
+              <div className="ml-9 flex flex-wrap gap-2">
+                <button
+                  onClick={() => send(t("scanChip"))}
+                  disabled={sending}
+                  className="rounded-full border border-white/80 bg-white/70 px-3.5 py-1.5 text-xs text-neutral-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {t("scanChip")}
+                </button>
+              </div>
+            </div>
+          )}
           {messages.map((m, i) => (
-            <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div key={i} className={`flex items-end gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              {m.role === "bot" && (
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-admin-accent text-white">
+                  <IconSparkle size={14} />
+                </span>
+              )}
               <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${m.role === "user" ? "rounded-br-md bg-admin-accent text-white" : "rounded-bl-md border border-white/80 bg-white/70 text-neutral-700"}`}>
                 {m.text?.includes("[Skin Scanning Analysis Tool]") ? (
                   <div className="flex flex-col items-center gap-2">
                     {/* eslint-disable-next-line @next/next/no-img-element -- static asset, fixed small size */}
-                    <img src="/assets/skin_analysis_tool.png" alt={t("skinTool")} className="h-auto w-[100px] rounded-[10px] object-cover shadow-sm" />
+                    <img src="/assets/chat/skin-scan-analysis.png" alt={t("skinTool")} className="h-auto w-[100px] rounded-[10px] object-cover shadow-sm" />
                     <span className="text-[11px] font-medium text-neutral-500">{t("skinTool")}</span>
+                  </div>
+                ) : m.text?.includes("[Track Your Progress]") ? (
+                  <div className="flex flex-col items-center gap-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- static asset, fixed small size */}
+                    <img src="/assets/chat/track-progress.png" alt={t("trackProgress")} className="h-auto w-[100px] rounded-[10px] object-cover shadow-sm" />
+                    <span className="text-[11px] font-medium text-neutral-500">{t("trackProgress")}</span>
                   </div>
                 ) : (
                   <>
@@ -1648,7 +1741,18 @@ function SimulatorSection() {
               </div>
             </div>
           ))}
-          {sending && <div className="text-xs text-neutral-400">{t("typing")}</div>}
+          {sending && (
+            <div className="flex items-end justify-start gap-2">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-admin-accent text-white">
+                <IconSparkle size={14} />
+              </span>
+              <div className="flex items-center gap-1 rounded-2xl rounded-bl-md border border-white/80 bg-white/70 px-4 py-3">
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.3s]" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.15s]" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400" />
+              </div>
+            </div>
+          )}
         </div>
         <div className="flex gap-2 border-t border-white/60 bg-white/25 p-4">
           <input
@@ -1658,7 +1762,7 @@ function SimulatorSection() {
             placeholder={t("placeholder")}
             className={`${inputCls} flex-1`}
           />
-          <button onClick={send} disabled={sending} className={btnPrimaryCls}>
+          <button onClick={() => send()} disabled={sending} className={btnPrimaryCls}>
             {t("send")}
           </button>
         </div>
@@ -1885,7 +1989,8 @@ function AdminShell() {
       {section === "overview" && <OverviewSection onSelect={select} />}
       {section === "catalog" && <CatalogSection key={catalogQuery.n} initialSearch={catalogQuery.q} />}
       {section === "marketing" && <MarketingSection />}
-      {section === "forecasting" && <ForecastingSection />}
+      {section === "forecasting" && <ForecastingSection onOpenInsight={() => select("insight")} />}
+      {section === "insight" && <InsightSection />}
       {section === "simulator" && <SimulatorSection />}
       {section === "integration" && <IntegrationSection />}
       {section === "conversations" && <ConversationsSection />}

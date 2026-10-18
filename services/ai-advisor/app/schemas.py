@@ -28,10 +28,14 @@ class NavIntentResponse(BaseModel):
     navButtons: list[dict[str, str]] = []
 
 
-class NavIntentRequest(BaseModel):
+class InsightRequest(BaseModel):
     message: str = Field(min_length=1)
+    # Preformatted sales/event/alert data block assembled by apps/web from
+    # Postgres (see app/api/admin/insight/route.ts) — the model reasons
+    # only over what's given here, never invents numbers.
+    dataContext: str = ""
+    conversationContext: list[str] = []
 
 
-class NavIntentResponse(BaseModel):
-    navButtons: list[dict[str, str]] = []
-
+class InsightResponse(BaseModel):
+    reply: str
