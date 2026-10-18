@@ -17,6 +17,7 @@ import {
 } from "@/components/admin/glass";
 import { OverviewSection } from "@/components/admin/OverviewSection";
 import { InsightSection } from "@/components/admin/InsightSection";
+import { IconSparkle } from "@/components/admin/icons";
 import { ProductCardRow, type ProductCardData } from "@/components/admin/ProductCardRow";
 import { useLocale, useTranslations } from "next-intl";
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts";
@@ -1451,7 +1452,50 @@ function MarketingTab({
   );
 }
 
-function ForecastingSection() {
+/** Auto-generated top insight shown at the top of Forecasting — refreshed
+ * at most once a day server-side (lib/admin/insight-summary-cache.ts).
+ * Reuses the same Vera Intelligence backend as the full chat section. */
+function DailyInsightCard({ onOpenInsight }: { onOpenInsight: () => void }) {
+  const t = useTranslations("admin.insight");
+  const [text, setText] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  function load(refresh = false) {
+    setLoading(true);
+    fetch(`/api/admin/insight/summary${refresh ? "?refresh=1" : ""}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d: { text: string }) => setText(d.text))
+      .catch(() => setText(t("error")))
+      .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div className={`${subtlePanelCls} flex flex-col gap-2 p-4`}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-admin-ink">
+          <IconSparkle size={16} />
+          {t("dailyCard.title")}
+        </div>
+        <div className="flex items-center gap-3">
+          <button onClick={() => load(true)} disabled={loading} className={linkAccentCls}>
+            {t("dailyCard.refresh")}
+          </button>
+          <button onClick={onOpenInsight} className={linkAccentCls}>
+            {t("dailyCard.askMore")}
+          </button>
+        </div>
+      </div>
+      <p className="text-sm leading-relaxed text-neutral-600">{loading ? t("dailyCard.loading") : text}</p>
+    </div>
+  );
+}
+
+function ForecastingSection({ onOpenInsight }: { onOpenInsight: () => void }) {
   const t = useTranslations("admin.forecasting");
   const [analytics, setAnalytics] = useState<AnalyticsRow[]>([]);
   const [events, setEvents] = useState<EventAnalyticsRow[]>([]);
@@ -1501,6 +1545,8 @@ function ForecastingSection() {
         <h1 className="text-2xl font-bold text-neutral-700">{t("title")}</h1>
         <p className="mt-1 max-w-3xl text-sm text-neutral-500">{t("intro")}</p>
       </div>
+
+      <DailyInsightCard onOpenInsight={onOpenInsight} />
 
       <div className="flex flex-wrap gap-2 border-b border-white/60 pb-3">
         {UPLIFT_TAB_IDS.map((id) => (
@@ -1886,7 +1932,7 @@ function AdminShell() {
       {section === "overview" && <OverviewSection onSelect={select} />}
       {section === "catalog" && <CatalogSection key={catalogQuery.n} initialSearch={catalogQuery.q} />}
       {section === "marketing" && <MarketingSection />}
-      {section === "forecasting" && <ForecastingSection />}
+      {section === "forecasting" && <ForecastingSection onOpenInsight={() => select("insight")} />}
       {section === "insight" && <InsightSection />}
       {section === "simulator" && <SimulatorSection />}
       {section === "integration" && <IntegrationSection />}

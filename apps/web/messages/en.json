@@ -989,7 +989,13 @@
         "Why did sales during the 9.9 event decline?",
         "What strategy should we use for 11.11?",
         "Compare the performance of 8.8, 9.9, and 10.10"
-      ]
+      ],
+      "dailyCard": {
+        "title": "Today's top insight",
+        "loading": "Vera Intelligence is reviewing your data...",
+        "refresh": "Refresh",
+        "askMore": "Ask Vera Intelligence more →"
+      }
     }
   },
   "landing": {

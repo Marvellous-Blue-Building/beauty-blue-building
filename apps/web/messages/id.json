@@ -989,7 +989,13 @@
         "Kenapa penjualan di event 9.9 menurun?",
         "Strategi apa yang bisa dipakai di 11.11?",
         "Bandingkan performa 8.8, 9.9, dan 10.10"
-      ]
+      ],
+      "dailyCard": {
+        "title": "Insight utama hari ini",
+        "loading": "Vera Intelligence sedang meninjau data kamu...",
+        "refresh": "Refresh",
+        "askMore": "Tanya lebih lanjut ke Vera Intelligence →"
+      }
     }
   },
   "landing": {
