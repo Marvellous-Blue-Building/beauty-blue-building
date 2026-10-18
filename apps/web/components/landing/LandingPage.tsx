@@ -127,14 +127,14 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
           </div>
           <div className="ml-auto flex items-center gap-2">
             <LocaleSwitcher />
-            <div className="hidden items-center gap-2 sm:flex">
-              <Link href="/login" className={btnSecondaryCls}>
-                {t("nav.login")}
-              </Link>
-              <Link href="/welcome" className={btnPrimaryCls}>
-                {t("nav.tryScan")}
-              </Link>
-            </div>
+             <div className="hidden items-center gap-2 sm:flex">
+               <Link href="/login" className={btnSecondaryCls}>
+                 {t("nav.login")}
+               </Link>
+                <a href="/demo-retailer.html" className={`${btnPrimaryCls}`}>
+                  Live Demo
+                </a>
+             </div>
             <details className="relative lg:hidden">
               <summary className="glass-inset flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-xl text-neutral-700 [&::-webkit-details-marker]:hidden" aria-label="Menu">
                 <IconMenu size={20} />
@@ -145,14 +145,14 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
                     {a.label}
                   </a>
                 ))}
-                <div className="flex flex-col gap-1 sm:hidden">
-                  <Link href="/login" className="rounded-xl px-3 py-2.5 text-sm text-neutral-700 hover:bg-white/60">
-                    {t("nav.login")}
-                  </Link>
-                  <Link href="/welcome" className={`${btnPrimaryCls} mt-1`}>
-                    {t("nav.tryScan")}
-                  </Link>
-                </div>
+                 <div className="flex flex-col gap-1 sm:hidden">
+                   <Link href="/login" className="rounded-xl px-3 py-2.5 text-sm text-neutral-700 hover:bg-white/60">
+                     {t("nav.login")}
+                   </Link>
+                    <a href="/demo-retailer.html" className={`${btnPrimaryCls} mt-1`}>
+                      Live Demo
+                    </a>
+                 </div>
               </div>
             </details>
           </div>
@@ -168,15 +168,15 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
             </span>
             <h1 className="mt-5 text-4xl font-semibold leading-[1.08] tracking-tight text-neutral-700 sm:text-5xl lg:text-[56px]">{t("hero.title")}</h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-neutral-500">{t("hero.subtitle")}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/welcome" className={`${btnPrimaryCls} h-12 px-6 text-[15px]`}>
-                {t("hero.ctaPrimary")}
-                <IconArrowRight size={18} />
-              </Link>
-              <a href="#retailers" className={`${btnSecondaryCls} h-12 px-6 text-[15px]`}>
-                {t("hero.ctaSecondary")}
-              </a>
-            </div>
+             <div className="mt-8 flex flex-wrap gap-3">
+                <a href="/demo-retailer.html" className={`${btnPrimaryCls} h-12 px-6 text-[15px]`}>
+                  Live Demo
+                  <IconArrowRight size={18} />
+                </a>
+               <a href="#retailers" className={`${btnSecondaryCls} h-12 px-6 text-[15px]`}>
+                 {t("hero.ctaSecondary")}
+               </a>
+             </div>
           </div>
 
           <div className="relative pb-10 pl-6 sm:pl-16">
@@ -336,15 +336,15 @@ export async function LandingPage({ locale, productCount }: { locale: string; pr
         <section className="glass-card mb-10 rounded-[32px] px-6 py-12 text-center sm:px-12">
           <h2 className="text-3xl font-semibold tracking-tight text-neutral-700 sm:text-4xl">{t("cta.title")}</h2>
           <p className="mt-3 text-base text-neutral-500">{t("cta.subtitle")}</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/welcome" className={`${btnPrimaryCls} h-12 px-6 text-[15px]`}>
-              {t("cta.primary")}
-              <IconArrowRight size={18} />
-            </Link>
-            <Link href="/login" className={`${btnSecondaryCls} h-12 px-6 text-[15px]`}>
-              {t("cta.secondary")}
-            </Link>
-          </div>
+           <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <a href="/demo-retailer.html" className={`${btnPrimaryCls} h-12 px-6 text-[15px]`}>
+                  Live Demo
+                  <IconArrowRight size={18} />
+                </a>
+             <Link href="/login" className={`${btnSecondaryCls} h-12 px-6 text-[15px]`}>
+               {t("cta.secondary")}
+             </Link>
+           </div>
         </section>
       </main>
 

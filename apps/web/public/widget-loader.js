@@ -340,7 +340,7 @@
 
   function fetchConfig() {
     return api("/api/widget/config").then(function (res) { return res.json(); }).catch(function () {
-      return { botName: "Vera", greeting: "Hai! Ada yang bisa aku bantu?", color: "#7A4259", position: "br" };
+      return { botName: "Blue-B", greeting: "Hai! Ada yang bisa aku bantu?", color: "#7A4259", position: "br" };
     });
   }
 
@@ -753,7 +753,7 @@
           "</div>" +
         "</div>"
       );
-      panel.querySelector(".bw-name").textContent = state.config.botName || "Vera";
+      panel.querySelector(".bw-name").textContent = state.config.botName || "Blue-B";
       shadow.appendChild(panel);
       shadow.appendChild(launcher);
 
