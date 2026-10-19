@@ -24,6 +24,7 @@
   if (!script) return;
 
   var API_BASE = script.getAttribute("data-api-base") || new URL(script.src, location.href).origin;
+  var ASSET_BASE = new URL(script.src, location.href).origin;
   var INLINE = script.getAttribute("data-display") === "inline";
   var SESSION_KEY = "bw_session_id";
   var CONVO_KEY = "bw_conversation_id";
@@ -59,6 +60,18 @@
   var MEDIAPIPE_BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1";
   var LANDMARKER_MODEL =
     "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task";
+
+  // Shared contract with lib/scan/look-image.ts; normalize saved proxy URLs.
+  function lookImagePath(value) {
+    if (typeof value !== "string" || !value) return undefined;
+    try {
+      var url = new URL(value, "https://look-assets.invalid");
+      if (!/^https?:$/.test(url.protocol)) return undefined;
+      return /^\/beauty\/looks\/[a-z0-9_-]+\.jpg$/.test(url.pathname) ? url.pathname : undefined;
+    } catch (e) {
+      return undefined;
+    }
+  }
 
   function storageGet(key) {
     try { return localStorage.getItem(key); } catch (e) { return null; }
@@ -1857,7 +1870,8 @@
             var img = document.createElement("img");
             img.loading = "lazy";
             img.alt = l.displayName;
-            if (typeof l.imageUrl === "string" && /^https?:\/\//.test(l.imageUrl)) img.src = l.imageUrl;
+            var lookPath = lookImagePath(l.imageUrl);
+            if (lookPath) img.src = new URL(lookPath, ASSET_BASE).href;
             img.addEventListener("error", function () { img.style.visibility = "hidden"; });
             row.appendChild(img);
             var meta = document.createElement("div");

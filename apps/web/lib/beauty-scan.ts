@@ -4,6 +4,7 @@
  * turns the season's palette into real catalog shades. Used by the /scan flow (app/api/scan-beauty) and the embeddable
  * widget (app/api/widget/beauty-analyze).
  */
+import { lookImagePath } from "@/lib/scan/look-image";
 import { pool } from "@/lib/db";
 import { deltaE76, hexToLab, type Lab } from "@/lib/color/delta-e";
 import { extractImageUrl } from "@/lib/rag/image-url";
@@ -54,8 +55,8 @@ export function readBeautyScanInput(body: unknown): BeautyScanInput | "too_large
 
 /** Sends the scan's photos to services/skin-scanning. A 422 carries the
  * reason in `code` (no_face, face_too_small, no_skin, too_dark, too_blurry).
- * `origin` is this app's, for the look photos it serves. */
-export async function callBeautyScanService(input: BeautyScanInput, origin: string): Promise<BeautyScanReport> {
+ * Look previews remain web-app-relative so reverse proxies cannot leak internal origins. */
+export async function callBeautyScanService(input: BeautyScanInput): Promise<BeautyScanReport> {
   let res: Response;
   try {
     res = await fetch(`${SKIN_SCAN_SERVICE_URL}/analyze-beauty`, {
@@ -81,10 +82,9 @@ export async function callBeautyScanService(input: BeautyScanInput, origin: stri
     throw new SkinScanError(typeof detail === "string" ? detail : "Beauty scan failed.", res.status);
   }
   const report = (await res.json()) as BeautyScanReport;
-  // The look photos come back as paths on this app (public/beauty/looks);
-  // absolute, they also load inside the widget on a retailer's page.
+  // Preserve local asset paths; clients resolve them against the web app host.
   for (const look of report.faceShape.looks?.ranked ?? []) {
-    if (look.imageUrl.startsWith("/")) look.imageUrl = new URL(look.imageUrl, origin).href;
+    look.imageUrl = lookImagePath(look.imageUrl) ?? "";
   }
   return report;
 }

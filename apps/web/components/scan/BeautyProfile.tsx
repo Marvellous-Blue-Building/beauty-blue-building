@@ -1,5 +1,6 @@
 "use client";
 
+import { lookImagePath } from "@/lib/scan/look-image";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -367,7 +368,7 @@ function ShapeTab({ shape }: { shape: BeautyFaceShape }) {
               <div key={look.key} className="grid grid-cols-[60px_1fr] gap-3 py-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={/^https?:\/\//.test(look.imageUrl) ? look.imageUrl : undefined}
+                  src={lookImagePath(look.imageUrl)}
                   alt={look.displayName}
                   loading="lazy"
                   className="h-[76px] w-[60px] rounded-[10px] bg-surface-2 object-cover"
